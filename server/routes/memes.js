@@ -4,6 +4,7 @@ const sharp = require('sharp');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs').promises;
+const { Meme } = require('../models');
 const router = express.Router();
 
 // Configure multer for file uploads
@@ -28,30 +29,24 @@ router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
-    const skip = (page - 1) * limit;
-    
-    // For now, return mock data since we haven't set up the database models yet
-    const mockMemes = [
-      {
-        id: 'demo-1',
-        finalMemeUrl: '/aquacat.png',
-        thumbnail: '/aquacat.png',
-        createdAt: new Date(),
-        shareCount: 42,
-        likes: 156,
-        tags: ['aqua', 'wet', 'cat']
-      }
-    ];
+
+    const memes = await Meme.findApproved({
+      page,
+      limit
+    });
+
+    const totalMemes = await Meme.countDocuments({ isApproved: true });
+    const totalPages = Math.ceil(totalMemes / limit);
     
     res.json({
       success: true,
-      memes: mockMemes,
+      memes: memes,
       pagination: {
         currentPage: page,
-        totalPages: 1,
-        totalMemes: mockMemes.length,
-        hasNext: false,
-        hasPrev: false
+        totalPages: totalPages,
+        totalMemes: totalMemes,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
       }
     });
   } catch (error) {
@@ -68,38 +63,67 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Mock response for now
-    const mockMeme = {
-      id: id,
-      finalMemeUrl: '/aquacat.png',
-      thumbnail: '/aquacat.png',
-      createdAt: new Date(),
-      shareCount: 42,
-      likes: 156,
-      tags: ['aqua', 'wet', 'cat'],
-      textElements: [
-        {
-          text: 'When it starts raining',
-          x: 50,
-          y: 50,
-          fontSize: 24,
-          fontFamily: 'Impact',
-          color: '#FFFFFF',
-          strokeColor: '#000000',
-          strokeWidth: 2
-        }
-      ]
-    };
+    const meme = await Meme.findOne({ id, isApproved: true }).select('-userIP');
+    
+    if (!meme) {
+      return res.status(404).json({
+        success: false,
+        error: 'Meme not found'
+      });
+    }
     
     res.json({
       success: true,
-      meme: mockMeme
+      meme: meme
     });
   } catch (error) {
     console.error('Error fetching meme:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch meme'
+    });
+  }
+});
+
+// GET /api/memes/:id/original - Get original image for remixing
+router.get('/:id/original', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const meme = await Meme.findOne({ 
+      id, 
+      isApproved: true, 
+      isRemixable: true,
+      $or: [
+        { generationType: 'ai' },
+        { generationType: 'upload' }
+      ]
+    }).select('-userIP');
+    
+    if (!meme) {
+      return res.status(404).json({
+        success: false,
+        error: 'Original image not found or not available for remix'
+      });
+    }
+    
+    res.json({
+      success: true,
+      original: {
+        id: meme.id,
+        originalImageUrl: meme.originalImageUrl,
+        generationType: meme.generationType,
+        aiPrompt: meme.aiPrompt,
+        enhancedPrompt: meme.enhancedPrompt,
+        category: meme.category,
+        tags: meme.tags
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching original image:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch original image'
     });
   }
 });
@@ -145,7 +169,7 @@ router.post('/upload', upload.single('image'), async (req, res) => {
 // POST /api/memes/create - Create and save a meme
 router.post('/create', upload.single('canvas'), async (req, res) => {
   try {
-    const { textElements, originalImageUrl, aiPrompt, tags, xUsername } = req.body;
+    const { textElements, originalImageUrl, aiPrompt, enhancedPrompt, leonardoGenerationId, tags, sourceImageId } = req.body;
     
     if (!req.file) {
       return res.status(400).json({
@@ -173,26 +197,51 @@ router.post('/create', upload.single('canvas'), async (req, res) => {
       .png({ quality: 80 })
       .toFile(thumbnailPath);
 
-    // In a real app, save to database here
+    // Determine generation type and remixability
+    let generationType = 'upload';
+    let isRemixable = true;
+    
+    if (aiPrompt || leonardoGenerationId) {
+      generationType = 'ai';
+    } else if (sourceImageId) {
+      generationType = 'remix';
+      isRemixable = false; // Final memes with text are not remixable
+    }
+
+    // Create meme data
     const memeData = {
       id: memeId,
-      originalImageUrl,
+      originalImageUrl: originalImageUrl || `/generated/${filename}`,
       finalMemeUrl: `/generated/${filename}`,
       thumbnail: `/generated/thumb_${filename}`,
-      textElements: textElements ? JSON.parse(textElements) : [],
+      generationType,
       aiPrompt: aiPrompt || null,
+      enhancedPrompt: enhancedPrompt || null,
+      leonardoGenerationId: leonardoGenerationId || null,
+      sourceImageId: sourceImageId || null,
+      isRemixable,
+      textElements: textElements ? JSON.parse(textElements) : [],
       tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
-      xUsername: xUsername || null, // Store X username if provided
-      createdAt: new Date(),
+      category: generationType === 'ai' ? 'ai-generated' : 'funny',
       userIP: req.ip,
-      isApproved: false, // Will need manual approval
-      shareCount: 0,
-      likes: 0
+      isApproved: false // Will need manual approval
     };
+
+    // Save to database
+    const newMeme = new Meme(memeData);
+    const savedMeme = await newMeme.save();
+
+    // If this is a remix, increment the source image's remix count
+    if (sourceImageId) {
+      const sourceImage = await Meme.findOne({ id: sourceImageId });
+      if (sourceImage) {
+        await sourceImage.incrementRemix();
+      }
+    }
 
     res.json({
       success: true,
-      meme: memeData
+      meme: savedMeme.toSafeObject()
     });
   } catch (error) {
     console.error('Error creating meme:', error);
@@ -208,11 +257,21 @@ router.put('/:id/like', async (req, res) => {
   try {
     const { id } = req.params;
     
-    // In a real app, update database here
+    const meme = await Meme.findOne({ id, isApproved: true });
+    
+    if (!meme) {
+      return res.status(404).json({
+        success: false,
+        error: 'Meme not found'
+      });
+    }
+
+    await meme.incrementLike();
+    
     res.json({
       success: true,
       message: 'Meme liked',
-      likes: 157 // Mock response
+      likes: meme.likes
     });
   } catch (error) {
     console.error('Error liking meme:', error);
@@ -223,12 +282,117 @@ router.put('/:id/like', async (req, res) => {
   }
 });
 
+// POST /api/memes/:id/view - Track meme view
+router.post('/:id/view', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const meme = await Meme.findOne({ id, isApproved: true });
+    
+    if (!meme) {
+      return res.status(404).json({
+        success: false,
+        error: 'Meme not found'
+      });
+    }
+
+    await meme.incrementView();
+    
+    res.json({
+      success: true,
+      views: meme.views
+    });
+  } catch (error) {
+    console.error('Error tracking view:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to track view'
+    });
+  }
+});
+
+// PUT /api/memes/:id/share - Track meme share
+router.put('/:id/share', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const meme = await Meme.findOne({ id, isApproved: true });
+    
+    if (!meme) {
+      return res.status(404).json({
+        success: false,
+        error: 'Meme not found'
+      });
+    }
+
+    await meme.incrementShare();
+    
+    res.json({
+      success: true,
+      message: 'Share tracked',
+      shareCount: meme.shareCount
+    });
+  } catch (error) {
+    console.error('Error tracking share:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to track share'
+    });
+  }
+});
+
+// PUT /api/memes/:id - Update a meme (admin only for now)
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isApproved, featuredInGallery, category, tags } = req.body;
+    
+    const updateData = {};
+    if (typeof isApproved === 'boolean') updateData.isApproved = isApproved;
+    if (typeof featuredInGallery === 'boolean') updateData.featuredInGallery = featuredInGallery;
+    if (category) updateData.category = category;
+    if (tags) updateData.tags = Array.isArray(tags) ? tags : tags.split(',').map(t => t.trim());
+
+    const updatedMeme = await Meme.findOneAndUpdate(
+      { id },
+      updateData,
+      { new: true }
+    ).select('-userIP');
+
+    if (!updatedMeme) {
+      return res.status(404).json({
+        success: false,
+        error: 'Meme not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      meme: updatedMeme
+    });
+  } catch (error) {
+    console.error('Error updating meme:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update meme'
+    });
+  }
+});
+
 // DELETE /api/memes/:id - Delete a meme (admin only)
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    // In a real app, check admin permissions and delete from database
+    const deletedMeme = await Meme.findOneAndDelete({ id });
+    
+    if (!deletedMeme) {
+      return res.status(404).json({
+        success: false,
+        error: 'Meme not found'
+      });
+    }
+    
     res.json({
       success: true,
       message: 'Meme deleted'
@@ -245,40 +409,32 @@ router.delete('/:id', async (req, res) => {
 // GET /api/memes/templates - Get available meme templates
 router.get('/templates', async (req, res) => {
   try {
-    const templates = [
-      {
-        id: 'aqua-wet',
-        name: 'Wet Cat Classic',
-        imageUrl: '/aquacat.png',
-        description: 'The original soggy $AQUA cat',
-        category: 'classic'
-      },
-      {
-        id: 'aqua-rain',
-        name: 'Rainy Day Blues',
-        imageUrl: '/aquacat.png',
-        description: 'When the weather turns but $AQUA keeps pumping',
-        category: 'weather'
-      },
-      {
-        id: 'aqua-success',
-        name: 'Diamond Paws',
-        imageUrl: '/aquacat.png',
-        description: 'Holding $AQUA through the storm',
-        category: 'crypto'
-      },
-      {
-        id: 'aqua-hodl',
-        name: 'To The Moon',
-        imageUrl: '/aquacat.png',
-        description: 'Soggy but successful',
-        category: 'crypto'
-      }
-    ];
+    // Get popular remixable images as templates
+    const templates = await Meme.find({
+      isApproved: true,
+      isRemixable: true,
+      $or: [
+        { generationType: 'ai' },
+        { generationType: 'upload' }
+      ]
+    })
+    .sort({ timesRemixed: -1, likes: -1 })
+    .limit(10)
+    .select('-userIP');
+
+    const templateList = templates.map(template => ({
+      id: template.id,
+      name: template.aiPrompt ? template.aiPrompt.substring(0, 50) + '...' : 'User Upload',
+      imageUrl: template.originalImageUrl,
+      description: template.aiPrompt || 'Community uploaded image',
+      category: template.category,
+      timesRemixed: template.timesRemixed,
+      likes: template.likes
+    }));
 
     res.json({
       success: true,
-      templates: templates
+      templates: templateList
     });
   } catch (error) {
     console.error('Error fetching templates:', error);

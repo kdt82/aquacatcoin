@@ -1,0 +1,4 @@
+---
+alwaysApply: true
+Individual files should be more than 350 lines, preferably under 300.
+---
