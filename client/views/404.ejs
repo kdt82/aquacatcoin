@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <meta name="description" content="Page not found - $AQUA got lost in the rain!">
+    <link rel="icon" type="image/png" href="/aquacat.png">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/css/style.css?v=2.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .error-content {
+            max-width: 600px;
+        }
+        
+        .error-code {
+            font-family: 'Fredoka One', cursive;
+            font-size: 8rem;
+            color: var(--main-blue);
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px var(--shadow);
+        }
+        
+        .error-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--main-blue), var(--anim-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .error-message {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .error-cat {
+            width: 200px;
+            margin: 30px auto;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .error-cat img {
+            width: 100%;
+            border-radius: 50%;
+            border: 3px solid var(--main-blue);
+            box-shadow: 0 0 30px var(--shadow);
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .rain-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .raindrop {
+            position: absolute;
+            background: linear-gradient(180deg, transparent, var(--main-blue));
+            width: 2px;
+            height: 20px;
+            animation: rain-fall linear infinite;
+            opacity: 0.3;
+        }
+        
+        @keyframes rain-fall {
+            0% {
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="rain-effect" id="rainEffect"></div>
+    
+    <header>
+        <div class="container">
+            <nav>
+                <a href="/" class="nav-logo">$AQUA</a>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/meme-generator">Meme Generator</a></li>
+                    <li><a href="/gallery">Gallery</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="error-container">
+        <div class="error-content">
+            <div class="error-code">404</div>
+            <h1 class="error-title">Oops! Page Not Found</h1>
+            <div class="error-cat">
+                <img src="/aquacat.png" alt="Lost $AQUA cat in the rain">
+            </div>
+            <p class="error-message">
+                Looks like $AQUA got caught in another rainstorm and lost its way! 🌧️<br>
+                The page you're looking for seems to have been washed away by the rain.
+            </p>
+            <div class="error-actions">
+                <a href="/" class="btn">
+                    <i class="fas fa-home"></i> Go Home
+                </a>
+                <a href="/meme-generator" class="btn btn-secondary">
+                    <i class="fas fa-image"></i> Create Memes
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Create rain effect
+        function createRain() {
+            const rainContainer = document.getElementById('rainEffect');
+            const numberOfDrops = 50;
+            
+            for (let i = 0; i < numberOfDrops; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'raindrop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                drop.style.animationDelay = Math.random() * 2 + 's';
+                rainContainer.appendChild(drop);
+            }
+        }
+        
+        // Initialize rain effect
+        createRain();
+        
+        // Add some interactivity
+        document.querySelector('.error-cat img').addEventListener('click', function() {
+            this.style.transform = 'scale(1.1) rotate(10deg)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 300);
+        });
+    </script>
+</body>
+</html> 

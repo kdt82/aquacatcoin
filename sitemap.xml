@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+<!-- Homepage - Main landing page -->
+<url>
+  <loc>https://www.aquacatcoin.xyz/</loc>
+  <lastmod>2025-01-23T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>1.00</priority>
+</url>
+
+<!-- Meme Generator - Core feature -->
+<url>
+  <loc>https://www.aquacatcoin.xyz/meme-generator</loc>
+  <lastmod>2025-01-23T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.90</priority>
+</url>
+
+<!-- Gallery - Community memes -->
+<url>
+  <loc>https://www.aquacatcoin.xyz/gallery</loc>
+  <lastmod>2025-01-23T00:00:00+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.80</priority>
+</url>
+
+</urlset> 
