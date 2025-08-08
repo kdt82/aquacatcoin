@@ -1,0 +1,178 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Fredoka+One&display=swap');
+
+:root {
+  --main-blue: #4DA2FF;
+  --accent-dark: #011829;
+  --anim-light: #C0E6FF;
+  --white: #ffffff;
+  --text-dark: #022c4b;
+  --text-light: #f0f8ff;
+  --shadow: rgba(77, 162, 255, 0.25);
+  --bg-start: #020a1A;
+  --bg-end: #011829;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(320deg, var(--bg-start), var(--bg-end), var(--bg-start));
+  background-size: 200% 200%;
+  color: var(--text-light);
+  line-height: 1.7;
+  overflow-x: hidden;
+  animation: gradient-flow 15s ease infinite;
+}
+
+@keyframes gradient-flow {
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+header {
+  background: rgba(1, 24, 41, 0.6);
+  backdrop-filter: blur(12px);
+  padding: 15px 0;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(77, 162, 255, 0.2);
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.8rem;
+  text-decoration: none;
+  background: linear-gradient(45deg, var(--main-blue), var(--anim-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+.nav-links a {
+  color: var(--text-light);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+/* Global link color adjustments for content areas */
+a { color: var(--anim-light); }
+a:hover { color: var(--main-blue); }
+
+.nav-links a:hover {
+  color: var(--main-blue);
+}
+
+.btn {
+  background: linear-gradient(45deg, var(--main-blue), #6db9ff);
+  color: var(--white);
+  padding: 14px 30px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.4s ease;
+  border: none;
+  box-shadow: 0 5px 20px var(--shadow);
+}
+
+.btn:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 10px 30px var(--shadow);
+}
+
+.btn i {
+    margin-right: 8px;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--main-blue);
+  border: 2px solid var(--main-blue);
+}
+
+.btn-secondary:hover {
+  background: var(--main-blue);
+  color: var(--white);
+}
+
+footer {
+  padding: 50px 0 20px 0;
+  text-align: center;
+  background: #000;
+}
+
+.social-links {
+  margin-bottom: 20px;
+}
+
+.social-links a {
+  color: var(--text-light);
+  font-size: 1.8rem;
+  margin: 0 15px;
+  transition: color 0.3s;
+}
+
+/* Ensure custom image icon matches FA icon sizing/weight */
+/* Moonbags icon as CSS background to match FA icon style and hover */
+/* Moonbags icon uses mask so it inherits link color (like Font Awesome) */
+.social-links .moonbags-icon {
+  width: 28px;
+  height: 28px;
+  vertical-align: middle;
+}
+
+.social-links a:hover {
+  color: var(--main-blue);
+}
+
+.disclaimer {
+  font-size: 0.9rem;
+  color: #888;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.8s, transform 0.8s;
+}
+
+.scroll-animate.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+} 
