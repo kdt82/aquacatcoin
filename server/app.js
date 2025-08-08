@@ -43,8 +43,8 @@ app.use(helmet({
 // CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://www.aquacatcoin.xyz', 'https://aquacatcoin.xyz']
-    : ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    ? ['https://www.aquacatcoin.xyz', 'https://aquacatcoin.xyz', 'http://54.187.91.146:3000']
+    : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://54.187.91.146:3000'],
   credentials: true
 }));
 
@@ -73,13 +73,22 @@ const aiLimiter = rateLimit({
 
 app.use(generalLimiter);
 
+// Debug middleware to log ALL requests
+app.use((req, res, next) => {
+  console.log('🌐 Request:', req.method, req.url);
+  if (req.url.includes('.css')) {
+    console.log('🎨 CSS Request detected:', req.url);
+  }
+  next();
+});
+
 // Static files with proper MIME types and cache control
 app.use(express.static(paths.publicDir, {
   setHeaders: (res, path) => {
     if (path.endsWith('.css')) {
       res.setHeader('Content-Type', 'text/css');
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); // Force fresh CSS
-      console.log('🎨 Serving CSS file:', path);
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      console.log('✅ Serving CSS file:', path);
     }
     if (path.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
@@ -160,10 +169,11 @@ process.on('SIGINT', async () => {
 const startServer = async () => {
   await connectDB();
   
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 $AQUA Meme Generator server running on port ${PORT}`);
     console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🔗 Local: http://localhost:${PORT}`);
+    console.log(`🔗 Network: http://0.0.0.0:${PORT}`);
   });
 };
 
