@@ -73,22 +73,20 @@ const aiLimiter = rateLimit({
 
 app.use(generalLimiter);
 
-// Static files - with debugging
-console.log('🔍 Static file paths:');
-console.log('  publicDir:', paths.publicDir);
-console.log('  uploadsDir:', paths.uploadsDir);
-console.log('  generatedDir:', paths.generatedDir);
-
-// Add middleware to log static file requests
-app.use((req, res, next) => {
-  if (req.url.startsWith('/css') || req.url.startsWith('/js') || req.url.startsWith('/images')) {
-    console.log('📁 Static file request:', req.url);
-    console.log('   Looking in:', paths.publicDir);
+// Static files with proper MIME types and cache control
+app.use(express.static(paths.publicDir, {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); // Force fresh CSS
+      console.log('🎨 Serving CSS file:', path);
+    }
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
   }
-  next();
-});
-
-app.use(express.static(paths.publicDir));
+}));
 app.use('/uploads', express.static(paths.uploadsDir));
 app.use('/generated', express.static(paths.generatedDir));
 
