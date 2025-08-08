@@ -26,7 +26,7 @@ app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.set('views', paths.viewsDir);
 
-// Security middleware
+// Security middleware - disable HTTPS enforcement for development
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -36,8 +36,10 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
       connectSrc: ["'self'", "https://cloud.leonardo.ai"]
+      // Removed upgradeInsecureRequests to allow HTTP in development
     }
-  }
+  },
+  hsts: false // Disable HTTPS enforcement
 }));
 
 // CORS configuration
