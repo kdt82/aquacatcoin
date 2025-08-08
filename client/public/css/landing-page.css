@@ -143,33 +143,44 @@
   100% { transform: scale(1); }
 }
 
+/* Default desktop layout - 2x2 grid for social buttons */
 .cta-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 15px;
   width: 100%;
-  max-width: 450px; /* Increased max-width */
+  max-width: 450px;
   margin: 30px auto 0;
 }
 
-.cta-buttons .btn:first-child {
-  grid-column: 1 / -1; /* Make "Buy Now" full width */
+.cta-buttons .btn-buy-now {
+  width: 100%;
   font-size: 1.2rem;
   padding: 18px;
+  order: 1;
 }
 
 .cta-buttons .btn-secondary {
-  /* Secondary buttons will fill the next row */
+  width: 48%;
+  padding: 14px 20px;
+  font-size: 0.95rem;
 }
 
-.social-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
-
-.social-grid .btn-secondary {
-  width: 100%;
+/* Desktop: arrange social buttons in 2x2 grid */
+@media (min-width: 1025px) {
+  .cta-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+  
+  .cta-buttons .btn-buy-now {
+    grid-column: 1 / -1;
+  }
+  
+  .cta-buttons .btn-secondary {
+    width: 100%;
+  }
 }
 
 section {
@@ -1008,6 +1019,25 @@ section {
     color: var(--accent-dark); /* The dollar sign color */
 }
 
+/* Mobile and tablet: stack all buttons vertically */
+@media (max-width: 1024px) {
+  .cta-buttons {
+    max-width: 400px;
+    gap: 18px;
+  }
+  
+  .cta-buttons .btn-buy-now {
+    padding: 18px 32px;
+    font-size: 1.2rem;
+  }
+  
+  .cta-buttons .btn-secondary {
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 1rem;
+  }
+}
+
 @media (max-width: 992px) {
     /* Stack tokenomics cards on medium screens */
     .token-allocation-grid {
@@ -1015,55 +1045,41 @@ section {
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   /* Hero section mobile optimization */
   .hero {
     padding-top: 100px;
     padding-bottom: 20px;
     min-height: 100vh;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
   }
   
   .hero-content {
     max-width: 100%;
-    padding: 0 15px;
+    padding: 0 10px;
   }
   
   .hero img.main-logo {
-    width: 180px;
-    height: 180px;
+    width: 200px;
+    height: 200px;
     margin-bottom: 20px;
   }
   
   .hero h1 {
-    font-size: 2.8rem;
+    font-size: 3.2rem;
     margin-bottom: 15px;
     line-height: 1.1;
   }
   
   .hero p.tagline {
-    font-size: 1rem;
-    margin-bottom: 25px;
-    line-height: 1.4;
-    padding: 0 10px;
-  }
-  
-  /* CTA buttons mobile */
-  .cta-buttons {
-    flex-direction: column;
-    gap: 15px;
-    align-items: center;
-    margin-bottom: 30px;
-  }
-  
-  .cta-buttons .btn {
-    width: 100%;
-    max-width: 280px;
-    padding: 16px 24px;
     font-size: 1.1rem;
-    text-align: center;
+    margin-bottom: 30px;
+    line-height: 1.4;
+    padding: 0 5px;
   }
+  
+  /* CTA buttons mobile - use default flexbox layout */
   
   /* Contract address section mobile */
   .contract-address-section {
@@ -1159,28 +1175,36 @@ section {
 @media (max-width: 480px) {
   .hero {
     padding-top: 80px;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
   
   .hero img.main-logo {
-    width: 150px;
-    height: 150px;
+    width: 160px;
+    height: 160px;
   }
   
   .hero h1 {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
   }
   
   .hero p.tagline {
-    font-size: 0.9rem;
+    font-size: 1rem;
     padding: 0 5px;
   }
   
-  .cta-buttons .btn {
-    max-width: 260px;
+  .cta-buttons {
+    max-width: 300px;
+  }
+  
+  .cta-buttons .btn-buy-now {
+    padding: 16px 28px;
+    font-size: 1.1rem;
+  }
+  
+  .cta-buttons .btn-secondary {
     padding: 14px 20px;
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
   
   .contract-address-box {
