@@ -87,6 +87,7 @@
 
   <main>
     <section class="hero">
+      <div class="rain-effect" id="rainEffect"></div>
       <div class="hero-content">
         <img src="aquacat.png" alt="$AQUA Mascot" class="main-logo">
         <h1>$AQUA</h1>
@@ -421,5 +422,25 @@
   </footer>
 
   <script src="/js/script.js"></script>
+  
+  <script>
+    // Create rain effect for hero section
+    function createRain() {
+      const rainContainer = document.getElementById('rainEffect');
+      const numberOfDrops = 40; // Slightly fewer drops for subtlety
+      
+      for (let i = 0; i < numberOfDrops; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'raindrop';
+        drop.style.left = Math.random() * 100 + '%';
+        drop.style.animationDuration = (Math.random() * 3 + 2) + 's'; // Slower rain
+        drop.style.animationDelay = Math.random() * 3 + 's';
+        rainContainer.appendChild(drop);
+      }
+    }
+    
+    // Initialize rain effect when page loads
+    document.addEventListener('DOMContentLoaded', createRain);
+  </script>
 </body>
 </html> 
