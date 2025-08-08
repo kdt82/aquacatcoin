@@ -73,7 +73,21 @@ const aiLimiter = rateLimit({
 
 app.use(generalLimiter);
 
-// Static files
+// Static files - with debugging
+console.log('🔍 Static file paths:');
+console.log('  publicDir:', paths.publicDir);
+console.log('  uploadsDir:', paths.uploadsDir);
+console.log('  generatedDir:', paths.generatedDir);
+
+// Add middleware to log static file requests
+app.use((req, res, next) => {
+  if (req.url.startsWith('/css') || req.url.startsWith('/js') || req.url.startsWith('/images')) {
+    console.log('📁 Static file request:', req.url);
+    console.log('   Looking in:', paths.publicDir);
+  }
+  next();
+});
+
 app.use(express.static(paths.publicDir));
 app.use('/uploads', express.static(paths.uploadsDir));
 app.use('/generated', express.static(paths.generatedDir));
