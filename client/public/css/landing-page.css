@@ -1006,8 +1006,101 @@ section {
 }
 
 @media (max-width: 768px) {
+  /* Hero section mobile optimization */
+  .hero {
+    padding-top: 100px;
+    padding-bottom: 20px;
+    min-height: 100vh;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .hero-content {
+    max-width: 100%;
+    padding: 0 15px;
+  }
+  
+  .hero img.main-logo {
+    width: 180px;
+    height: 180px;
+    margin-bottom: 20px;
+  }
+  
   .hero h1 {
-    font-size: 3.5rem;
+    font-size: 2.8rem;
+    margin-bottom: 15px;
+    line-height: 1.1;
+  }
+  
+  .hero p.tagline {
+    font-size: 1rem;
+    margin-bottom: 25px;
+    line-height: 1.4;
+    padding: 0 10px;
+  }
+  
+  /* CTA buttons mobile */
+  .cta-buttons {
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  
+  .cta-buttons .btn {
+    width: 100%;
+    max-width: 280px;
+    padding: 16px 24px;
+    font-size: 1.1rem;
+  }
+  
+  .cta-buttons .btn-secondary {
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+  
+  /* Contract address section mobile */
+  .contract-address-section {
+    margin-bottom: 25px;
+  }
+  
+  .contract-address-box {
+    padding: 12px;
+    font-size: 0.85rem;
+  }
+  
+  .contract-address-value {
+    word-break: break-all;
+    line-height: 1.3;
+  }
+  
+  /* SUI feature section mobile */
+  .sui-feature {
+    margin-top: 20px;
+  }
+  
+  .sui-built-on {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .sui-built-on img {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .sui-built-on p {
+    font-size: 0.9rem;
+  }
+  
+  /* Ticker section mobile */
+  .ticker-section {
+    margin-top: 25px;
+  }
+  
+  .ticker-sparkle {
+    font-size: 2.5rem;
   }
   
   /* Stack "how-to-buy" cards on small screens */
@@ -1017,6 +1110,49 @@ section {
   
   .wallet-options {
     gap: 12px;
+  }
+  
+  /* Navigation mobile */
+  .nav-links {
+    display: none;
+  }
+}
+
+/* Extra small screens (phones < 480px) */
+@media (max-width: 480px) {
+  .hero {
+    padding-top: 80px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  
+  .hero img.main-logo {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+  
+  .hero p.tagline {
+    font-size: 0.9rem;
+    padding: 0 5px;
+  }
+  
+  .cta-buttons .btn {
+    max-width: 260px;
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+  
+  .contract-address-box {
+    padding: 10px;
+    font-size: 0.8rem;
+  }
+  
+  .ticker-sparkle {
+    font-size: 2rem;
   }
   
   .swap-steps {
