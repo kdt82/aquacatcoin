@@ -162,6 +162,16 @@
   /* Secondary buttons will fill the next row */
 }
 
+.social-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.social-grid .btn-secondary {
+  width: 100%;
+}
+
 section {
   padding: 100px 0;
   border-bottom: 1px solid rgba(77, 162, 255, 0.1);
@@ -1052,11 +1062,7 @@ section {
     max-width: 280px;
     padding: 16px 24px;
     font-size: 1.1rem;
-  }
-  
-  .cta-buttons .btn-secondary {
-    padding: 14px 20px;
-    font-size: 1rem;
+    text-align: center;
   }
   
   /* Contract address section mobile */
@@ -1101,6 +1107,37 @@ section {
   
   .ticker-sparkle {
     font-size: 2.5rem;
+  }
+  
+  /* General section spacing mobile */
+  section {
+    padding: 60px 15px;
+  }
+  
+  .section-title {
+    font-size: 2.2rem;
+    margin-bottom: 40px;
+  }
+  
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  #about img, #launch img {
+    max-width: 300px;
+  }
+  
+  .roadmap-timeline {
+    padding-left: 30px;
+  }
+  
+  .roadmap-item::after {
+    left: -20px;
+  }
+  
+  .roadmap-content {
+    padding: 15px 20px;
   }
   
   /* Stack "how-to-buy" cards on small screens */
