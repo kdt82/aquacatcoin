@@ -71,9 +71,7 @@ const aiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.use(generalLimiter);
-
-// Debug middleware to log ALL requests
+// Debug middleware to log ALL requests (before rate limiting)
 app.use((req, res, next) => {
   console.log('🌐 Request:', req.method, req.url);
   if (req.url.includes('.css')) {
@@ -82,7 +80,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Static files with proper MIME types and cache control
+// Static files BEFORE rate limiting
 app.use(express.static(paths.publicDir, {
   setHeaders: (res, path) => {
     if (path.endsWith('.css')) {
@@ -99,6 +97,8 @@ app.use(express.static(paths.publicDir, {
 app.use('/uploads', express.static(paths.uploadsDir));
 app.use('/generated', express.static(paths.generatedDir));
 
+app.use(generalLimiter);
+
 // Database connection
 const connectDB = async () => {
   try {
@@ -111,6 +111,15 @@ const connectDB = async () => {
     // Don't exit in development - allow running without MongoDB
   }
 };
+
+// Test route for static files
+app.get('/test-static', (req, res) => {
+  res.json({
+    message: 'Server is working',
+    publicDir: paths.publicDir,
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Routes
 app.use('/', require('./routes/website'));
