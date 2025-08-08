@@ -1,7 +1,14 @@
 const mongoose = require('mongoose');
 const { Meme, User } = require('../models');
 const { v4: uuidv4 } = require('uuid');
-require('dotenv').config({ path: require('path').join(__dirname, '../../local.env') });
+const path = require('path');
+
+// Load env from root .env in production, fallback to local.env in dev
+const rootDir = path.join(__dirname, '..', '..');
+const envPath = process.env.NODE_ENV === 'production'
+  ? path.join(rootDir, '.env')
+  : path.join(rootDir, 'local.env');
+require('dotenv').config({ path: envPath });
 
 // Sample memes for testing - simplified structure
 const sampleMemes = [

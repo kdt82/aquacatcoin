@@ -6,7 +6,15 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-require('dotenv').config({ path: path.join(__dirname, '../local.env') });
+
+// Load environment variables: prefer root .env in production, fallback to local.env in development
+const rootDir = path.join(__dirname, '..');
+const envPath = process.env.NODE_ENV === 'production'
+  ? path.join(rootDir, '.env')
+  : path.join(rootDir, 'local.env');
+require('dotenv').config({ path: envPath });
+
+const { paths } = require('./config/paths');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,7 +24,7 @@ app.set('trust proxy', 1);
 
 // View engine setup
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '../client/views'));
+app.set('views', paths.viewsDir);
 
 // Security middleware
 app.use(helmet({
@@ -66,9 +74,9 @@ const aiLimiter = rateLimit({
 app.use(generalLimiter);
 
 // Static files
-app.use(express.static(path.join(__dirname, '../client/public')));
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-app.use('/generated', express.static(path.join(__dirname, '../generated')));
+app.use(express.static(paths.publicDir));
+app.use('/uploads', express.static(paths.uploadsDir));
+app.use('/generated', express.static(paths.generatedDir));
 
 // Database connection
 const connectDB = async () => {

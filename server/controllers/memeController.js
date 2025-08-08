@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs').promises;
 const { Meme } = require('../models');
+const { paths } = require('../config/paths');
 
 // Configure multer for file uploads
 const storage = multer.memoryStorage();
@@ -24,7 +25,7 @@ const upload = multer({
 
 // Helper function to ensure upload directory exists
 async function ensureUploadDir() {
-  const uploadDir = path.join(process.cwd(), 'uploads', 'memes');
+  const uploadDir = path.join(paths.uploadsDir, 'memes');
   try {
     await fs.access(uploadDir);
   } catch (error) {
