@@ -209,6 +209,20 @@ section {
     transform: scale(1.05);
 }
 
+#launch img {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px var(--shadow);
+  justify-self: center;
+  transition: transform 0.4s ease;
+  animation: float 6s ease-in-out infinite;
+}
+
+#launch img:hover {
+    transform: scale(1.05);
+}
+
 @keyframes float {
 	0% {
 		transform: translateY(0px);

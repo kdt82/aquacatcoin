@@ -6,11 +6,11 @@ router.get('/', (req, res) => {
   res.render('index');
 });
 
-// Meme Generator page route
+// Meme Generator Coming Soon route
 router.get('/meme-generator', (req, res) => {
-  res.render('meme-generator', {
-    title: 'AI Meme Generator | $AQUA - Create Viral Crypto Memes',
-    description: 'Create hilarious $AQUA memes with our AI-powered generator! Upload images, generate with Leonardo AI, add text & shapes. Share your memes on social media instantly.',
+  res.render('coming-soon', {
+    title: 'Meme Generator – Coming Soon | $AQUA',
+    description: 'Our AI-powered $AQUA Meme Generator is almost here. Get ready to create, remix, and share the soggiest memes on the SUI Network.',
     canonicalUrl: 'https://www.aquacatcoin.xyz/meme-generator',
     ogImage: 'https://www.aquacatcoin.xyz/aquacat.png',
     currentPath: '/meme-generator'
