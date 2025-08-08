@@ -25,11 +25,5 @@ const paths = {
   generatedDir: resolveDir('GENERATED_DIR', 'generated'),
 };
 
-// Debug logging for paths
-console.log('🔧 Path Configuration:');
-console.log('  projectRoot:', projectRoot);
-console.log('  publicDir:', paths.publicDir);
-console.log('  viewsDir:', paths.viewsDir);
-
 module.exports = { paths };
 
