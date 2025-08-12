@@ -202,8 +202,8 @@ function showPostLaunchState(contractAddress = 'TBA') {
     
     if (countdownCard) {
         countdownCard.innerHTML = `
-            <h2 class="countdown-title">🎉 WE ARE LIVE!</h2>
-            <h3 class="countdown-now-open">GET READY TO GET SOGGY! <span style="color: #e6cd87 !important;">🚀</span></h3>
+                <h2 class="countdown-title">🎉 WE ARE LIVE!</h2>
+                <h3 class="countdown-now-open" style="background: red; color: #e6cd87 !important; font-size: 1.8rem !important; white-space: nowrap !important;">GET READY TO GET SOGGY! <span style="color: #e6cd87 !important;">🚀</span></h3>
             
             <div class="contract-section" style="margin: 25px 0;">
                 <div class="contract-container">

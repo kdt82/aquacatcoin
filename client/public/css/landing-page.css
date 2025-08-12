@@ -72,8 +72,8 @@
   text-align: center;
   position: relative;
   overflow: hidden;
-  max-width: 1260px; /* 40% wider than 900px (900 * 1.4 = 1260) */
-  width: 95%; /* More responsive width */
+  max-width: 1260px !important; /* 40% wider than 900px (900 * 1.4 = 1260) - FORCE OVERRIDE */
+  width: 95% !important; /* More responsive width - FORCE OVERRIDE */
 }
 
 .countdown-card::before {
@@ -106,15 +106,15 @@
 
 .countdown-now-open {
   font-family: 'Fredoka One', cursive;
-  font-size: 1.8rem; /* Further reduced to fit on one line */
+  font-size: 1.8rem !important; /* Further reduced to fit on one line - FORCE OVERRIDE */
   margin-bottom: 20px;
-  color: #e6cd87; /* Golden color */
+  color: #e6cd87 !important; /* Golden color - FORCE OVERRIDE */
   text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
   position: relative;
   z-index: 2;
   font-weight: 900;
   line-height: 1;
-  white-space: nowrap; /* Prevent line breaks */
+  white-space: nowrap !important; /* Prevent line breaks - FORCE OVERRIDE */
 }
 
 .countdown-timer {
