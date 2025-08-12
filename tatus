@@ -1,0 +1,6 @@
+[33mf4a9605[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m 📚 Update documentation to reflect successful Railway migration
+[33m08c2fe1[m Fix CSP to allow Cloudflare analytics script
+[33m4f3e5b0[m Add extensive debugging for scroll animations to diagnose issues
+[33ma33e19e[m Fix canvas sizing to use 95% of available space on desktop + fix animation timing
+[33m985d60f[m Fix rate limiting: Add hardcoded IP whitelist and better IP detection for Railway proxies
+* [32mmain[m f4a9605 📚 Update documentation to reflect successful Railway migration

@@ -1,6 +1,21 @@
 // Advanced Meme Generator with Full Editing Package
 class AdvancedMemeGenerator {
+    // Helper method to safely get DOM elements
+    safeGetElement(id) {
+        const element = document.getElementById(id);
+        if (!element) {
+            console.warn(`⚠️ Element with id "${id}" not found`);
+        }
+        return element;
+    }
     constructor() {
+        // Check if canvas element exists before creating Fabric canvas
+        const canvasElement = document.getElementById('memeCanvas');
+        if (!canvasElement) {
+            console.error('❌ Canvas element with id "memeCanvas" not found!');
+            throw new Error('Canvas element not found. Please ensure the DOM is loaded.');
+        }
+        
         this.canvas = new fabric.Canvas('memeCanvas', {
             backgroundColor: '#ffffff',
             preserveObjectStacking: true
@@ -135,9 +150,12 @@ class AdvancedMemeGenerator {
         window.toggleStep = this.toggleStep.bind(this);
         
         // Primary choice selection
-        document.getElementById('aiChoice').addEventListener('click', () => {
-            this.selectChoice('ai');
-        });
+        const aiChoice = this.safeGetElement('aiChoice');
+        if (aiChoice) {
+            aiChoice.addEventListener('click', () => {
+                this.selectChoice('ai');
+            });
+        }
         
         // Upload functionality removed - AI generation only
         
@@ -145,21 +163,37 @@ class AdvancedMemeGenerator {
         this.setupGenerateButton();
         
         // Canvas tools
-        document.getElementById('undoBtn').addEventListener('click', this.undo.bind(this));
-        document.getElementById('redoBtn').addEventListener('click', this.redo.bind(this));
-        document.getElementById('clearBtn').addEventListener('click', this.clearCanvas.bind(this));
-        document.getElementById('changeImageBtn').addEventListener('click', this.changeImage.bind(this));
-        document.getElementById('exportBtn').addEventListener('click', this.exportMeme.bind(this));
+        const undoBtn = this.safeGetElement('undoBtn');
+        if (undoBtn) undoBtn.addEventListener('click', this.undo.bind(this));
+        
+        const redoBtn = this.safeGetElement('redoBtn');
+        if (redoBtn) redoBtn.addEventListener('click', this.redo.bind(this));
+        
+        const clearBtn = this.safeGetElement('clearBtn');
+        if (clearBtn) clearBtn.addEventListener('click', this.clearCanvas.bind(this));
+        
+        const changeImageBtn = this.safeGetElement('changeImageBtn');
+        if (changeImageBtn) changeImageBtn.addEventListener('click', this.changeImage.bind(this));
+        
+        const exportBtn = this.safeGetElement('exportBtn');
+        if (exportBtn) exportBtn.addEventListener('click', this.exportMeme.bind(this));
         
         // Element tools
-        document.getElementById('addTextBtn').addEventListener('click', () => {
-            this.setMode('text');
-        });
+        const addTextBtn = this.safeGetElement('addTextBtn');
+        if (addTextBtn) {
+            addTextBtn.addEventListener('click', () => {
+                this.setMode('text');
+            });
+        }
         
-        document.getElementById('addShapeBtn').addEventListener('click', () => {
-            this.setMode('shape');
-            document.getElementById('shapeTools').style.display = 'grid';
-        });
+        const addShapeBtn = this.safeGetElement('addShapeBtn');
+        if (addShapeBtn) {
+            addShapeBtn.addEventListener('click', () => {
+                this.setMode('shape');
+                const shapeTools = this.safeGetElement('shapeTools');
+                if (shapeTools) shapeTools.style.display = 'grid';
+            });
+        }
         
         // Shape tools
         document.querySelectorAll('.shape-btn').forEach(btn => {
@@ -170,27 +204,53 @@ class AdvancedMemeGenerator {
         });
         
         // Text controls
-        document.getElementById('textInput').addEventListener('input', this.updateText.bind(this));
-        document.getElementById('fontFamily').addEventListener('change', this.updateTextStyle.bind(this));
-        document.getElementById('fontSize').addEventListener('input', this.updateFontSize.bind(this));
-        document.getElementById('textColor').addEventListener('change', this.updateTextStyle.bind(this));
-        document.getElementById('strokeColor').addEventListener('change', this.updateTextStyle.bind(this));
-        document.getElementById('strokeWidth').addEventListener('input', this.updateStrokeWidth.bind(this));
+        const textInput = this.safeGetElement('textInput');
+        if (textInput) textInput.addEventListener('input', this.updateText.bind(this));
+        
+        const fontFamily = this.safeGetElement('fontFamily');
+        if (fontFamily) fontFamily.addEventListener('change', this.updateTextStyle.bind(this));
+        
+        const fontSize = this.safeGetElement('fontSize');
+        if (fontSize) fontSize.addEventListener('input', this.updateFontSize.bind(this));
+        
+        const textColor = this.safeGetElement('textColor');
+        if (textColor) textColor.addEventListener('change', this.updateTextStyle.bind(this));
+        
+        const strokeColor = this.safeGetElement('strokeColor');
+        if (strokeColor) strokeColor.addEventListener('change', this.updateTextStyle.bind(this));
+        
+        const strokeWidth = this.safeGetElement('strokeWidth');
+        if (strokeWidth) strokeWidth.addEventListener('input', this.updateStrokeWidth.bind(this));
         
         // Element properties
-        document.getElementById('opacity').addEventListener('input', this.updateOpacity.bind(this));
-        document.getElementById('fillColor').addEventListener('change', this.updateFillColor.bind(this));
-        document.getElementById('borderColor').addEventListener('change', this.updateBorderColor.bind(this));
-        document.getElementById('borderWidth').addEventListener('input', this.updateBorderWidth.bind(this));
+        const opacity = this.safeGetElement('opacity');
+        if (opacity) opacity.addEventListener('input', this.updateOpacity.bind(this));
+        
+        const fillColor = this.safeGetElement('fillColor');
+        if (fillColor) fillColor.addEventListener('change', this.updateFillColor.bind(this));
+        
+        const borderColor = this.safeGetElement('borderColor');
+        if (borderColor) borderColor.addEventListener('change', this.updateBorderColor.bind(this));
+        
+        const borderWidth = this.safeGetElement('borderWidth');
+        if (borderWidth) borderWidth.addEventListener('input', this.updateBorderWidth.bind(this));
         
         // Layer controls
-        document.getElementById('bringForwardBtn').addEventListener('click', this.bringForward.bind(this));
-        document.getElementById('sendBackwardBtn').addEventListener('click', this.sendBackward.bind(this));
-        document.getElementById('deleteBtn').addEventListener('click', this.deleteSelected.bind(this));
+        const bringForwardBtn = this.safeGetElement('bringForwardBtn');
+        if (bringForwardBtn) bringForwardBtn.addEventListener('click', this.bringForward.bind(this));
+        
+        const sendBackwardBtn = this.safeGetElement('sendBackwardBtn');
+        if (sendBackwardBtn) sendBackwardBtn.addEventListener('click', this.sendBackward.bind(this));
+        
+        const deleteBtn = this.safeGetElement('deleteBtn');
+        if (deleteBtn) deleteBtn.addEventListener('click', this.deleteSelected.bind(this));
         
         // Copy/Paste controls
-        document.getElementById('copyBtn').addEventListener('click', this.copySelected.bind(this));
-        document.getElementById('pasteBtn').addEventListener('click', this.pasteElement.bind(this));
+        const copyBtn = this.safeGetElement('copyBtn');
+        if (copyBtn) copyBtn.addEventListener('click', this.copySelected.bind(this));
+        
+        const pasteBtn = this.safeGetElement('pasteBtn');
+        if (pasteBtn) pasteBtn.addEventListener('click', this.pasteElement.bind(this));
         
         // Keyboard shortcuts
         document.addEventListener('keydown', this.handleKeyboardShortcuts.bind(this));
@@ -219,25 +279,46 @@ class AdvancedMemeGenerator {
     }
     
     toggleStep(stepId) {
-        const step = document.getElementById(stepId);
-        const isActive = step.classList.contains('active');
-        
-        if (isActive) {
-            // Collapse this step
-            step.classList.remove('active');
-            step.classList.add('collapsed');
-        } else {
-            // Expand this step
-            step.classList.add('active');
-            step.classList.remove('collapsed');
-            step.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        try {
+            if (!stepId) {
+                console.warn('⚠️ No stepId provided to toggleStep');
+                return;
+            }
+            
+            const step = document.getElementById(stepId);
+            if (!step) {
+                console.warn(`⚠️ Step element with id "${stepId}" not found`);
+                return;
+            }
+            
+            const isActive = step.classList.contains('active');
+            
+            if (isActive) {
+                // Collapse this step
+                step.classList.remove('active');
+                step.classList.add('collapsed');
+            } else {
+                // Expand this step
+                step.classList.add('active');
+                step.classList.remove('collapsed');
+                step.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        } catch (error) {
+            console.error('❌ Error toggling step:', error);
         }
     }
     
     selectChoice(choice) {
-        // Only AI choice available - always show AI form
-        document.getElementById('aiChoice').classList.add('selected');
-        document.getElementById('aiForm').classList.add('active');
+        try {
+            // Only AI choice available - always show AI form
+            const aiChoice = this.safeGetElement('aiChoice');
+            if (aiChoice) aiChoice.classList.add('selected');
+            
+            const aiForm = this.safeGetElement('aiForm');
+            if (aiForm) aiForm.classList.add('active');
+        } catch (error) {
+            console.error('❌ Error selecting choice:', error);
+        }
     }
     
     async loadAIModels() {
@@ -327,8 +408,11 @@ class AdvancedMemeGenerator {
             return;
         }
         
-        document.getElementById('generationStatus').style.display = 'block';
-        document.getElementById('generateBtn').disabled = true;
+        const generationStatus = this.safeGetElement('generationStatus');
+        if (generationStatus) generationStatus.style.display = 'block';
+        
+        const generateBtn = this.safeGetElement('generateBtn');
+        if (generateBtn) generateBtn.disabled = true;
         
         try {
             const response = await fetch('/api/ai/generate', {
@@ -371,15 +455,27 @@ class AdvancedMemeGenerator {
         } catch (error) {
             console.error('AI generation error:', error);
             await this.showCustomAlert('Failed to generate image. Please try again.', 'error', 'Generation Failed');
-            document.getElementById('generationStatus').style.display = 'none';
+            const generationStatus = this.safeGetElement('generationStatus');
+            if (generationStatus) generationStatus.style.display = 'none';
         } finally {
-            document.getElementById('generateBtn').disabled = false;
+            const generateBtn = this.safeGetElement('generateBtn');
+            if (generateBtn) generateBtn.disabled = false;
         }
     }
     
     async pollGenerationStatus(generationId, statusDiv) {
         let attempts = 0;
         const maxAttempts = 30; // 5 minutes maximum
+        
+        // Validate inputs
+        if (!generationId) {
+            console.error('❌ No generation ID provided to pollGenerationStatus');
+            return;
+        }
+        if (!statusDiv) {
+            console.error('❌ No status div provided to pollGenerationStatus');
+            return;
+        }
         
         const checkStatus = async () => {
             try {
@@ -393,7 +489,9 @@ class AdvancedMemeGenerator {
                         // Generation completed successfully
                         const imageUrl = generation.generated_images[0].url;
                         console.log('AI generation completed! Image URL:', imageUrl);
-                        statusDiv.innerHTML = `<i class="fas fa-check" style="color: #10B981;"></i> Image generated successfully!`;
+                        if (statusDiv) {
+                            statusDiv.innerHTML = `<i class="fas fa-check" style="color: #10B981;"></i> Image generated successfully!`;
+                        }
                         
                         // Add the generated image to user images
                         await this.addUserImage(imageUrl, 'generated');
@@ -407,14 +505,20 @@ class AdvancedMemeGenerator {
                         
                         // Hide status after a moment
                         setTimeout(() => {
-                            statusDiv.style.display = 'none';
+                            if (statusDiv) {
+                                statusDiv.style.display = 'none';
+                            }
                         }, 2000);
                         
                         return; // Stop polling
                     } else if (generation.status === 'FAILED') {
-                        statusDiv.innerHTML = `<i class="fas fa-times" style="color: #EF4444;"></i> Generation failed. Please try again.`;
+                        if (statusDiv) {
+                            statusDiv.innerHTML = `<i class="fas fa-times" style="color: #EF4444;"></i> Generation failed. Please try again.`;
+                        }
                         setTimeout(() => {
-                            statusDiv.style.display = 'none';
+                            if (statusDiv) {
+                                statusDiv.style.display = 'none';
+                            }
                         }, 3000);
                         return; // Stop polling
                     }
@@ -423,9 +527,13 @@ class AdvancedMemeGenerator {
                 
                 attempts++;
                 if (attempts >= maxAttempts) {
-                    statusDiv.innerHTML = `<i class="fas fa-clock" style="color: #F59E0B;"></i> Generation is taking longer than expected. Check back later.`;
+                    if (statusDiv) {
+                        statusDiv.innerHTML = `<i class="fas fa-clock" style="color: #F59E0B;"></i> Generation is taking longer than expected. Check back later.`;
+                    }
                     setTimeout(() => {
-                        statusDiv.style.display = 'none';
+                        if (statusDiv) {
+                            statusDiv.style.display = 'none';
+                        }
                     }, 5000);
                     return; // Stop polling
                 }
@@ -439,9 +547,13 @@ class AdvancedMemeGenerator {
                 if (attempts < maxAttempts) {
                     setTimeout(checkStatus, 15000);
                 } else {
-                    statusDiv.innerHTML = `<i class="fas fa-times" style="color: #EF4444;"></i> Unable to check generation status.`;
+                    if (statusDiv) {
+                        statusDiv.innerHTML = `<i class="fas fa-times" style="color: #EF4444;"></i> Unable to check generation status.`;
+                    }
                     setTimeout(() => {
-                        statusDiv.style.display = 'none';
+                        if (statusDiv) {
+                            statusDiv.style.display = 'none';
+                        }
                     }, 3000);
                 }
             }
@@ -1275,6 +1387,13 @@ class AdvancedMemeGenerator {
     }
     
     async showImagePreview(image) {
+        // Validate image data
+        if (!image || !image.data) {
+            console.error('❌ Invalid image data provided to showImagePreview:', image);
+            this.showCustomAlert('Invalid image data. Please try again.', 'error', 'Image Error');
+            return;
+        }
+        
         // Create modal overlay if it doesn't exist
         if (!document.getElementById('imagePreviewModal')) {
             const modalHtml = `
@@ -1306,9 +1425,22 @@ class AdvancedMemeGenerator {
         }
         
         // Populate and show the modal
-        document.getElementById('previewImageElement').src = image.data;
-        document.getElementById('previewImageType').textContent = `Type: ${image.type.charAt(0).toUpperCase() + image.type.slice(1)}`;
-        document.getElementById('imagePreviewModal').style.display = 'flex';
+        const previewImageElement = this.safeGetElement('previewImageElement');
+        if (previewImageElement) {
+            previewImageElement.src = image.data;
+        }
+        
+        // Safely handle image type with null checks
+        const imageType = image && image.type ? image.type : 'unknown';
+        const previewImageType = this.safeGetElement('previewImageType');
+        if (previewImageType) {
+            previewImageType.textContent = `Type: ${imageType.charAt(0).toUpperCase() + imageType.slice(1)}`;
+        }
+        
+        const imagePreviewModal = this.safeGetElement('imagePreviewModal');
+        if (imagePreviewModal) {
+            imagePreviewModal.style.display = 'flex';
+        }
         
         // Set up "Use for Meme" button
         const editBtn = document.getElementById('editImageBtn');
@@ -1338,31 +1470,68 @@ class AdvancedMemeGenerator {
     }
     
     initializeStepStates() {
-        document.querySelectorAll('.generator-steps .step-container').forEach((step, index) => {
-            if (index === 0) {
-                step.classList.add('active');
-                step.classList.remove('collapsed');
-            } else {
-                step.classList.add('collapsed');
-                step.classList.remove('active');
+        try {
+            const steps = document.querySelectorAll('.generator-steps .step-container');
+            if (!steps || steps.length === 0) {
+                console.warn('⚠️ No step containers found for initialization');
+                return;
             }
-        });
+            
+            steps.forEach((step, index) => {
+                if (!step) {
+                    console.warn(`⚠️ Step at index ${index} is null`);
+                    return;
+                }
+                
+                if (index === 0) {
+                    step.classList.add('active');
+                    step.classList.remove('collapsed');
+                } else {
+                    step.classList.add('collapsed');
+                    step.classList.remove('active');
+                }
+            });
+        } catch (error) {
+            console.error('❌ Error initializing step states:', error);
+        }
     }
     
     expandStep(stepId) {
-        document.querySelectorAll('.generator-steps .step-container').forEach(step => {
-            if (step.id === stepId) {
-                step.classList.add('active');
-                step.classList.remove('collapsed');
-            } else {
-                step.classList.add('collapsed');
-                step.classList.remove('active');
+        try {
+            if (!stepId) {
+                console.warn('⚠️ No stepId provided to expandStep');
+                return;
             }
-        });
-        
-        const targetStep = document.getElementById(stepId);
-        if (targetStep) {
-            targetStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            const steps = document.querySelectorAll('.generator-steps .step-container');
+            if (!steps || steps.length === 0) {
+                console.warn('⚠️ No step containers found for expansion');
+                return;
+            }
+            
+            steps.forEach(step => {
+                if (!step) {
+                    console.warn('⚠️ Found null step in expandStep');
+                    return;
+                }
+                
+                if (step.id === stepId) {
+                    step.classList.add('active');
+                    step.classList.remove('collapsed');
+                } else {
+                    step.classList.add('collapsed');
+                    step.classList.remove('active');
+                }
+            });
+            
+            const targetStep = document.getElementById(stepId);
+            if (targetStep) {
+                targetStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                console.warn(`⚠️ Target step with id "${stepId}" not found`);
+            }
+        } catch (error) {
+            console.error('❌ Error expanding step:', error);
         }
     }
     
@@ -1484,17 +1653,23 @@ class AdvancedMemeGenerator {
     updateTextStyle() {
         const activeObject = this.canvas.getActiveObject();
         if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'i-text')) {
+            const fontFamily = this.safeGetElement('fontFamily');
+            const textColor = this.safeGetElement('textColor');
+            const strokeColor = this.safeGetElement('strokeColor');
+            
             activeObject.set({
-                fontFamily: document.getElementById('fontFamily').value,
-                fill: document.getElementById('textColor').value,
-                stroke: document.getElementById('strokeColor').value
+                fontFamily: fontFamily ? fontFamily.value : 'Arial',
+                fill: textColor ? textColor.value : '#000000',
+                stroke: strokeColor ? strokeColor.value : '#ffffff'
             });
             this.canvas.renderAll();
         }
     }
     
     updateFontSize(e) {
-        document.getElementById('fontSizeValue').textContent = `${e.target.value}px`;
+        const fontSizeValue = this.safeGetElement('fontSizeValue');
+        if (fontSizeValue) fontSizeValue.textContent = `${e.target.value}px`;
+        
         const activeObject = this.canvas.getActiveObject();
         if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'i-text')) {
             activeObject.set('fontSize', parseInt(e.target.value, 10));
@@ -1503,7 +1678,9 @@ class AdvancedMemeGenerator {
     }
     
     updateStrokeWidth(e) {
-        document.getElementById('strokeWidthValue').textContent = `${e.target.value}px`;
+        const strokeWidthValue = this.safeGetElement('strokeWidthValue');
+        if (strokeWidthValue) strokeWidthValue.textContent = `${e.target.value}px`;
+        
         const activeObject = this.canvas.getActiveObject();
         if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'i-text')) {
             activeObject.set('strokeWidth', parseInt(e.target.value, 10));
@@ -1512,7 +1689,9 @@ class AdvancedMemeGenerator {
     }
     
     updateOpacity(e) {
-        document.getElementById('opacityValue').textContent = `${e.target.value}%`;
+        const opacityValue = this.safeGetElement('opacityValue');
+        if (opacityValue) opacityValue.textContent = `${e.target.value}%`;
+        
         const activeObject = this.canvas.getActiveObject();
         if (activeObject) {
             activeObject.set('opacity', parseInt(e.target.value, 10) / 100);
@@ -1537,7 +1716,9 @@ class AdvancedMemeGenerator {
     }
     
     updateBorderWidth(e) {
-        document.getElementById('borderWidthValue').textContent = `${e.target.value}px`;
+        const borderWidthValue = this.safeGetElement('borderWidthValue');
+        if (borderWidthValue) borderWidthValue.textContent = `${e.target.value}px`;
+        
         const activeObject = this.canvas.getActiveObject();
         if (activeObject && activeObject.type !== 'image') {
             activeObject.set('strokeWidth', parseInt(e.target.value, 10));
@@ -1663,34 +1844,70 @@ class AdvancedMemeGenerator {
     
     updateControls(obj) {
         if (obj.type === 'textbox' || obj.type === 'i-text') {
-            document.getElementById('textInput').value = obj.text;
-            document.getElementById('fontFamily').value = obj.fontFamily;
-            document.getElementById('fontSize').value = obj.fontSize;
-            document.getElementById('textColor').value = obj.fill;
-            document.getElementById('strokeColor').value = obj.stroke;
-            document.getElementById('strokeWidth').value = obj.strokeWidth;
+            const textInput = this.safeGetElement('textInput');
+            if (textInput) textInput.value = obj.text;
+            
+            const fontFamily = this.safeGetElement('fontFamily');
+            if (fontFamily) fontFamily.value = obj.fontFamily;
+            
+            const fontSize = this.safeGetElement('fontSize');
+            if (fontSize) fontSize.value = obj.fontSize;
+            
+            const textColor = this.safeGetElement('textColor');
+            if (textColor) textColor.value = obj.fill;
+            
+            const strokeColor = this.safeGetElement('strokeColor');
+            if (strokeColor) strokeColor.value = obj.stroke;
+            
+            const strokeWidth = this.safeGetElement('strokeWidth');
+            if (strokeWidth) strokeWidth.value = obj.strokeWidth;
         }
         
-        document.getElementById('opacity').value = obj.opacity * 100;
+        const opacity = this.safeGetElement('opacity');
+        if (opacity) opacity.value = obj.opacity * 100;
         
         if (obj.type !== 'image') {
-            document.getElementById('fillColor').value = obj.fill || '#ffffff';
-            document.getElementById('borderColor').value = obj.stroke || '#000000';
-            document.getElementById('borderWidth').value = obj.strokeWidth || 0;
+            const fillColor = this.safeGetElement('fillColor');
+            if (fillColor) fillColor.value = obj.fill || '#ffffff';
+            
+            const borderColor = this.safeGetElement('borderColor');
+            if (borderColor) borderColor.value = obj.stroke || '#000000';
+            
+            const borderWidth = this.safeGetElement('borderWidth');
+            if (borderWidth) borderWidth.value = obj.strokeWidth || 0;
         }
     }
     
     resetControls() {
-        document.getElementById('textInput').value = '';
-        document.getElementById('fontFamily').value = 'Impact';
-        document.getElementById('fontSize').value = 40;
-        document.getElementById('textColor').value = '#ffffff';
-        document.getElementById('strokeColor').value = '#000000';
-        document.getElementById('strokeWidth').value = 2;
-        document.getElementById('opacity').value = 100;
-        document.getElementById('fillColor').value = '#4DA2FF';
-        document.getElementById('borderColor').value = '#ffffff';
-        document.getElementById('borderWidth').value = 0;
+        const textInput = this.safeGetElement('textInput');
+        if (textInput) textInput.value = '';
+        
+        const fontFamily = this.safeGetElement('fontFamily');
+        if (fontFamily) fontFamily.value = 'Impact';
+        
+        const fontSize = this.safeGetElement('fontSize');
+        if (fontSize) fontSize.value = 40;
+        
+        const textColor = this.safeGetElement('textColor');
+        if (textColor) textColor.value = '#ffffff';
+        
+        const strokeColor = this.safeGetElement('strokeColor');
+        if (strokeColor) strokeColor.value = '#000000';
+        
+        const strokeWidth = this.safeGetElement('strokeWidth');
+        if (strokeWidth) strokeWidth.value = 2;
+        
+        const opacity = this.safeGetElement('opacity');
+        if (opacity) opacity.value = 100;
+        
+        const fillColor = this.safeGetElement('fillColor');
+        if (fillColor) fillColor.value = '#4DA2FF';
+        
+        const borderColor = this.safeGetElement('borderColor');
+        if (borderColor) borderColor.value = '#ffffff';
+        
+        const borderWidth = this.safeGetElement('borderWidth');
+        if (borderWidth) borderWidth.value = 0;
     }
     
     updateCopyPasteButtons() {
@@ -2801,7 +3018,16 @@ function initializeMemeGenerator() {
     }
     
     console.log('✅ Fabric.js loaded, creating AdvancedMemeGenerator...');
-    window.memeGenerator = new AdvancedMemeGenerator();
+    
+    try {
+        window.memeGenerator = new AdvancedMemeGenerator();
+        console.log('✅ AdvancedMemeGenerator created successfully!');
+    } catch (error) {
+        console.error('❌ Failed to create AdvancedMemeGenerator:', error);
+        console.log('🔄 Retrying in 500ms...');
+        setTimeout(initializeMemeGenerator, 500);
+        return;
+    }
     
     // Add test functions to global scope for debugging
     window.testCanvas = () => window.memeGenerator.runCanvasTests();
@@ -2909,10 +3135,17 @@ function setupScrollAnimations() {
         
         // Add staggered animation
         elements.forEach((el, index) => {
+            if (!el) {
+                console.warn(`⚠️ Element at index ${index} is null in animation setup`);
+                return;
+            }
+            
             console.log(`⏳ Scheduling animation for element ${index}:`, el.className);
             setTimeout(() => {
-                el.classList.add('in-view');
-                console.log(`✨ Applied in-view to element ${index}:`, el.className);
+                if (el && el.classList) {
+                    el.classList.add('in-view');
+                    console.log(`✨ Applied in-view to element ${index}:`, el.className);
+                }
             }, index * 150);
         });
         
@@ -2924,14 +3157,16 @@ function setupScrollAnimations() {
         
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
+                if (entry && entry.target && entry.isIntersecting) {
                     entry.target.classList.add('in-view');
                 }
             });
         }, observerOptions);
         
         elements.forEach(el => {
-            observer.observe(el);
+            if (el) {
+                observer.observe(el);
+            }
         });
         
         console.log('✅ Scroll animations setup complete');
