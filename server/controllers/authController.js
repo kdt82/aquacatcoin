@@ -38,7 +38,7 @@ class AuthController {
       authUrl.searchParams.append('response_type', 'code');
       authUrl.searchParams.append('client_id', process.env.TWITTER_CLIENT_ID);
       authUrl.searchParams.append('redirect_uri', process.env.TWITTER_REDIRECT_URI);
-      authUrl.searchParams.append('scope', 'tweet.read users.read');
+      authUrl.searchParams.append('scope', 'tweet.read tweet.write users.read');
       authUrl.searchParams.append('state', state);
       authUrl.searchParams.append('code_challenge', codeChallenge);
       authUrl.searchParams.append('code_challenge_method', 'S256');
@@ -108,7 +108,7 @@ class AuthController {
       let isNewUser = false;
       
       if (!user) {
-        user = await User.createFromTwitter(twitterUser);
+        user = await User.createFromTwitter(twitterUser, access_token);
         isNewUser = true;
         
         // Record first login bonus transaction
@@ -127,6 +127,7 @@ class AuthController {
         user.displayName = twitterUser.name;
         user.twitterUsername = twitterUser.username;
         user.profileImage = twitterUser.profile_image_url || user.profileImage;
+        user.twitterAccessToken = access_token; // Store access token for direct posting
         await user.updateLastLogin();
         
         // Check for daily bonus

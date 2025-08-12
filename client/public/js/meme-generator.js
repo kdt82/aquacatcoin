@@ -2117,7 +2117,7 @@ class AdvancedMemeGenerator {
         shareMessage.value = defaultText;
         
         const platforms = {
-            twitter: { icon: 'fab fa-twitter', name: 'Twitter' },
+            twitter: { icon: 'fab fa-x-twitter', name: 'Post to X', direct: true },
             reddit: { icon: 'fab fa-reddit-alien', name: 'Reddit' }
         };
         
@@ -2136,6 +2136,13 @@ class AdvancedMemeGenerator {
     
     async shareOnPlatform(platform, memeId, text) {
         try {
+            // Handle direct X upload
+            if (platform === 'twitter') {
+                await this.postDirectlyToX(text);
+                return;
+            }
+
+            // Handle other platforms with traditional sharing
             const response = await fetch('/api/social/share', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2156,6 +2163,59 @@ class AdvancedMemeGenerator {
         } catch (error) {
             console.error(`Failed to share on ${platform}:`, error);
             this.showCustomAlert(`Sharing on ${platform} failed. Please try again.`, 'error');
+        }
+    }
+
+    async postDirectlyToX(text) {
+        try {
+            // Get current canvas as image data
+            const imageData = this.canvas.toDataURL('image/jpeg', 0.9);
+            
+            const response = await fetch('/api/social/post-to-x', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    imageData,
+                    text
+                }),
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Close share modal
+                const modal = document.getElementById('shareModal');
+                if (modal) modal.style.display = 'none';
+                
+                // Show success message with link to tweet
+                this.showCustomAlert(
+                    `Successfully posted to X! <a href="${result.tweetUrl}" target="_blank" style="color: #1DA1F2;">View Tweet</a>`, 
+                    'success', 
+                    'Posted to X!'
+                );
+            } else {
+                throw new Error(result.error || 'Failed to post to X');
+            }
+        } catch (error) {
+            console.error('Failed to post directly to X:', error);
+            
+            if (error.message.includes('authentication')) {
+                this.showCustomAlert(
+                    'Please sign in with X first to post images directly.', 
+                    'warning',
+                    'Authentication Required'
+                );
+            } else {
+                this.showCustomAlert(
+                    `Failed to post to X: ${error.message}`, 
+                    'error',
+                    'Post Failed'
+                );
+            }
         }
     }
     

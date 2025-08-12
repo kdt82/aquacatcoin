@@ -39,6 +39,10 @@ const userSchema = new mongoose.Schema({
     trim: true,
     index: true
   },
+  twitterAccessToken: {
+    type: String,
+    default: null
+  },
   displayName: {
     type: String,
     trim: true
@@ -204,12 +208,13 @@ userSchema.statics.findByTwitterId = function(twitterId) {
   return this.findOne({ twitterId: twitterId, isActive: true });
 };
 
-userSchema.statics.createFromTwitter = function(twitterData) {
+userSchema.statics.createFromTwitter = function(twitterData, accessToken = null) {
   return this.create({
     twitterId: twitterData.id,
     twitterUsername: twitterData.username,
     displayName: twitterData.name,
     profileImage: twitterData.profile_image_url || null,
+    twitterAccessToken: accessToken, // Store access token for direct posting
     credits: 50, // First login bonus
     totalCreditsEarned: 50,
     firstLogin: false, // Already claimed during creation

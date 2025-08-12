@@ -1,4 +1,7 @@
-const { Meme } = require('../models');
+const { Meme, User } = require('../models');
+const axios = require('axios');
+const FormData = require('form-data');
+const sharp = require('sharp');
 
 // Social sharing service
 class SocialShareService {
@@ -350,6 +353,95 @@ const socialController = {
       res.status(500).json({
         success: false,
         error: 'Failed to submit report'
+      });
+    }
+  },
+
+  // POST /api/social/post-to-x - Upload image directly to X
+  postToX: async (req, res) => {
+    try {
+      const { imageData, text } = req.body;
+      
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: 'Authentication required'
+        });
+      }
+
+      const user = await User.findById(req.user.userId);
+      if (!user || !user.twitterAccessToken) {
+        return res.status(401).json({
+          success: false,
+          error: 'X authentication required. Please sign in with X first.'
+        });
+      }
+
+      // Convert base64 image to buffer
+      const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
+      const imageBuffer = Buffer.from(base64Data, 'base64');
+
+      // Convert to JPEG if needed and optimize
+      const processedImage = await sharp(imageBuffer)
+        .jpeg({ quality: 90 })
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+        .toBuffer();
+
+      // Step 1: Upload media to X
+      const formData = new FormData();
+      formData.append('media', processedImage, {
+        filename: 'meme.jpg',
+        contentType: 'image/jpeg'
+      });
+
+      const mediaResponse = await axios.post('https://upload.twitter.com/1.1/media/upload.json', formData, {
+        headers: {
+          ...formData.getHeaders(),
+          'Authorization': `Bearer ${user.twitterAccessToken}`
+        }
+      });
+
+      const mediaId = mediaResponse.data.media_id_string;
+
+      // Step 2: Post tweet with media
+      const tweetText = text || `Check out this hilarious meme I made with the $AQUA Meme Generator! 🐱💧 #AQUAonSUI #MemeCoin #AQUA #SUINetwork`;
+      
+      const tweetResponse = await axios.post('https://api.twitter.com/2/tweets', {
+        text: tweetText,
+        media: {
+          media_ids: [mediaId]
+        }
+      }, {
+        headers: {
+          'Authorization': `Bearer ${user.twitterAccessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const tweetData = tweetResponse.data.data;
+      const tweetUrl = `https://twitter.com/${user.twitterUsername}/status/${tweetData.id}`;
+
+      res.json({
+        success: true,
+        tweetId: tweetData.id,
+        tweetUrl: tweetUrl,
+        message: 'Successfully posted to X!'
+      });
+
+    } catch (error) {
+      console.error('Error posting to X:', error.response?.data || error.message);
+      
+      let errorMessage = 'Failed to post to X';
+      if (error.response?.status === 401) {
+        errorMessage = 'X authentication expired. Please sign in again.';
+      } else if (error.response?.status === 403) {
+        errorMessage = 'Permission denied. Please ensure your X app has write permissions.';
+      }
+
+      res.status(error.response?.status || 500).json({
+        success: false,
+        error: errorMessage,
+        details: error.response?.data
       });
     }
   }

@@ -4,6 +4,7 @@ const router = express.Router();
 
 // Routes
 router.post('/share', socialController.shareContent);
+router.post('/post-to-x', socialController.postToX);
 router.get('/stats', socialController.getStats);
 router.get('/platforms', socialController.getPlatforms);
 router.post('/track-click', socialController.trackClick);
