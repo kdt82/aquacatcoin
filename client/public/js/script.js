@@ -196,81 +196,56 @@ function initializeCountdownTimer() {
 // Function to show post-launch state (manually triggered)
 function showPostLaunchState(contractAddress = 'TBA') {
     const countdownContainer = document.getElementById('countdownContainer');
-    const countdownCard = document.querySelector('.countdown-card');
     
-    if (countdownContainer) countdownContainer.style.display = 'block';
-    
-    if (countdownCard) {
-        console.log('DEBUG: countdownCard found, applying styles...');
+    if (countdownContainer) {
+        console.log('DEBUG: Completely replacing countdown container...');
         
-        // Add a unique class to completely override existing styles
-        countdownCard.className = 'countdown-card post-launch-override';
-        
-        // Inject CSS directly into the head to ensure it takes precedence
-        const style = document.createElement('style');
-        style.textContent = `
-            .post-launch-override {
-                max-width: 1260px !important;
-                width: 95% !important;
-                padding: 25px 40px !important;
-            }
-            .post-launch-override .countdown-now-open {
-                font-size: 1.4rem !important;
-                white-space: nowrap !important;
-                color: #e6cd87 !important;
-            }
-            .post-launch-override .contract-address-line {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                gap: 10px !important;
-                min-height: 40px !important;
-            }
-            .post-launch-override .contract-address {
-                background: #0c2a44 !important;
-                height: 40px !important;
-                display: flex !important;
-                align-items: center !important;
-            }
-            .post-launch-override .contract-text {
-                display: flex !important;
-                align-items: center !important;
-                height: 40px !important;
-            }
-            .post-launch-override .copy-btn {
-                min-width: 40px !important;
-                height: 40px !important;
-            }
+        // Create a completely new element to avoid any CSS conflicts
+        const newCard = document.createElement('div');
+        newCard.style.cssText = `
+            background: rgba(77, 162, 255, 0.08);
+            border: 2px solid rgba(77, 162, 255, 0.2);
+            border-radius: 25px;
+            padding: 25px 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(77, 162, 255, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            max-width: 1260px;
+            width: 95%;
+            margin: 0 auto;
         `;
-        document.head.appendChild(style);
-        console.log('DEBUG: Injected override CSS');
         
-        countdownCard.innerHTML = `
-                <h2 class="countdown-title">🎉 WE ARE LIVE!</h2>
-                <h3 class="countdown-now-open" style="color: #e6cd87 !important; font-size: 1.4rem !important; white-space: nowrap !important;">GET READY TO GET SOGGY! <span style="color: #e6cd87 !important;">🚀</span></h3>
+        newCard.innerHTML = `
+            <h2 style="font-family: 'Fredoka One', cursive; font-size: 2.5rem; margin-bottom: 10px; color: #4DA2FF; text-shadow: 0 0 20px rgba(77, 162, 255, 0.3); position: relative; z-index: 2;">🎉 WE ARE LIVE!</h2>
+            <h3 style="font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 20px; color: #e6cd87; text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 2; font-weight: 900; line-height: 1; white-space: nowrap;">GET READY TO GET SOGGY! <span style="color: #e6cd87;">🚀</span></h3>
             
-            <div class="contract-section" style="margin: 25px 0;">
-                <div class="contract-container">
-                    <div class="contract-address-line" style="min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                        <span class="contract-text" style="display: flex; align-items: center; height: 40px; color: #a8c5ff;">Contract Address:</span>
-                        <span class="contract-address" id="postLaunchAddress" style="background: #0c2a44 !important; padding: 10px 14px; display: flex; align-items: center; height: 40px; color: #a8c5ff; font-family: 'Courier New', monospace; border-radius: 8px; border: 1px solid rgba(77, 162, 255, 0.3);">${contractAddress}</span>
-                        <button class="copy-btn" id="postLaunchCopyBtn" onclick="copyPostLaunchAddress()" style="min-width: 40px; height: 40px; background: #4DA2FF; border: none; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                    </div>
+            <div style="margin: 25px 0;">
+                <div style="min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                    <span style="display: flex; align-items: center; height: 40px; color: #a8c5ff; font-size: 1rem;">Contract Address:</span>
+                    <span id="postLaunchAddress" style="background: #0c2a44; padding: 10px 14px; display: flex; align-items: center; height: 40px; color: #a8c5ff; font-family: 'Courier New', monospace; border-radius: 8px; border: 1px solid rgba(77, 162, 255, 0.3); font-size: 0.9rem;">${contractAddress}</span>
+                    <button id="postLaunchCopyBtn" onclick="copyPostLaunchAddress()" style="min-width: 40px; height: 40px; background: #4DA2FF; border: none; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-copy"></i>
+                    </button>
                 </div>
             </div>
             
-            <p class="countdown-launch-info">Get involved with $AQUA Community at the Telegram!</p>
+            <p style="color: #a8c5ff; font-style: italic; border-top: 1px solid rgba(77, 162, 255, 0.2); padding-top: 15px; margin-top: 20px;">Get involved with $AQUA Community at the Telegram!</p>
             
             <div style="margin-top: 25px; text-align: center;">
-                <a href="https://t.me/AQUA_CAT_ON_SUI" target="_blank" class="btn btn-primary" style="font-size: 1.1rem; padding: 12px 30px;">
+                <a href="https://t.me/AQUA_CAT_ON_SUI" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #4DA2FF, #77B5FF); color: white; text-decoration: none; padding: 12px 30px; border-radius: 25px; font-weight: 600; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(77, 162, 255, 0.3); transition: all 0.3s ease;">
                     <i class="fab fa-telegram"></i> Join Telegram
                 </a>
             </div>
         `;
         
-        console.log('DEBUG: Post-launch state applied with injected CSS override');
+        // Replace the entire countdown container content
+        countdownContainer.innerHTML = '';
+        countdownContainer.appendChild(newCard);
+        countdownContainer.style.display = 'block';
+        
+        console.log('DEBUG: Completely new card created and inserted');
     }
 }
 
