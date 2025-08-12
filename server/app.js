@@ -72,20 +72,30 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Session configuration for OAuth
-app.use(session({
+const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'aqua_session_secret',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,
-    touchAfter: 24 * 3600 // Lazy session update
-  }),
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 // 24 hours
   }
-}));
+};
+
+// Only add MongoDB store if we have a database connection
+const mongoUrl = process.env.DATABASE_URL || process.env.MONGODB_URI;
+if (mongoUrl) {
+  sessionConfig.store = MongoStore.create({
+    mongoUrl: mongoUrl,
+    touchAfter: 24 * 3600 // Lazy session update
+  });
+  console.log('🗄️  Session store using MongoDB');
+} else {
+  console.log('⚠️  Session store using memory (development only)');
+}
+
+app.use(session(sessionConfig));
 
 // Rate limiting with IP whitelist
 const getWhitelistedIPs = () => {
