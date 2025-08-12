@@ -476,6 +476,115 @@ const memeController = {
         error: 'Failed to fetch templates'
       });
     }
+  },
+
+  // Save meme from frontend data (different from createMeme)
+  saveMeme: async (req, res) => {
+    try {
+      const {
+        originalImageUrl,
+        finalMemeUrl,
+        thumbnailDataUrl,
+        textElements,
+        customTitle,
+        tags,
+        source
+      } = req.body;
+
+      // Validate required fields
+      if (!finalMemeUrl) {
+        return res.status(400).json({
+          success: false,
+          error: 'Final meme image is required'
+        });
+      }
+
+      // Convert data URLs to actual files
+      let savedImageUrl = null;
+      let savedThumbnailUrl = null;
+
+      if (finalMemeUrl.startsWith('data:image/')) {
+        // Convert data URL to buffer
+        const base64Data = finalMemeUrl.replace(/^data:image\/\w+;base64,/, '');
+        const imageBuffer = Buffer.from(base64Data, 'base64');
+        
+        const filename = `meme_${uuidv4()}.png`;
+        savedImageUrl = await saveImageBuffer(imageBuffer, filename);
+        savedThumbnailUrl = await createThumbnail(imageBuffer, filename);
+      } else {
+        savedImageUrl = finalMemeUrl;
+        // Create thumbnail from final image if no thumbnail provided
+        if (!savedThumbnailUrl) {
+          savedThumbnailUrl = savedImageUrl; // Fallback
+        }
+      }
+
+      // Extract original image URL from object if needed
+      let cleanOriginalUrl = originalImageUrl;
+      if (typeof originalImageUrl === 'object' && originalImageUrl?.url) {
+        cleanOriginalUrl = originalImageUrl.url;
+      }
+
+      // Process text elements to match schema requirements
+      const processedTextElements = (textElements || []).map(element => ({
+        text: element.text || '',
+        x: element.position?.x || element.x || 0,
+        y: element.position?.y || element.y || 0,
+        fontSize: element.size || element.fontSize || 24,
+        fontFamily: element.font || element.fontFamily || 'Impact',
+        color: element.color || '#FFFFFF',
+        strokeColor: element.strokeColor || '#000000',
+        strokeWidth: element.strokeWidth || 2
+      }));
+
+      // Generate unique ID
+      const memeId = `meme_${uuidv4()}`;
+
+      // Create meme in database
+      const meme = new Meme({
+        id: memeId,
+        title: customTitle || `Generated Meme ${Date.now()}`,
+        originalImageUrl: cleanOriginalUrl || savedImageUrl,
+        finalMemeUrl: savedImageUrl,
+        thumbnail: savedThumbnailUrl,
+        textElements: processedTextElements,
+        generationType: 'upload', // Valid enum value for user-generated content
+        source: source || 'web-generator',
+        tags: tags || ['user-generated'],
+        userId: req.user ? req.user._id : null,
+        userIP: req.ip,
+        isApproved: true, // Auto-approve user-generated content
+        isRemixable: true,
+        category: 'funny' // Valid enum value
+      });
+
+      const savedMeme = await meme.save();
+
+      // Add to user's created memes if authenticated
+      if (req.user) {
+        await req.user.addMeme(savedMeme._id);
+      }
+
+      console.log('✅ Meme saved successfully:', savedMeme.id);
+
+      res.json({
+        success: true,
+        message: 'Meme saved successfully',
+        meme: {
+          id: savedMeme.id,
+          finalMemeUrl: savedMeme.finalMemeUrl,
+          thumbnailUrl: savedMeme.thumbnail,
+          createdAt: savedMeme.createdAt
+        }
+      });
+
+    } catch (error) {
+      console.error('Save meme error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to save meme'
+      });
+    }
   }
 };
 

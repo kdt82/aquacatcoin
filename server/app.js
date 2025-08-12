@@ -6,6 +6,9 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const cookieParser = require('cookie-parser');
 
 // Load environment variables: prefer root .env in production, fallback to local.env in development
 const rootDir = path.join(__dirname, '..');
@@ -27,25 +30,36 @@ app.set('view engine', 'ejs');
 app.set('views', paths.viewsDir);
 
 // Security middleware - disable HTTPS enforcement for development
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-      imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", "https://cloud.leonardo.ai"]
-      // Removed upgradeInsecureRequests to allow HTTP in development
-    }
-  },
-  hsts: false // Disable HTTPS enforcement
-}));
+app.use((req, res, next) => {
+  const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(req.get('User-Agent') || '');
+  
+  if (isMobile) {
+    // Disable CSP for mobile devices temporarily for debugging
+    console.log('📱 Mobile device detected - disabling CSP for debugging');
+    next();
+  } else {
+    // Apply CSP for desktop
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+          fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+          scriptSrcAttr: ["'unsafe-inline'"],
+          imgSrc: ["'self'", "data:", "https:", "blob:"],
+          connectSrc: ["'self'", "https://cloud.leonardo.ai"]
+        }
+      },
+      hsts: false
+    })(req, res, next);
+  }
+});
 
 // CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://www.aquacatcoin.xyz', 'https://aquacatcoin.xyz', 'http://54.187.91.146:3000']
+    ? ['https://www.aquacatcoin.xyz', 'https://aquacatcoin.xyz', 'https://aquacat-meme-generator.up.railway.app']
     : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://54.187.91.146:3000'],
   credentials: true
 }));
@@ -55,14 +69,49 @@ app.use(compression());
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
-// Rate limiting
+// Session configuration for OAuth
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'aqua_session_secret',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    touchAfter: 24 * 3600 // Lazy session update
+  }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 // 24 hours
+  }
+}));
+
+// Rate limiting with IP whitelist
+const getWhitelistedIPs = () => {
+  const whitelist = process.env.RATE_LIMIT_WHITELIST_IPS || '';
+  return whitelist.split(',').map(ip => ip.trim()).filter(ip => ip.length > 0);
+};
+
+const isWhitelistedIP = (ip) => {
+  const whitelistedIPs = getWhitelistedIPs();
+  return whitelistedIPs.includes(ip);
+};
+
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    const clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+    const isWhitelisted = isWhitelistedIP(clientIP);
+    if (isWhitelisted) {
+      console.log(`🟢 Rate limit bypassed for whitelisted IP: ${clientIP}`);
+    }
+    return isWhitelisted;
+  }
 });
 
 const aiLimiter = rateLimit({
@@ -71,28 +120,50 @@ const aiLimiter = rateLimit({
   message: 'AI generation limit reached. Please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    const clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+    const isWhitelisted = isWhitelistedIP(clientIP);
+    if (isWhitelisted) {
+      console.log(`🟢 AI rate limit bypassed for whitelisted IP: ${clientIP}`);
+    }
+    return isWhitelisted;
+  }
 });
 
 // Debug middleware to log ALL requests (before rate limiting)
 app.use((req, res, next) => {
-  console.log('🌐 Request:', req.method, req.url);
+  const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(req.get('User-Agent') || '');
+  const deviceType = isMobile ? '📱 MOBILE' : '💻 DESKTOP';
+  
+  console.log('🌐 Request:', req.method, req.url, `from ${deviceType} (${req.ip})`);
   if (req.url.includes('.css')) {
-    console.log('🎨 CSS Request detected:', req.url);
+    console.log(`🎨 CSS Request detected: ${req.url} from ${deviceType} (${req.ip})`);
   }
   next();
 });
 
 // Static files BEFORE rate limiting
 app.use(express.static(paths.publicDir, {
-  setHeaders: (res, path) => {
+  setHeaders: (res, path, stat) => {
+    // Add CORS headers for mobile compatibility
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    
+    // Aggressive cache busting for mobile
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Last-Modified', new Date().toUTCString());
+    res.setHeader('ETag', Date.now().toString());
+    
     if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Content-Type', 'text/css; charset=utf-8');
+      console.log('🎨 CSS Request detected:', path);
       console.log('✅ Serving CSS file:', path);
     }
     if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
     }
   }
 }));
@@ -104,12 +175,18 @@ app.use(generalLimiter);
 // Database connection
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/aqua-memes';
+    // Railway provides DATABASE_URL, fallback to MONGODB_URI, then local MongoDB
+    const mongoURI = process.env.DATABASE_URL || process.env.MONGODB_URI || 'mongodb://localhost:27017/aqua-memes';
+    
+    console.log('🔄 Attempting to connect to MongoDB...');
+    console.log('🔗 Connection string:', mongoURI.replace(/\/\/[^@]+@/, '//***:***@')); // Hide credentials in logs
+    
     await mongoose.connect(mongoURI);
     console.log('🗄️  MongoDB connected successfully');
   } catch (error) {
     console.warn('⚠️  MongoDB connection failed:', error.message);
     console.log('🔄 Running in development mode without database');
+    console.log('💡 This is normal if you haven\'t set up MongoDB yet');
     // Don't exit in development - allow running without MongoDB
   }
 };
@@ -123,8 +200,27 @@ app.get('/test-static', (req, res) => {
   });
 });
 
+// Test route for CSS delivery
+app.get('/test-css', (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  const cssPath = path.join(paths.publicDir, 'css', 'main.css');
+  
+  try {
+    const cssContent = fs.readFileSync(cssPath, 'utf8');
+    res.setHeader('Content-Type', 'text/css; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.send(cssContent);
+  } catch (error) {
+    res.status(404).json({ error: 'CSS file not found', path: cssPath });
+  }
+});
+
 // Routes
 app.use('/', require('./routes/website'));
+app.use('/auth', require('./routes/auth'));
+app.use('/api/limits', require('./routes/limits'));
 app.use('/api/memes', require('./routes/memes'));
 app.use('/api/ai', aiLimiter, require('./routes/ai'));
 app.use('/api/gallery', require('./routes/gallery'));

@@ -158,6 +158,12 @@ POST /api/gallery/search             # Search memes ✅
 - Sample data seeder with 8 realistic memes
 - No dummy data - all statistics and content are database-driven
 
+### 🔧 Preview/Testing Environment:
+- **Public URLs**: `/meme-generator` and `/gallery` show "Coming Soon" pages
+- **Preview URLs**: `/preview/meme-generator` and `/preview/gallery` for testing
+- **Dev Dashboard**: `/dev-preview` - Central hub for all testing links
+- **Strategy**: Public experience protected while development continues
+
 ### 🔄 In Progress (Final Step):
 - **MongoDB Connection**: Need to install and configure MongoDB
 - **Database Seeding**: Run `npm run seed` to populate test data

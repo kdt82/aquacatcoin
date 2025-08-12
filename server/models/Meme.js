@@ -149,7 +149,7 @@ const memeSchema = new mongoose.Schema({
 memeSchema.index({ isApproved: 1, createdAt: -1 });
 memeSchema.index({ isRemixable: 1, isApproved: 1 });
 memeSchema.index({ category: 1, isApproved: 1, createdAt: -1 });
-memeSchema.index({ sourceImageId: 1 });
+// sourceImageId index is already defined in schema field (index: true)
 memeSchema.index({ likes: -1, createdAt: -1 });
 memeSchema.index({ views: -1, createdAt: -1 });
 memeSchema.index({ shareCount: -1, createdAt: -1 });

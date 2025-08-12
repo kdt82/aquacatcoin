@@ -7,13 +7,13 @@ class AdvancedMemeGenerator {
         });
         
         this.history = [];
+        this.setupResponsiveCanvas();
         this.historyIndex = -1;
         this.maxHistory = 20;
         this.isLoadingFromHistory = false; // Flag to prevent infinite loops during undo/redo
         this.currentMode = null; // 'text', 'shape', null
         this.activeObject = null;
-        this.selectedModel = 'creative';
-        this.availableModels = {};
+        this.aquaModel = null; // Will be loaded from API
         this.selectedUserImage = null;
         this.userImages = this.loadUserImages();
         this.clipboard = null; // For copy/paste functionality
@@ -25,12 +25,86 @@ class AdvancedMemeGenerator {
         this.updateStorageInfo();
         this.setupScrollAnimations();
         this.initializeStepStates();
+        this.initializeAdvancedFeatures();
+        this.loadCreditInfo();
         
         // Save initial canvas state after everything is initialized
         setTimeout(() => {
             this.saveCanvasState();
             this.updateCopyPasteButtons(); // Initialize button states
         }, 100);
+    }
+
+    setupResponsiveCanvas() {
+        // Set initial canvas size
+        this.resizeCanvas();
+        
+        // Add resize event listener
+        window.addEventListener('resize', () => {
+            this.resizeCanvas();
+        });
+        
+        // Add orientation change event for mobile
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                this.resizeCanvas();
+            }, 100);
+        });
+    }
+
+    resizeCanvas() {
+        const container = document.querySelector('.canvas-container');
+        if (!container) return;
+        
+        const containerWidth = container.clientWidth - 4; // Account for border
+        const isMobile = window.innerWidth <= 768;
+        
+        let canvasSize;
+        if (isMobile) {
+            // On mobile, use container width but maintain aspect ratio
+            canvasSize = Math.min(containerWidth, window.innerHeight * 0.4);
+        } else {
+            // On desktop, use fixed size or container width, whichever is smaller
+            canvasSize = Math.min(600, containerWidth);
+        }
+        
+        // Update canvas dimensions
+        this.canvas.setDimensions({
+            width: canvasSize,
+            height: canvasSize
+        });
+        
+        // Update the HTML canvas element size
+        const canvasElement = this.canvas.getElement();
+        canvasElement.style.width = canvasSize + 'px';
+        canvasElement.style.height = canvasSize + 'px';
+        
+        // Re-render canvas
+        this.canvas.renderAll();
+        
+        // Update mobile touch handling
+        this.setupMobileTouchHandling();
+    }
+
+    setupMobileTouchHandling() {
+        const isMobile = window.innerWidth <= 768;
+        
+        if (isMobile) {
+            // Enable touch scrolling on mobile
+            this.canvas.allowTouchScrolling = true;
+            
+            // Improve touch interaction
+            const canvasElement = this.canvas.getElement();
+            canvasElement.style.touchAction = 'manipulation';
+            
+            // Add mobile-specific canvas settings
+            this.canvas.selection = true;
+            this.canvas.hoverCursor = 'move';
+            this.canvas.moveCursor = 'move';
+            
+            // Make objects easier to select on mobile
+            this.canvas.targetFindTolerance = 15; // Increase touch target size
+        }
     }
     
     initializeEventListeners() {
@@ -42,18 +116,7 @@ class AdvancedMemeGenerator {
             this.selectChoice('ai');
         });
         
-        document.getElementById('uploadChoice').addEventListener('click', () => {
-            this.selectChoice('upload');
-        });
-        
-        // File upload
-        const uploadZone = document.getElementById('uploadZone');
-        const imageUpload = document.getElementById('imageUpload');
-        
-        uploadZone.addEventListener('click', () => imageUpload.click());
-        uploadZone.addEventListener('dragover', this.handleDragOver.bind(this));
-        uploadZone.addEventListener('drop', this.handleDrop.bind(this));
-        imageUpload.addEventListener('change', this.handleImageUpload.bind(this));
+        // Upload functionality removed - AI generation only
         
         // AI Generation
         document.getElementById('generateBtn').addEventListener('click', this.generateAIImage.bind(this));
@@ -62,8 +125,8 @@ class AdvancedMemeGenerator {
         document.getElementById('undoBtn').addEventListener('click', this.undo.bind(this));
         document.getElementById('redoBtn').addEventListener('click', this.redo.bind(this));
         document.getElementById('clearBtn').addEventListener('click', this.clearCanvas.bind(this));
+        document.getElementById('changeImageBtn').addEventListener('click', this.changeImage.bind(this));
         document.getElementById('exportBtn').addEventListener('click', this.exportMeme.bind(this));
-        document.getElementById('saveBtn').addEventListener('click', this.saveMeme.bind(this));
         
         // Element tools
         document.getElementById('addTextBtn').addEventListener('click', () => {
@@ -112,9 +175,6 @@ class AdvancedMemeGenerator {
         // Share to social button
         document.getElementById('shareToSocialBtn').addEventListener('click', this.saveAndShare.bind(this));
         
-        // Direct share button (for testing)
-        document.getElementById('directShareBtn').addEventListener('click', this.openShareModal.bind(this));
-        
         // Clear storage button
         document.getElementById('clearStorageBtn').addEventListener('click', this.clearAllImages.bind(this));
         
@@ -152,22 +212,9 @@ class AdvancedMemeGenerator {
     }
     
     selectChoice(choice) {
-        // Remove selection from both cards
-        document.querySelectorAll('.choice-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-        
-        // Hide both forms
-        document.getElementById('aiForm').classList.remove('active');
-        document.getElementById('uploadZone').classList.remove('active');
-        
-        if (choice === 'ai') {
-            document.getElementById('aiChoice').classList.add('selected');
-            document.getElementById('aiForm').classList.add('active');
-        } else {
-            document.getElementById('uploadChoice').classList.add('selected');
-            document.getElementById('uploadZone').classList.add('active');
-        }
+        // Only AI choice available - always show AI form
+        document.getElementById('aiChoice').classList.add('selected');
+        document.getElementById('aiForm').classList.add('active');
     }
     
     async loadAIModels() {
@@ -176,53 +223,41 @@ class AdvancedMemeGenerator {
             const result = await response.json();
             
             if (result.success) {
-                this.availableModels = result.models;
-                this.renderModelSelection();
+                this.aquaModel = result.model;
+                this.updateModelDisplay();
             }
         } catch (error) {
-            console.error('Failed to load AI models:', error);
-            // Show fallback models
-            this.availableModels = {
-                creative: {
-                    name: "Creative Engine",
-                    description: "Best for cartoon-style memes with vibrant colors",
-                    example: "A wet cartoon cat with big eyes sitting in the rain",
-                    speed: "Fast",
-                    recommended: true
-                }
+            console.error('Failed to load AQUA model:', error);
+            // Show fallback model info
+            this.aquaModel = {
+                name: "AQUA Cat Model",
+                description: "Custom trained model specifically for AQUA meme generation featuring the soggy cat",
+                example: "A wet blue cat mascot sitting in the rain, crypto themed",
+                speed: "Fast",
+                trained: true
             };
-            this.renderModelSelection();
+            this.updateModelDisplay();
         }
     }
     
-    renderModelSelection() {
-        const grid = document.getElementById('modelGrid');
-        grid.innerHTML = '';
-        
-        Object.entries(this.availableModels).forEach(([key, model]) => {
-            const modelCard = document.createElement('div');
-            modelCard.className = `model-card ${key === 'creative' ? 'selected' : ''} ${model.recommended ? 'recommended' : ''}`;
-            modelCard.dataset.model = key;
-            
-            modelCard.innerHTML = `
-                <div class="model-name">${model.name}</div>
-                <div class="model-description">${model.description}</div>
-                <div class="model-example">"${model.example}"</div>
-                <div class="model-meta">
-                    <span class="model-speed-badge">⚡ ${model.speed}</span>
+    updateModelDisplay() {
+        // Update the model info display to show AQUA trained model
+        const modelInfo = document.querySelector('.model-info');
+        if (modelInfo && this.aquaModel) {
+            modelInfo.innerHTML = `
+                <div class="aqua-model-card">
+                    <div class="model-header">
+                        <h3>${this.aquaModel.name}</h3>
+                        <span class="model-badge ${this.aquaModel.trained ? 'trained' : 'flux'}">${this.aquaModel.trained ? '🎯 Trained Model' : '⚡ Flux Dev'}</span>
+                    </div>
+                    <p class="model-description">${this.aquaModel.description}</p>
+                    <p class="model-example"><strong>Example:</strong> "${this.aquaModel.example}"</p>
+                    <div class="model-stats">
+                        <span class="speed-badge">${this.aquaModel.speed}</span>
+                    </div>
                 </div>
             `;
-            
-            modelCard.addEventListener('click', () => {
-                document.querySelectorAll('.model-card').forEach(card => {
-                    card.classList.remove('selected');
-                });
-                modelCard.classList.add('selected');
-                this.selectedModel = key;
-            });
-            
-            grid.appendChild(modelCard);
-        });
+        }
     }
 
     async generateAIImage() {
@@ -242,8 +277,7 @@ class AdvancedMemeGenerator {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    prompt: prompt,
-                    model: this.selectedModel
+                    prompt: prompt
                 })
             });
             
@@ -379,7 +413,7 @@ class AdvancedMemeGenerator {
             <div style="color: var(--main-blue); font-weight: 600; margin-bottom: 3px;">
                 <i class="fas fa-clock"></i> Generation Limit
             </div>
-            <div>Used: ${rateLimit.used}/4 this hour</div>
+            <div>Used: ${rateLimit.used}/3 Free Generations Today</div>
             <div>Resets: ${resetTime}</div>
         `;
         
@@ -390,43 +424,226 @@ class AdvancedMemeGenerator {
             }
         }, 10000);
     }
-    
-    handleDragOver(e) {
-        e.preventDefault();
-        document.getElementById('uploadZone').classList.add('dragover');
-    }
-    
-    handleDrop(e) {
-        e.preventDefault();
-        document.getElementById('uploadZone').classList.remove('dragover');
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            this.processImageFile(files[0]);
-        }
-    }
-    
-    handleImageUpload(e) {
-        const file = e.target.files[0];
-        if (file) {
-            this.processImageFile(file);
-        }
-    }
-    
-    processImageFile(file) {
-        if (file.size > 10 * 1024 * 1024) {
-            this.showCustomAlert('File too large! Please use an image under 10MB.', 'warning', 'File Size Limit');
-            return;
-        }
-        
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const imageData = e.target.result;
-            await this.addUserImage(imageData, 'upload');
+
+    // Load and display user credit information
+    async loadCreditInfo() {
+        try {
+            const response = await fetch('/api/limits/info');
+            const result = await response.json();
             
-            // Show step 2 (Your Images) so user can select the uploaded image
-            this.expandStep('step2');
+            if (result.success) {
+                this.updateCreditDisplay(result);
+            }
+        } catch (error) {
+            console.error('Failed to load credit info:', error);
+        }
+    }
+
+    updateCreditDisplay(limitInfo) {
+        // Remove existing display
+        const existingDisplay = document.getElementById('creditDisplayContainer');
+        if (existingDisplay) {
+            existingDisplay.remove();
+        }
+
+        // Create credit display container
+        const container = document.createElement('div');
+        container.id = 'creditDisplayContainer';
+        
+        if (limitInfo.type === 'authenticated') {
+            // Show credit balance and claim button for authenticated users
+            container.innerHTML = `
+                <div class="credit-display">
+                    <div class="credit-balance">
+                        <i class="fas fa-coins"></i>
+                        <span>Credits: ${limitInfo.credits}</span>
+                    </div>
+                    <button class="claim-credits-btn" id="claimCreditsBtn">
+                        <i class="fas fa-gift"></i>
+                        Claim Daily Credits
+                    </button>
+                </div>
+                <div class="claim-cooldown" id="claimCooldown" style="display: none;">
+                    Next claim available in: <span id="cooldownTimer"></span>
+                </div>
+            `;
+        } else {
+            // Show generation count for anonymous users
+            container.innerHTML = `
+                <div class="credit-display">
+                    <div class="credit-balance">
+                        <i class="fas fa-clock"></i>
+                        <span>${limitInfo.used}/3 Free Generations Today</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Insert after the AI form
+        const aiForm = document.getElementById('aiForm');
+        if (aiForm) {
+            aiForm.parentNode.insertBefore(container, aiForm.nextSibling);
+        }
+
+        // Set up claim button if it exists
+        const claimBtn = document.getElementById('claimCreditsBtn');
+        if (claimBtn) {
+            claimBtn.addEventListener('click', this.claimDailyCredits.bind(this));
+            this.checkClaimAvailability();
+        }
+    }
+
+    async claimDailyCredits() {
+        try {
+            const claimBtn = document.getElementById('claimCreditsBtn');
+            const originalText = claimBtn.innerHTML;
+            
+            claimBtn.disabled = true;
+            claimBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Claiming...';
+
+            const response = await fetch('/api/limits/claim-daily', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                await this.showCustomAlert(
+                    `🎉 ${result.message} You earned ${result.creditsEarned} credits! New balance: ${result.newBalance}`,
+                    'success',
+                    'Credits Claimed!'
+                );
+                
+                // Update the display
+                this.loadCreditInfo();
+            } else {
+                await this.showCustomAlert(result.error, 'warning', 'Already Claimed');
+                this.checkClaimAvailability();
+            }
+
+        } catch (error) {
+            console.error('Failed to claim daily credits:', error);
+            await this.showCustomAlert('Failed to claim daily credits. Please try again.', 'error', 'Claim Failed');
+        }
+    }
+
+    async checkClaimAvailability() {
+        try {
+            const response = await fetch('/api/limits/claim-daily', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+            const claimBtn = document.getElementById('claimCreditsBtn');
+            const cooldownDiv = document.getElementById('claimCooldown');
+            
+            if (!claimBtn) return;
+
+            if (!result.success && result.nextClaimTime) {
+                // Already claimed, show cooldown
+                claimBtn.disabled = true;
+                claimBtn.innerHTML = '<i class="fas fa-clock"></i> Claimed Today';
+                
+                if (cooldownDiv) {
+                    cooldownDiv.style.display = 'block';
+                    this.startCooldownTimer(new Date(result.nextClaimTime));
+                }
+            } else {
+                claimBtn.disabled = false;
+                claimBtn.innerHTML = '<i class="fas fa-gift"></i> Claim Daily Credits';
+                if (cooldownDiv) {
+                    cooldownDiv.style.display = 'none';
+                }
+            }
+        } catch (error) {
+            console.error('Failed to check claim availability:', error);
+        }
+    }
+
+    startCooldownTimer(nextClaimTime) {
+        const timerElement = document.getElementById('cooldownTimer');
+        if (!timerElement) return;
+
+        const updateTimer = () => {
+            const now = new Date();
+            const timeLeft = nextClaimTime - now;
+
+            if (timeLeft <= 0) {
+                this.checkClaimAvailability();
+                return;
+            }
+
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+            timerElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
         };
-        reader.readAsDataURL(file);
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+
+        // Clear interval after 24 hours
+        setTimeout(() => clearInterval(interval), 24 * 60 * 60 * 1000);
+    }
+    
+    // Upload methods removed - AI generation only
+    
+    // processImageFile removed - AI generation only
+    
+    cleanupCanvas() {
+        try {
+            // Clear all objects from canvas
+            this.canvas.clear();
+            
+            // Reset canvas properties
+            this.canvas.backgroundColor = '#ffffff';
+            
+            // Clear any active selections
+            this.canvas.discardActiveObject();
+            
+            // Force garbage collection of canvas elements
+            this.canvas.renderAll();
+            
+            console.log('Canvas cleaned up successfully');
+        } catch (error) {
+            console.error('Error during canvas cleanup:', error);
+        }
+    }
+
+    handleEmptyCanvas() {
+        try {
+            console.log('Handling empty canvas state...');
+            
+            // Reset canvas to clean state
+            this.canvas.backgroundColor = '#ffffff';
+            this.canvas.discardActiveObject();
+            
+            // Clear any potential corruption
+            this.canvas.clear();
+            
+            // Force a clean render
+            this.canvas.renderAll();
+            
+            // Reset canvas dimensions to ensure proper state
+            this.canvas.setDimensions({
+                width: 600,
+                height: 600
+            });
+            
+            console.log('Empty canvas handled successfully');
+            
+        } catch (error) {
+            console.error('Error handling empty canvas:', error);
+            // If handling fails, force a complete reset
+            this.fixCanvasCorruption();
+        }
     }
     
     loadImageToCanvas(imageUrl) {
@@ -443,6 +660,9 @@ class AdvancedMemeGenerator {
             console.error('Invalid image URL provided:', imageUrl);
             return;
         }
+        
+        // Clean up canvas before loading new image
+        this.cleanupCanvas();
         
         // Set canvas background
         this.canvas.backgroundColor = '#ffffff';
@@ -560,73 +780,10 @@ class AdvancedMemeGenerator {
                     this.canvas.renderAll();
                     console.log('Canvas rendered with', this.canvas.getObjects().length, 'objects');
                     
-                    // Force another render after a short delay
+                    // Single clean render after a short delay
                     setTimeout(() => {
                         this.canvas.renderAll();
-                        console.log('Canvas re-rendered');
-                        
-                        // Check if objects are visible
-                        const objects = this.canvas.getObjects();
-                        if (objects.length > 0) {
-                            console.log('First object:', {
-                                type: objects[0].type,
-                                visible: objects[0].visible,
-                                opacity: objects[0].opacity,
-                                left: objects[0].left,
-                                top: objects[0].top
-                            });
-                        }
-                        
-                        // Deep canvas debugging
-                        const canvasEl = document.getElementById('memeCanvas');
-                        if (canvasEl) {
-                            console.log('Canvas element details:', {
-                                width: canvasEl.width,
-                                height: canvasEl.height,
-                                offsetWidth: canvasEl.offsetWidth,
-                                offsetHeight: canvasEl.offsetHeight,
-                                clientWidth: canvasEl.clientWidth,
-                                clientHeight: canvasEl.clientHeight,
-                                style: canvasEl.style.cssText
-                            });
-                            
-                            // Check if there are multiple canvas elements (Fabric.js creates two)
-                            const allCanvases = document.querySelectorAll('#memeCanvas, canvas');
-                            console.log('Total canvas elements found:', allCanvases.length);
-                            allCanvases.forEach((canvas, index) => {
-                                console.log(`Canvas ${index}:`, {
-                                    id: canvas.id,
-                                    className: canvas.className,
-                                    width: canvas.width,
-                                    height: canvas.height,
-                                    style: canvas.style.cssText,
-                                    zIndex: getComputedStyle(canvas).zIndex
-                                });
-                            });
-                            
-                            // Check Fabric.js canvas state
-                            console.log('Fabric canvas state:', {
-                                width: this.canvas.width,
-                                height: this.canvas.height,
-                                backgroundColor: this.canvas.backgroundColor,
-                                objectsCount: this.canvas.getObjects().length,
-                                viewportTransform: this.canvas.viewportTransform
-                            });
-                            
-                            // Force a complete re-render with different methods
-                            console.log('Attempting multiple render methods...');
-                            this.canvas.requestRenderAll();
-                            this.canvas.renderAll();
-                            this.canvas.calcOffset();
-                            
-                            // Try to trigger a repaint
-                            setTimeout(() => {
-                                this.canvas.clear();
-                                this.canvas.add(objects[0]);
-                                this.canvas.renderAll();
-                                console.log('Attempted object re-add and render');
-                            }, 200);
-                        }
+                        console.log('Canvas rendered successfully');
                     }, 100);
                     
                     console.log('Image loaded to canvas successfully');
@@ -839,14 +996,25 @@ class AdvancedMemeGenerator {
         this.updateStorageInfo();
     }
     
-    clearAllImages() {
-        const confirmed = confirm('Are you sure you want to clear all saved images? This cannot be undone.');
+    async clearAllImages() {
+        const confirmed = await this.showCustomConfirm(
+            'Are you sure you want to clear all your stored images? This action cannot be undone.',
+            'Clear All Images'
+        );
+        
         if (confirmed) {
+            // Clear user images from storage
             this.userImages = [];
+            
+            // Clear from localStorage
             localStorage.removeItem('userImages');
+            localStorage.removeItem('memeGenerator_userImages');
+            
+            // Refresh the display
             this.refreshUserImagesDisplay();
             this.updateStorageInfo();
-            this.showCustomAlert('All saved images have been cleared.', 'info', 'Images Cleared');
+            
+            await this.showCustomAlert('All images have been cleared successfully.', 'success', 'Images Cleared');
         }
     }
     
@@ -881,38 +1049,51 @@ class AdvancedMemeGenerator {
     
     refreshUserImagesDisplay() {
         const grid = document.getElementById('userImagesGrid');
+        if (!grid) return;
         
         if (this.userImages.length === 0) {
             grid.innerHTML = `
                 <div class="empty-gallery">
                     <i class="fas fa-images" style="font-size: 3rem; color: rgba(77, 162, 255, 0.3);"></i>
-                    <p style="color: rgba(255,255,255,0.6); margin-top: 10px;">No images yet. Upload or generate some images first!</p>
+                    <p style="color: rgba(255,255,255,0.6); margin-top: 10px;">No images yet. Generate some images first!</p>
                 </div>
             `;
-        } else {
-            grid.innerHTML = '';
-            this.userImages.forEach(image => {
-                const item = document.createElement('div');
-                item.className = 'recent-item';
-                item.innerHTML = `
-                    <img src="${image.data}" alt="User image">
-                    <button class="remove-image" onclick="event.stopPropagation(); memeGenerator.removeUserImage('${image.id}')" title="Remove image">
-                        <i class="fas fa-times"></i>
-                    </button>
-                `;
-                
-                // Add click event listener to show preview modal
-                item.addEventListener('click', (e) => {
-                    // Prevent event if clicking on remove button
-                    if (e.target.closest('.remove-image')) {
-                        return;
-                    }
-                    this.selectUserImage(image.id);
-                });
-                
-                grid.appendChild(item);
-            });
+            return;
         }
+
+        grid.innerHTML = '';
+        this.userImages.forEach(image => {
+            const item = document.createElement('div');
+            item.className = 'recent-item';
+            item.dataset.imageId = image.id;
+            
+            // Create image element
+            const img = document.createElement('img');
+            img.src = image.url || image.data;
+            img.alt = 'Generated image';
+            img.loading = 'lazy';
+            
+            // Create delete button (using trash icon)
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'remove-image';
+            deleteBtn.title = 'Delete image';
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            
+            // Add event listeners
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.removeUserImage(image.id);
+            });
+            
+            item.addEventListener('click', () => {
+                this.selectUserImage(image.id);
+            });
+            
+            // Append elements
+            item.appendChild(img);
+            item.appendChild(deleteBtn);
+            grid.appendChild(item);
+        });
         
         // Update proceed button text and functionality
         const proceedBtn = document.getElementById('proceedToEdit');
@@ -934,18 +1115,6 @@ class AdvancedMemeGenerator {
                 proceedBtn.innerHTML = '<i class="fas fa-edit"></i> Edit Selected';
                 proceedBtn.onclick = () => this.proceedToEdit();
             }
-        }
-    }
-    
-    selectUserImage(imageId) {
-        // Find the selected image
-        const selectedImage = this.userImages.find(img => img.id === imageId);
-        
-        if (selectedImage) {
-            this.selectedUserImage = selectedImage.data;
-            this.showImagePreview(selectedImage);
-        } else {
-            console.error('Selected image not found');
         }
     }
     
@@ -988,7 +1157,7 @@ class AdvancedMemeGenerator {
         // Set up "Use for Meme" button
         const editBtn = document.getElementById('editImageBtn');
         editBtn.onclick = () => {
-            this.proceedToEdit(image.data);
+            this.proceedToEdit(image.url || image.data);
             document.getElementById('imagePreviewModal').style.display = 'none';
         };
     }
@@ -1000,7 +1169,15 @@ class AdvancedMemeGenerator {
             return;
         }
         
-        this.loadImageToCanvas(imageToLoad);
+        // Handle both data structures (url vs data property)
+        const imageUrl = typeof imageToLoad === 'string' ? imageToLoad : (imageToLoad.url || imageToLoad.data);
+        
+        if (!imageUrl) {
+            this.showCustomAlert('Invalid image data. Please try selecting the image again.', 'error', 'Image Error');
+            return;
+        }
+        
+        this.loadImageToCanvas(imageUrl);
         this.expandStep('step3');
     }
     
@@ -1163,7 +1340,7 @@ class AdvancedMemeGenerator {
     updateFontSize(e) {
         document.getElementById('fontSizeValue').textContent = `${e.target.value}px`;
         const activeObject = this.canvas.getActiveObject();
-        if (activeObject && (activeObject.type === 'textbox' || active.type === 'i-text')) {
+        if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'i-text')) {
             activeObject.set('fontSize', parseInt(e.target.value, 10));
             this.canvas.renderAll();
         }
@@ -1172,7 +1349,7 @@ class AdvancedMemeGenerator {
     updateStrokeWidth(e) {
         document.getElementById('strokeWidthValue').textContent = `${e.target.value}px`;
         const activeObject = this.canvas.getActiveObject();
-        if (activeObject && (activeObject.type === 'textbox' || active.type === 'i-text')) {
+        if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'i-text')) {
             activeObject.set('strokeWidth', parseInt(e.target.value, 10));
             this.canvas.renderAll();
         }
@@ -1231,9 +1408,23 @@ class AdvancedMemeGenerator {
     deleteSelected() {
         const activeObjects = this.canvas.getActiveObjects();
         if (activeObjects.length) {
-            activeObjects.forEach(obj => this.canvas.remove(obj));
+            activeObjects.forEach(obj => {
+                this.canvas.remove(obj);
+            });
             this.canvas.discardActiveObject();
-            this.canvas.renderAll();
+            
+            // Check if canvas is now empty and handle accordingly
+            const remainingObjects = this.canvas.getObjects();
+            if (remainingObjects.length === 0) {
+                console.log('All objects deleted - performing canvas cleanup');
+                this.handleEmptyCanvas();
+            } else {
+                this.canvas.renderAll();
+            }
+            
+            this.saveCanvasState();
+            this.updateLayerList();
+            this.updateCopyPasteButtons();
         }
     }
     
@@ -1283,14 +1474,20 @@ class AdvancedMemeGenerator {
         const isCtrl = e.ctrlKey || e.metaKey;
         
         if (isCtrl && e.key.toLowerCase() === 'z') {
+            e.preventDefault();
             this.undo();
         } else if (isCtrl && e.key.toLowerCase() === 'y') {
+            e.preventDefault();
             this.redo();
         } else if (e.key === 'Delete' || e.key === 'Backspace') {
+            e.preventDefault();
+            console.log('Delete key pressed - attempting to delete selected object');
             this.deleteSelected();
         } else if (isCtrl && e.key.toLowerCase() === 'c') {
+            e.preventDefault();
             this.copySelected();
         } else if (isCtrl && e.key.toLowerCase() === 'v') {
+            e.preventDefault();
             this.pasteElement();
         }
     }
@@ -1402,10 +1599,27 @@ class AdvancedMemeGenerator {
     clearCanvas() {
         const confirmed = confirm('Are you sure you want to clear the canvas? This will remove all elements.');
         if (confirmed) {
-            this.canvas.clear();
-            this.canvas.backgroundColor = '#ffffff';
-            this.canvas.renderAll();
+            this.cleanupCanvas();
+            this.saveCanvasState();
+            this.updateLayerList();
+            this.updateCopyPasteButtons();
         }
+    }
+
+    changeImage() {
+        // Go back to step 2 (Your Images) to select a different image
+        this.expandStep('step2');
+        
+        // Clear any selected image to force user to make a new selection
+        this.selectedUserImage = null;
+        
+        // Clear visual selection from all image items
+        document.querySelectorAll('.recent-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        
+        // Show a helpful message
+        this.showNotification('Select a different image from Your Images section', 'info');
     }
     
     exportMeme() {
@@ -1449,6 +1663,10 @@ class AdvancedMemeGenerator {
                 angle: obj.angle,
             }));
             
+            // Get custom title from input field
+            const titleInput = document.getElementById('memeTitle');
+            const customTitle = titleInput && titleInput.value.trim() ? titleInput.value.trim() : null;
+            
             // Send data to the server
             const response = await fetch('/api/memes/save', {
                 method: 'POST',
@@ -1458,6 +1676,7 @@ class AdvancedMemeGenerator {
                     finalMemeUrl,
                     thumbnailDataUrl,
                     textElements,
+                    customTitle,
                     tags: ['meme-generator', 'user-created'], // Example tags
                     source: 'web-generator',
                 }),
@@ -1526,8 +1745,7 @@ class AdvancedMemeGenerator {
         
         const platforms = {
             twitter: { icon: 'fab fa-twitter', name: 'Twitter' },
-            reddit: { icon: 'fab fa-reddit-alien', name: 'Reddit' },
-            facebook: { icon: 'fab fa-facebook', name: 'Facebook' },
+            reddit: { icon: 'fab fa-reddit-alien', name: 'Reddit' }
         };
         
         Object.entries(platforms).forEach(([platform, details]) => {
@@ -1624,50 +1842,92 @@ class AdvancedMemeGenerator {
         this.updateStorageInfo();
     }
 
-    refreshUserImagesDisplay() {
-        const grid = document.getElementById('userImagesGrid');
-        if (!grid) return;
 
-        if (this.userImages.length === 0) {
-            grid.innerHTML = `
-                <div class="empty-gallery">
-                    <i class="fas fa-images" style="font-size: 3rem; color: rgba(77, 162, 255, 0.3);"></i>
-                    <p style="color: rgba(255,255,255,0.6); margin-top: 10px;">No images yet. Upload or generate some images first!</p>
-                </div>
-            `;
-            return;
-        }
-
-        grid.innerHTML = this.userImages.map(image => `
-            <div class="user-image-item" data-image-id="${image.id}" onclick="memeGenerator.selectUserImage('${image.id}')">
-                <img src="${image.url}" alt="${image.name}" loading="lazy">
-                <div class="image-overlay">
-                    <div class="image-info">
-                        <span class="image-type">${image.type}</span>
-                        <span class="image-date">${new Date(image.timestamp).toLocaleDateString()}</span>
-                    </div>
-                    <button class="image-delete" onclick="event.stopPropagation(); memeGenerator.removeUserImage('${image.id}')" title="Delete image">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        `).join('');
-    }
 
     selectUserImage(imageId) {
         const image = this.userImages.find(img => img.id === imageId);
-        if (!image) return;
+        if (!image) {
+            console.warn('Image not found:', imageId);
+            return;
+        }
 
-        this.selectedUserImage = image;
+        // Show the image selection modal
+        this.showImageSelectionModal(image);
+    }
+
+    showImageSelectionModal(image) {
+        const modal = document.getElementById('imageSelectionModal');
+        const preview = document.getElementById('selectedImagePreview');
         
-        // Update visual selection
-        document.querySelectorAll('.user-image-item').forEach(item => {
-            item.classList.remove('selected');
-        });
-        document.querySelector(`[data-image-id="${imageId}"]`).classList.add('selected');
+        if (!modal || !preview) {
+            console.error('Image selection modal elements not found');
+            return;
+        }
+
+        // Set the preview image
+        preview.src = image.url || image.data;
         
-        // Enable the "Edit Selected" button
-        document.getElementById('proceedToEdit').disabled = false;
+        // Store the selected image for later use
+        this.pendingSelectedImage = image;
+        
+        // Show the modal
+        modal.style.display = 'flex';
+        
+        // Add event listeners for modal actions
+        this.setupImageSelectionModalEvents();
+    }
+
+    setupImageSelectionModalEvents() {
+        // Remove existing listeners to prevent duplicates
+        const goBackBtn = document.getElementById('goBackToImages');
+        const useImageBtn = document.getElementById('useSelectedImage');
+        const closeBtn = document.querySelector('#imageSelectionModal .modal-close');
+        
+        if (goBackBtn) {
+            goBackBtn.replaceWith(goBackBtn.cloneNode(true));
+            document.getElementById('goBackToImages').addEventListener('click', () => {
+                this.closeImageSelectionModal();
+            });
+        }
+        
+        if (useImageBtn) {
+            useImageBtn.replaceWith(useImageBtn.cloneNode(true));
+            document.getElementById('useSelectedImage').addEventListener('click', () => {
+                this.useSelectedImageForCanvas();
+            });
+        }
+        
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.closeImageSelectionModal();
+            });
+        }
+    }
+
+    closeImageSelectionModal() {
+        const modal = document.getElementById('imageSelectionModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        this.pendingSelectedImage = null;
+    }
+
+    useSelectedImageForCanvas() {
+        if (!this.pendingSelectedImage) {
+            console.error('No pending image to use');
+            return;
+        }
+
+        // Set the selected image
+        this.selectedUserImage = this.pendingSelectedImage;
+        
+        // Close the modal
+        this.closeImageSelectionModal();
+        
+        // Proceed to editing step
+        this.proceedToEdit();
+        
+        console.log('Using image for canvas:', this.selectedUserImage.id);
     }
 
     removeUserImage(imageId) {
@@ -1685,32 +1945,7 @@ class AdvancedMemeGenerator {
         }
     }
 
-    async clearAllImages() {
-        const confirmed = await this.showCustomConfirm(
-            'Are you sure you want to clear all your stored images? This action cannot be undone.',
-            'Clear All Images'
-        );
-        
-        if (confirmed) {
-            // Clear user images from storage
-            this.userImages = [];
-            
-            // Clear from localStorage if it exists
-            if (typeof Storage !== 'undefined') {
-                localStorage.removeItem('memeGenerator_userImages');
-            }
-            
-            // Refresh the display
-            if (typeof this.refreshUserImagesDisplay === 'function') {
-                this.refreshUserImagesDisplay();
-            }
-            if (typeof this.updateStorageInfo === 'function') {
-                this.updateStorageInfo();
-            }
-            
-            await this.showCustomAlert('All images have been cleared successfully.', 'success', 'Images Cleared');
-        }
-    }
+
 
     async showCustomConfirm(message, title = 'Confirm') {
         // Remove any existing confirm dialog
@@ -1790,9 +2025,692 @@ class AdvancedMemeGenerator {
             modal.querySelector('#alertOkBtn').onclick = close;
         });
     }
+
+    // Initialize advanced features (Phase 2 enhancements)
+    initializeAdvancedFeatures() {
+        this.initializeKeyboardShortcuts();
+        this.initializeAdvancedTextEffects();
+        this.initializeLayerManagement();
+        this.initializeAutoSave();
+        this.initializeCreditSystem();
+    }
+
+    // Keyboard shortcuts
+    initializeKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Don't trigger shortcuts when typing in inputs
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            // Ctrl/Cmd + Z - Undo
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                this.undo();
+            }
+            // Ctrl/Cmd + Shift + Z or Ctrl/Cmd + Y - Redo
+            else if ((e.ctrlKey || e.metaKey) && (e.shiftKey && e.key === 'Z' || e.key === 'y')) {
+                e.preventDefault();
+                this.redo();
+            }
+            // Ctrl/Cmd + C - Copy
+            else if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+                e.preventDefault();
+                this.copyObject();
+            }
+            // Ctrl/Cmd + V - Paste
+            else if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+                e.preventDefault();
+                this.pasteObject();
+            }
+            // Delete - Remove selected object
+            else if (e.key === 'Delete' || e.key === 'Backspace') {
+                e.preventDefault();
+                this.deleteSelectedObject();
+            }
+            // Ctrl/Cmd + D - Duplicate
+            else if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+                e.preventDefault();
+                this.duplicateObject();
+            }
+            // Ctrl/Cmd + S - Save Draft
+            else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                this.saveDraft();
+            }
+            // F1 - Show shortcuts help
+            else if (e.key === 'F1') {
+                e.preventDefault();
+                this.showShortcutsHelp();
+            }
+        });
+    }
+
+    // Advanced text effects
+    initializeAdvancedTextEffects() {
+        // Shadow controls
+        const enableShadow = document.getElementById('enableShadow');
+        const shadowColor = document.getElementById('shadowColor');
+        
+        if (enableShadow) {
+            enableShadow.addEventListener('change', () => this.updateTextShadow());
+        }
+        if (shadowColor) {
+            shadowColor.addEventListener('change', () => this.updateTextShadow());
+        }
+
+        // Note: Text opacity control was simplified in compact design and handled by main opacity control
+
+        // Note: Blend mode was removed in compact design to save space
+
+        // Text alignment
+        const alignButtons = document.querySelectorAll('.align-buttons .align-btn');
+        alignButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                alignButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.updateTextAlignment(btn.id);
+            });
+        });
+    }
+
+    // Layer management
+    initializeLayerManagement() {
+        // Layer control buttons
+        const moveToFront = document.getElementById('moveToFront');
+        const moveToBack = document.getElementById('moveToBack');
+        const lockObject = document.getElementById('lockObject');
+        const duplicateObject = document.getElementById('duplicateObject');
+
+        if (moveToFront) {
+            moveToFront.addEventListener('click', () => this.bringToFront());
+        }
+        if (moveToBack) {
+            moveToBack.addEventListener('click', () => this.sendToBack());
+        }
+        if (lockObject) {
+            lockObject.addEventListener('click', () => this.toggleLock());
+        }
+        if (duplicateObject) {
+            duplicateObject.addEventListener('click', () => this.duplicateObject());
+        }
+
+        // Update layer list when canvas changes
+        this.canvas.on('object:added', () => this.updateLayerList());
+        this.canvas.on('object:removed', () => this.updateLayerList());
+        this.canvas.on('selection:created', () => this.updateLayerList());
+        this.canvas.on('selection:updated', () => this.updateLayerList());
+        this.canvas.on('selection:cleared', () => this.updateLayerList());
+    }
+
+    // Auto-save functionality
+    initializeAutoSave() {
+        this.autoSaveInterval = setInterval(() => {
+            this.autoSave();
+        }, 30000); // Auto-save every 30 seconds
+    }
+
+    // Credit system integration
+    initializeCreditSystem() {
+        // Enhanced buttons
+        const saveDraftBtn = document.getElementById('saveDraftBtn');
+        const publishBtn = document.getElementById('publishBtn');
+        const exportBtn = document.getElementById('exportBtn');
+
+        if (saveDraftBtn) {
+            saveDraftBtn.addEventListener('click', () => this.saveDraft());
+        }
+        if (publishBtn) {
+            publishBtn.addEventListener('click', () => this.publishMeme());
+        }
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => this.exportMeme());
+        }
+
+        // Load credit info on page load
+        this.loadCreditInfo();
+    }
+
+    // Enhanced text effects methods
+    updateTextShadow() {
+        const activeObject = this.canvas.getActiveObject();
+        if (!activeObject || activeObject.type !== 'i-text') return;
+
+        const enableShadow = document.getElementById('enableShadow');
+        const shadowColor = document.getElementById('shadowColor');
+
+        if (enableShadow && enableShadow.checked) {
+            const color = shadowColor ? shadowColor.value : '#000000';
+            const blur = 4; // Fixed blur value for compact design
+            activeObject.set('shadow', new fabric.Shadow({
+                color: color,
+                blur: blur,
+                offsetX: 2,
+                offsetY: 2
+            }));
+        } else {
+            activeObject.set('shadow', null);
+        }
+
+        this.canvas.renderAll();
+        this.saveCanvasState();
+    }
+
+    // updateTextOpacity removed - now handled by main opacity control
+
+    // updateBlendMode removed - feature not included in compact design
+
+    updateTextAlignment(alignmentId) {
+        const activeObject = this.canvas.getActiveObject();
+        if (!activeObject || activeObject.type !== 'i-text') return;
+
+        let textAlign = 'center';
+        switch (alignmentId) {
+            case 'alignLeft': textAlign = 'left'; break;
+            case 'alignRight': textAlign = 'right'; break;
+            case 'alignCenter': textAlign = 'center'; break;
+        }
+
+        activeObject.set('textAlign', textAlign);
+        this.canvas.renderAll();
+        this.saveCanvasState();
+    }
+
+    // Layer management methods
+    bringToFront() {
+        const activeObject = this.canvas.getActiveObject();
+        if (activeObject) {
+            this.canvas.bringToFront(activeObject);
+            this.saveCanvasState();
+            this.updateLayerList();
+        }
+    }
+
+    sendToBack() {
+        const activeObject = this.canvas.getActiveObject();
+        if (activeObject) {
+            this.canvas.sendToBack(activeObject);
+            this.saveCanvasState();
+            this.updateLayerList();
+        }
+    }
+
+    toggleLock() {
+        const activeObject = this.canvas.getActiveObject();
+        if (activeObject) {
+            const isLocked = !activeObject.selectable;
+            activeObject.set({
+                selectable: isLocked,
+                evented: isLocked
+            });
+            this.canvas.renderAll();
+            this.updateLayerList();
+            
+            const lockBtn = document.getElementById('lockObject');
+            if (lockBtn) {
+                lockBtn.innerHTML = isLocked ? 
+                    '<i class="fas fa-unlock"></i> Unlock' : 
+                    '<i class="fas fa-lock"></i> Lock';
+            }
+        }
+    }
+
+    duplicateObject() {
+        const activeObject = this.canvas.getActiveObject();
+        if (activeObject) {
+            activeObject.clone((cloned) => {
+                cloned.set({
+                    left: cloned.left + 20,
+                    top: cloned.top + 20
+                });
+                this.canvas.add(cloned);
+                this.canvas.setActiveObject(cloned);
+                this.canvas.renderAll();
+                this.saveCanvasState();
+            });
+        }
+    }
+
+    updateLayerList() {
+        const layerList = document.getElementById('layerList');
+        if (!layerList) return;
+
+        const objects = this.canvas.getObjects();
+        layerList.innerHTML = '';
+
+        objects.forEach((obj, index) => {
+            const layerItem = document.createElement('div');
+            layerItem.className = 'layer-item';
+            if (obj === this.canvas.getActiveObject()) {
+                layerItem.classList.add('active');
+            }
+            if (!obj.selectable) {
+                layerItem.classList.add('locked');
+            }
+
+            const layerInfo = document.createElement('div');
+            layerInfo.className = 'layer-info';
+
+            const typeIcon = document.createElement('div');
+            typeIcon.className = 'layer-type-icon';
+            typeIcon.innerHTML = obj.type === 'i-text' ? 'T' : 
+                                obj.type === 'image' ? 'I' : 'S';
+
+            const layerName = document.createElement('span');
+            layerName.textContent = obj.type === 'i-text' ? `Text: ${obj.text?.substring(0, 20)}...` :
+                                  obj.type === 'image' ? 'Image' : 'Shape';
+
+            layerInfo.appendChild(typeIcon);
+            layerInfo.appendChild(layerName);
+
+            const layerActions = document.createElement('div');
+            layerActions.className = 'layer-actions';
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'layer-action-btn';
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteBtn.onclick = () => this.deleteObject(obj);
+
+            layerActions.appendChild(deleteBtn);
+            layerItem.appendChild(layerInfo);
+            layerItem.appendChild(layerActions);
+
+            layerItem.onclick = () => {
+                this.canvas.setActiveObject(obj);
+                this.canvas.renderAll();
+            };
+
+            layerList.appendChild(layerItem);
+        });
+    }
+
+    deleteObject(obj) {
+        this.canvas.remove(obj);
+        this.canvas.discardActiveObject();
+        
+        // Check if canvas is now empty and handle accordingly
+        const remainingObjects = this.canvas.getObjects();
+        if (remainingObjects.length === 0) {
+            console.log('All objects deleted via layer panel - performing canvas cleanup');
+            this.handleEmptyCanvas();
+        } else {
+            this.canvas.renderAll();
+        }
+        
+        this.saveCanvasState();
+        this.updateLayerList();
+        this.updateCopyPasteButtons();
+    }
+
+    deleteSelectedObject() {
+        const activeObject = this.canvas.getActiveObject();
+        if (activeObject) {
+            this.canvas.remove(activeObject);
+            this.canvas.discardActiveObject();
+            
+            // Check if canvas is now empty and handle accordingly
+            const remainingObjects = this.canvas.getObjects();
+            if (remainingObjects.length === 0) {
+                console.log('All objects deleted via keyboard - performing canvas cleanup');
+                this.handleEmptyCanvas();
+            } else {
+                this.canvas.renderAll();
+            }
+            
+            this.saveCanvasState();
+            this.updateLayerList();
+            this.updateCopyPasteButtons();
+        }
+    }
+
+    // Auto-save and credit system methods
+    autoSave() {
+        if (this.canvas.getObjects().length > 0) {
+            this.saveDraft(true); // Silent auto-save
+        }
+    }
+
+    saveDraft(silent = false) {
+        const canvasData = JSON.stringify(this.canvas.toJSON());
+        localStorage.setItem('meme_draft', canvasData);
+        
+        if (!silent) {
+            this.showAutoSaveIndicator('Draft saved locally!');
+        }
+    }
+
+    async publishMeme() {
+        // Implementation for publishing meme with credit deduction
+        try {
+            const canvasData = this.canvas.toDataURL('image/png');
+            // API call to create meme with credit checking
+            const response = await fetch('/api/memes/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    canvasData: canvasData,
+                    // ... other meme data
+                })
+            });
+            
+            if (response.ok) {
+                this.showAutoSaveIndicator('Meme published successfully!');
+            } else {
+                const error = await response.json();
+                this.showAutoSaveIndicator(error.message || 'Failed to publish', true);
+            }
+        } catch (error) {
+            this.showAutoSaveIndicator('Failed to publish meme', true);
+        }
+    }
+
+    exportMeme() {
+        const dataURL = this.canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = `aqua-meme-${Date.now()}.png`;
+        link.href = dataURL;
+        link.click();
+        
+        this.showAutoSaveIndicator('Meme downloaded!');
+    }
+
+    loadCreditInfo() {
+        fetch('/api/limits/info')
+            .then(response => response.json())
+            .then(data => {
+                // Update UI with credit information
+                console.log('Credit info:', data);
+            })
+            .catch(error => {
+                console.error('Failed to load credit info:', error);
+            });
+    }
+
+    showAutoSaveIndicator(message, isError = false) {
+        let indicator = document.querySelector('.auto-save-indicator');
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.className = 'auto-save-indicator';
+            document.body.appendChild(indicator);
+        }
+
+        indicator.textContent = message;
+        indicator.className = `auto-save-indicator ${isError ? 'error' : ''} show`;
+
+        setTimeout(() => {
+            indicator.classList.remove('show');
+        }, 3000);
+    }
+
+    showShortcutsHelp() {
+        const shortcuts = [
+            { key: 'Ctrl+Z', action: 'Undo' },
+            { key: 'Ctrl+Y', action: 'Redo' },
+            { key: 'Ctrl+C', action: 'Copy' },
+            { key: 'Ctrl+V', action: 'Paste' },
+            { key: 'Ctrl+D', action: 'Duplicate' },
+            { key: 'Ctrl+S', action: 'Save Draft' },
+            { key: 'Delete', action: 'Delete Selected' },
+            { key: 'F1', action: 'Show Help' }
+        ];
+
+        let helpDiv = document.querySelector('.shortcuts-help');
+        if (!helpDiv) {
+            helpDiv = document.createElement('div');
+            helpDiv.className = 'shortcuts-help';
+            document.body.appendChild(helpDiv);
+
+            helpDiv.innerHTML = `
+                <h4>Keyboard Shortcuts</h4>
+                <ul>
+                    ${shortcuts.map(s => `<li><span>${s.action}</span> <span class="shortcut-key">${s.key}</span></li>`).join('')}
+                </ul>
+            `;
+
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                helpDiv.classList.remove('show');
+            }, 10000);
+        }
+
+        helpDiv.classList.toggle('show');
+    }
+
+    // Debug and testing functions
+    runCanvasTests() {
+        console.log('🧪 Starting Canvas Function Tests...');
+        
+        // Test 1: Add shapes
+        console.log('Test 1: Adding shapes...');
+        this.addShape('rectangle');
+        setTimeout(() => {
+            this.addShape('circle');
+            setTimeout(() => {
+                // Test 2: Add text
+                console.log('Test 2: Adding text...');
+                this.addText();
+                setTimeout(() => {
+                    // Test 3: Test layer operations
+                    console.log('Test 3: Testing layer operations...');
+                    const objects = this.canvas.getObjects();
+                    if (objects.length >= 3) {
+                        this.canvas.setActiveObject(objects[1]); // Select circle
+                        this.bringForward();
+                        this.sendBackward();
+                        
+                        // Test 4: Test copy/paste
+                        console.log('Test 4: Testing copy/paste...');
+                        this.copySelected();
+                        setTimeout(() => {
+                            this.pasteElement();
+                            
+                            // Test 5: Test delete functionality
+                            console.log('Test 5: Testing delete functionality...');
+                            setTimeout(() => {
+                                const objectsBeforeDelete = this.canvas.getObjects().length;
+                                console.log(`Objects before delete: ${objectsBeforeDelete}`);
+                                
+                                // Delete the active object
+                                this.deleteSelected();
+                                
+                                setTimeout(() => {
+                                    const objectsAfterDelete = this.canvas.getObjects().length;
+                                    console.log(`Objects after delete: ${objectsAfterDelete}`);
+                                    
+                                    if (objectsAfterDelete < objectsBeforeDelete) {
+                                        console.log('✅ Delete function working correctly!');
+                                    } else {
+                                        console.log('❌ Delete function failed - objects not removed');
+                                    }
+                                    
+                                    // Test 6: Test undo/redo
+                                    console.log('Test 6: Testing undo/redo...');
+                                    this.undo();
+                                    setTimeout(() => {
+                                        const objectsAfterUndo = this.canvas.getObjects().length;
+                                        console.log(`Objects after undo: ${objectsAfterUndo}`);
+                                        
+                                        this.redo();
+                                        setTimeout(() => {
+                                            const objectsAfterRedo = this.canvas.getObjects().length;
+                                            console.log(`Objects after redo: ${objectsAfterRedo}`);
+                                            
+                                            console.log('🎉 Canvas function tests completed!');
+                                            this.showTestResults();
+                                        }, 500);
+                                    }, 500);
+                                }, 500);
+                            }, 500);
+                        }, 500);
+                    }
+                }, 500);
+            }, 500);
+        }, 500);
+    }
+
+    showTestResults() {
+        const results = {
+            canvasObjects: this.canvas.getObjects().length,
+            historyLength: this.history.length,
+            currentHistoryIndex: this.historyIndex,
+            activeObject: this.canvas.getActiveObject() ? this.canvas.getActiveObject().type : 'none'
+        };
+        
+        console.log('📊 Test Results:', results);
+        
+        // Show results in UI
+        this.showCustomAlert(
+            `Canvas Tests Completed!\n\nObjects on canvas: ${results.canvasObjects}\nHistory states: ${results.historyLength}\nActive object: ${results.activeObject}`,
+            'info',
+            'Test Results'
+        );
+    }
+
+    // Function to manually test specific operations
+    testDeleteFunction() {
+        console.log('🔍 Testing delete function specifically...');
+        
+        // Add a test shape
+        this.addShape('rectangle');
+        
+        setTimeout(() => {
+            const objects = this.canvas.getObjects();
+            console.log(`Objects before delete: ${objects.length}`);
+            
+            if (objects.length > 0) {
+                // Select the last object
+                this.canvas.setActiveObject(objects[objects.length - 1]);
+                console.log('Selected object:', this.canvas.getActiveObject().type);
+                
+                // Delete it
+                this.deleteSelected();
+                
+                setTimeout(() => {
+                    const objectsAfter = this.canvas.getObjects();
+                    console.log(`Objects after delete: ${objectsAfter.length}`);
+                    
+                    if (objectsAfter.length < objects.length) {
+                        console.log('✅ Delete function working!');
+                    } else {
+                        console.log('❌ Delete function failed!');
+                        console.log('Canvas objects:', this.canvas.getObjects());
+                        console.log('Active object:', this.canvas.getActiveObject());
+                    }
+                }, 100);
+            }
+        }, 100);
+    }
+
+    // Function to fix canvas corruption
+    fixCanvasCorruption() {
+        console.log('🔧 Attempting to fix canvas corruption...');
+        
+        try {
+            // Store current objects
+            const currentObjects = this.canvas.getObjects();
+            console.log(`Preserving ${currentObjects.length} objects`);
+            
+            // Completely dispose of the current canvas
+            this.canvas.dispose();
+            
+            // Recreate the canvas
+            this.canvas = new fabric.Canvas('memeCanvas', {
+                backgroundColor: '#ffffff',
+                preserveObjectStacking: true
+            });
+            
+            // Re-add all objects
+            currentObjects.forEach(obj => {
+                this.canvas.add(obj);
+            });
+            
+            // Re-initialize event listeners for canvas
+            this.canvas.on('object:modified', () => this.saveCanvasState());
+            this.canvas.on('object:added', () => this.saveCanvasState());
+            this.canvas.on('object:removed', () => this.saveCanvasState());
+            this.canvas.on('selection:created', (e) => {
+                if (e && (e.target || e.selected)) {
+                    this.onObjectSelected(e);
+                }
+            });
+            this.canvas.on('selection:updated', (e) => {
+                if (e && (e.target || e.selected)) {
+                    this.onObjectSelected(e);
+                }
+            });
+            this.canvas.on('selection:cleared', () => this.onSelectionCleared());
+            
+            // Render the canvas
+            this.canvas.renderAll();
+            
+            console.log('✅ Canvas corruption fixed!');
+            this.showCustomAlert('Canvas has been reset and corruption fixed!', 'success', 'Canvas Fixed');
+            
+        } catch (error) {
+            console.error('❌ Failed to fix canvas corruption:', error);
+            this.showCustomAlert('Failed to fix canvas corruption. Please refresh the page.', 'error', 'Fix Failed');
+        }
+    }
 }
 
 // Initialize the generator once the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.memeGenerator = new AdvancedMemeGenerator();
+    
+    // Add test functions to global scope for debugging
+    window.testCanvas = () => window.memeGenerator.runCanvasTests();
+    window.testDelete = () => window.memeGenerator.testDeleteFunction();
+    window.fixCanvas = () => window.memeGenerator.fixCanvasCorruption();
+    window.resetCanvas = () => {
+        window.memeGenerator.cleanupCanvas();
+        window.memeGenerator.handleEmptyCanvas();
+        console.log('Canvas has been completely reset');
+    };
+    
+    console.log('🎨 Meme Generator initialized!');
+    console.log('💡 Debug commands available:');
+    console.log('  - testCanvas() - Run full canvas tests');
+    console.log('  - testDelete() - Test delete function specifically');
+    console.log('  - fixCanvas() - Fix canvas corruption issues');
+    console.log('  - resetCanvas() - Emergency canvas reset');
+});
+
+// Terms of Service Modal Functions
+function openTosModal() {
+    const modal = document.getElementById('tosModal');
+    const dateSpan = document.getElementById('tosDate');
+    
+    // Set current date
+    if (dateSpan) {
+        dateSpan.textContent = new Date().toLocaleDateString();
+    }
+    
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+}
+
+function closeTosModal() {
+    const modal = document.getElementById('tosModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+    }
+}
+
+// Close modal when clicking outside of it
+document.addEventListener('click', (event) => {
+    const modal = document.getElementById('tosModal');
+    if (event.target === modal) {
+        closeTosModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        const modal = document.getElementById('tosModal');
+        if (modal && modal.style.display === 'block') {
+            closeTosModal();
+        }
+    }
 }); 

@@ -115,7 +115,7 @@ const socialController = {
       }
 
       // Get meme details
-      const meme = await Meme.findById(memeId);
+      const meme = await Meme.findOne({ id: memeId });
       if (!meme) {
         return res.status(404).json({
           success: false,
@@ -145,7 +145,7 @@ const socialController = {
       updateDailyStats(platform);
 
       // Update meme share count
-      await Meme.findByIdAndUpdate(memeId, {
+      await Meme.findOneAndUpdate({ id: memeId }, {
         $inc: { shareCount: 1 }
       });
 
@@ -259,7 +259,7 @@ const socialController = {
       socialStats.dailyShares[today][clickKey]++;
 
       // You could also update the meme's click count here if needed
-      // await Meme.findByIdAndUpdate(memeId, { $inc: { clickCount: 1 } });
+      // await Meme.findOneAndUpdate({ id: memeId }, { $inc: { clickCount: 1 } });
 
       res.json({
         success: true,
@@ -318,7 +318,7 @@ const socialController = {
       }
 
       // Verify meme exists
-      const meme = await Meme.findById(memeId);
+      const meme = await Meme.findOne({ id: memeId });
       if (!meme) {
         return res.status(404).json({
           success: false,

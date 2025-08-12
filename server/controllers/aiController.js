@@ -3,51 +3,14 @@ const axios = require('axios');
 // Rate limiting storage (in production, use Redis)
 const rateLimitStore = new Map();
 
-// AI Generation Models (6 most accessible models)
-const AI_MODELS = {
-  creative: {
-    id: "6bef9f1b-29cb-40c7-b9df-32b51c1f67d3",
-    name: "Creative Engine",
-    description: "Best for cartoon-style memes with vibrant colors",
-    example: "A wet cartoon cat with big eyes sitting in the rain",
-    speed: "Fast",
-    recommended: true
-  },
-  artistic: {
-    id: "e71a1c2f-4f80-4800-934f-2c68979d8cc8", 
-    name: "Artistic Vision",
-    description: "Perfect for stylized digital art memes",
-    example: "Digital art of a blue cat mascot with crypto symbols",
-    speed: "Fast"
-  },
-  vivid: {
-    id: "1e60896f-3c26-4296-8ecc-53e2afecc132",
-    name: "Vivid Dreams",
-    description: "High-quality realistic images with meme potential",
-    example: "Photorealistic wet cat with expressive sad eyes",
-    speed: "Medium"
-  },
-  anime: {
-    id: "e316348f-7773-490e-adcd-46757c738eb7",
-    name: "Anime Style",
-    description: "Anime-inspired characters perfect for crypto memes",
-    example: "Anime cat character holding SUI blockchain logo",
-    speed: "Medium"
-  },
-  pixel: {
-    id: "1aa0f478-51be-4efd-94e8-76bfc8f533af",
-    name: "Pixel Perfect",
-    description: "Retro pixel art style for nostalgic memes", 
-    example: "8-bit pixel art cat in rain with umbrella",
-    speed: "Very Fast"
-  },
-  sketch: {
-    id: "ac614f96-1082-45bf-be9d-757f2d31c174",
-    name: "Sketch Master",
-    description: "Hand-drawn sketch style for artistic memes",
-    example: "Pencil sketch of sad wet cat under stormy clouds",
-    speed: "Fast"
-  }
+// AQUA Model Configuration - Using Flux Dev while custom model is being processed
+const AQUA_MODEL = {
+  id: process.env.AQUA_MODEL_ID || "b2614463-296c-462a-9586-aafdb8f00e36", // Flux Dev fallback
+  name: "AQUA Generation Model (Flux Dev + LoRA)",
+  description: "High-quality Flux Dev model with AQUA LoRA for enhanced styling (custom model pending)",
+  example: "A wet blue cat mascot sitting in the rain, crypto themed, digital art",
+  speed: "Fast",
+  trained: false // Will be true when custom model is available
 };
 
 // Rate limiting middleware function
@@ -133,32 +96,26 @@ class AIGenerationService {
       };
     }
 
-    const model = AI_MODELS[params.model] || AI_MODELS.creative;
-    
+    // Use the trained AQUA model for all generations
     const payload = {
-      prompt: params.prompt,
+      prompt: `${params.prompt}, aqua cat style, meme, crypto themed`,
       num_images: 1,
       width: 512,
       height: 512,
-      modelId: model.id,
+      modelId: AQUA_MODEL.id,
       guidance_scale: 7,
-      num_inference_steps: 10,
-      scheduler: "EULER_DISCRETE",
-      presetStyle: "DYNAMIC",
+      num_inference_steps: 15,
+      scheduler: "DPM_SOLVER",
       public: false,
-      promptMagic: true,
-      promptMagicVersion: "v3",
-      promptMagicStrength: 0.5
+      // AQUA trained model LoRA configuration
+      userElements: [
+        {
+          userLoraId: 119467,
+          weight: 1
+        }
+      ]
+      // Removed promptMagic parameters that require alchemy
     };
-
-    if (this.styleReference) {
-      payload.controlnets = [{
-        initImageId: this.styleReference,
-        initImageType: "UPLOADED",
-        preprocessorId: 67,
-        strengthType: "Mid"
-      }];
-    }
 
     try {
       const response = await axios.post(`${this.baseURL}/generations`, payload, {
@@ -241,11 +198,11 @@ const promptEnhancer = new PromptEnhancer(aiService);
 
 // Controller functions
 const aiController = {
-  // GET /api/ai/models - Get available AI models
+  // GET /api/ai/models - Get AQUA trained model
   getModels: (req, res) => {
     res.json({
       success: true,
-      models: AI_MODELS,
+      model: AQUA_MODEL,
       demoMode: aiService.demoMode,
       message: aiService.demoMode ? 
         'Running in demo mode. Configure LEONARDO_API_KEY for full functionality.' : 
@@ -278,20 +235,24 @@ const aiController = {
     res.json(status);
   },
 
-  // POST /api/ai/generate - Generate AI image
+  // POST /api/ai/generate - Generate AI image using trained AQUA model
   generateImage: async (req, res) => {
     try {
-      const { prompt, model = 'creative' } = req.body;
+      const { prompt } = req.body;
 
-      if (!AI_MODELS[model]) {
+      if (!prompt || prompt.trim().length === 0) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid model',
-          message: `Model '${model}' not found. Available models: ${Object.keys(AI_MODELS).join(', ')}`
+          error: 'Prompt is required',
+          message: 'Please provide a prompt for image generation'
         });
       }
 
-      const result = await aiService.generateImage({ prompt, model });
+      // Credit checking is handled by checkRateLimit middleware
+      // For authenticated users, credits are already deducted
+      // For anonymous users, rate limit is already checked
+
+      const result = await aiService.generateImage({ prompt });
 
       if (result.demoMode) {
         return res.json({
@@ -301,17 +262,17 @@ const aiController = {
           message: 'Demo generation started. In demo mode, this will return a placeholder image.',
           rateLimitInfo: req.rateLimitInfo,
           estimatedTime: '5-10 seconds (demo)',
-          model: AI_MODELS[model]
+          model: AQUA_MODEL
         });
       }
 
       res.json({
         success: true,
         generationId: result.sdGenerationJob.generationId,
-        message: 'Image generation started successfully',
+        message: 'AQUA image generation started successfully using trained model',
         rateLimitInfo: req.rateLimitInfo,
         estimatedTime: '30-60 seconds',
-        model: AI_MODELS[model]
+        model: AQUA_MODEL
       });
     } catch (error) {
       console.error('Generation error:', error);
@@ -448,6 +409,5 @@ const aiController = {
 
 module.exports = {
   aiController,
-  checkRateLimit,
-  AI_MODELS
+  AQUA_MODEL
 }; 

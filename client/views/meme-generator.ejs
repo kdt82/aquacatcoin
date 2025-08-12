@@ -26,9 +26,15 @@
     <meta name="twitter:site" content="@AQUA_on_SUI">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="/css/main.css?v=2.0">
-    <link rel="stylesheet" href="/css/meme-generator.css?v=1.0">
+    <link rel="stylesheet" href="/css/main.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/css/meme-generator.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/css/auth.css?v=<%= Date.now() %>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts for Enhanced Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton:wght@400&family=Bangers:wght@400&family=Bebas+Neue:wght@400&family=Bungee:wght@400&family=Creepster:wght@400&family=Fredoka+One:wght@400&family=Oswald:wght@300;400;500;600;700&family=Righteous:wght@400&family=Russo+One:wght@400&family=Staatliches:wght@400&display=swap" rel="stylesheet">
     
 </head>
 <body>
@@ -39,8 +45,11 @@
                 <ul class="nav-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/meme-generator" class="active">Meme Generator</a></li>
-                    <li><a href="/coming-soon">Gallery</a></li>
+                    <li><a href="/gallery">Gallery</a></li>
                 </ul>
+                <div id="auth-container">
+                    <!-- Authentication UI will be injected here by auth.js -->
+                </div>
             </nav>
         </div>
     </header>
@@ -58,35 +67,83 @@
                     <div class="step-header" onclick="toggleStep('step1')">
                         <div class="step-title">
                             <span class="step-number">1</span>
-                            <h3>Choose Your Starting Point</h3>
+                            <h3>Generate Your Image</h3>
                         </div>
                         <i class="fas fa-chevron-up step-toggle"></i>
                     </div>
                     <div class="step-content">
                         <div class="primary-choice">
-                            <div class="choice-card" id="aiChoice">
+                            <div class="choice-card active" id="aiChoice">
                                 <div class="choice-icon">
                                     <i class="fas fa-magic"></i>
                                 </div>
-                                <h4>AI Generated Image</h4>
-                                <p>Create unique $AQUA themed images with AI assistance</p>
+                                <h4>Generate Your Image</h4>
+                                <p>Create unique $AQUA themed images with AI assistance - the only way to create AQUA memes!</p>
                             </div>
-                            <div class="choice-card" id="uploadChoice">
+                            <div class="choice-card info-card">
                                 <div class="choice-icon">
-                                    <i class="fas fa-upload"></i>
+                                    <i class="fas fa-info-circle"></i>
                                 </div>
-                                <h4>Upload Your Own</h4>
-                                <p>Upload your own image to create a meme</p>
+                                <h4>How It Works</h4>
+                                <p>Follow these simple steps to create your meme:</p>
+                                <div class="usage-steps">
+                                    <div class="step-item">
+                                        <span class="step-number">1</span>
+                                        <span class="step-text">Write your meme idea</span>
+                                    </div>
+                                    <div class="step-item">
+                                        <span class="step-number">2</span>
+                                        <span class="step-text">Click Generate with AI</span>
+                                    </div>
+                                    <div class="step-item">
+                                        <span class="step-number">3</span>
+                                        <span class="step-text">Select & edit your image</span>
+                                    </div>
+                                    <div class="step-item">
+                                        <span class="step-number">4</span>
+                                        <span class="step-text">Share to Social Media and Publish to Gallery</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="credit-info">
+                                    <div class="credit-card">
+                                        <div class="credit-header">
+                                            <i class="fab fa-x-twitter"></i>
+                                            <h4>X (Twitter) Login Benefits:</h4>
+                                        </div>
+                                        <div class="credit-benefits">
+                                            <div class="benefit-row">
+                                                <i class="fas fa-gift"></i>
+                                                <span class="benefit-text"><strong>50 Credits</strong> welcome bonus</span>
+                                            </div>
+                                            <div class="benefit-row">
+                                                <i class="fas fa-calendar-day"></i>
+                                                <span class="benefit-text"><strong>30 Credits</strong> daily (claim once per 24h)</span>
+                                            </div>
+                                            <div class="benefit-row">
+                                                <i class="fas fa-bolt"></i>
+                                                <span class="benefit-text"><strong>5 Credits</strong> per generation</span>
+                                            </div>
+                                            <div class="benefit-row">
+                                                <i class="fas fa-share-alt"></i>
+                                                <span class="benefit-text">Publish to gallery & share directly</span>
+                                            </div>
+                                            <div class="benefit-row terms-link-row">
+                                                <i class="fas fa-file-contract"></i>
+                                                <span class="benefit-text">
+                                                    <a href="#" onclick="openTosModal()" class="terms-link">View Terms of Service</a>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         <!-- AI Generation Form -->
                         <div class="ai-form" id="aiForm">
-                            <div class="model-selection">
-                                <label class="form-label">Choose AI Style:</label>
-                                <div class="model-grid" id="modelGrid">
-                                    <!-- Models will be loaded here -->
-                                </div>
+                            <div class="model-info">
+                                <!-- AQUA trained model info will be loaded here -->
                             </div>
                             <label class="form-label">Describe your $AQUA meme image:</label>
                             <textarea class="prompt-input" id="aiPrompt" placeholder="Example: A wet cat sitting in the rain with a sad expression, holding a SUI blockchain logo, digital art style, meme format"></textarea>
@@ -98,15 +155,7 @@
                             </div>
                         </div>
 
-                        <!-- Upload Zone -->
-                        <div class="upload-zone" id="uploadZone">
-                            <div class="upload-icon">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                            </div>
-                            <p>Drop an image here or click to upload</p>
-                            <small>Supports JPG, PNG, GIF (max 10MB)</small>
-                            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
-                        </div>
+                        <!-- Upload removed - AI generation only -->
                     </div>
                 </div>
 
@@ -126,19 +175,16 @@
                         <i class="fas fa-chevron-up step-toggle"></i>
                     </div>
                     <div class="step-content">
-                        <p>Choose from your uploaded or generated images:</p>
+                        <p>Choose from your generated images:</p>
                         <div class="recent-grid" id="userImagesGrid">
                             <div class="empty-gallery">
                                 <i class="fas fa-images" style="font-size: 3rem; color: rgba(77, 162, 255, 0.3);"></i>
-                                <p style="color: rgba(255,255,255,0.6); margin-top: 10px;">No images yet. Upload or generate some images first!</p>
+                                <p style="color: rgba(255,255,255,0.6); margin-top: 10px;">No images yet. Generate some images first!</p>
                             </div>
                         </div>
                         <div class="step-navigation" style="margin-top: 20px; text-align: center;">
                             <button class="btn-small btn-secondary-small" onclick="memeGenerator.expandStep('step1')">
-                                <i class="fas fa-arrow-left"></i> Back to Upload/Generate
-                            </button>
-                            <button class="btn-small" id="proceedToEdit" onclick="memeGenerator.proceedToEdit()" disabled>
-                                <i class="fas fa-edit"></i> Edit Selected
+                                <i class="fas fa-arrow-left"></i> Back to Generate
                             </button>
                         </div>
                     </div>
@@ -158,138 +204,187 @@
                             <!-- Editing Sidebar (Left Side) -->
                             <div class="editing-sidebar">
                                 <!-- Add Elements -->
-                                <div class="control-group">
-                                    <h4><i class="fas fa-plus"></i> Add Elements</h4>
-                                    <div class="tool-buttons">
-                                        <button class="tool-btn" id="addTextBtn">
-                                            <i class="fas fa-font"></i> Text
+                                <div class="control-group compact">
+                                    <h5><i class="fas fa-plus"></i> Add</h5>
+                                    <div class="compact-buttons">
+                                        <button class="compact-btn" id="addTextBtn" title="Add Text">
+                                            <i class="fas fa-font"></i>
                                         </button>
-                                        <button class="tool-btn" id="addShapeBtn">
-                                            <i class="fas fa-shapes"></i> Shapes
+                                        <button class="compact-btn" id="addShapeBtn" title="Add Shape">
+                                            <i class="fas fa-shapes"></i>
                                         </button>
                                     </div>
                                     
                                     <!-- Shape Selection -->
                                     <div class="shape-tools" id="shapeTools" style="display: none;">
-                                        <button class="shape-btn" data-shape="rectangle">
+                                        <button class="shape-btn" data-shape="rectangle" title="Rectangle">
                                             <i class="fas fa-square"></i>
                                         </button>
-                                        <button class="shape-btn" data-shape="circle">
+                                        <button class="shape-btn" data-shape="circle" title="Circle">
                                             <i class="fas fa-circle"></i>
                                         </button>
-                                        <button class="shape-btn" data-shape="triangle">
+                                        <button class="shape-btn" data-shape="triangle" title="Triangle">
                                             <i class="fas fa-play"></i>
                                         </button>
-                                        <button class="shape-btn" data-shape="star">
+                                        <button class="shape-btn" data-shape="star" title="Star">
                                             <i class="fas fa-star"></i>
                                         </button>
                                     </div>
                                 </div>
 
-                                <!-- Text Controls -->
-                                <div class="control-group">
-                                    <h4><i class="fas fa-font"></i> Text Styling</h4>
-                                    <div class="form-row">
-                                        <div class="form-col">
-                                            <label class="form-label">Text Content</label>
-                                            <input type="text" id="textInput" class="form-input" placeholder="Enter text...">
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-col">
-                                            <label class="form-label">Font Family</label>
-                                            <select id="fontFamily" class="form-select">
-                                                <option value="Impact">Impact</option>
-                                                <option value="Arial">Arial</option>
-                                                <option value="Fredoka One">Fredoka One</option>
-                                                <option value="Poppins">Poppins</option>
-                                                <option value="Comic Sans MS">Comic Sans</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-col">
-                                            <label class="form-label">Font Size</label>
-                                            <input type="range" id="fontSize" class="range-input" min="16" max="120" value="40">
+                                <!-- Text Styling -->
+                                <div class="control-group compact">
+                                    <h5><i class="fas fa-font"></i> Text</h5>
+                                    
+                                    <!-- Text Content -->
+                                    <input type="text" id="textInput" class="compact-input" placeholder="Enter text...">
+                                    
+                                    <!-- Font & Size Row -->
+                                    <div class="compact-row">
+                                        <select id="fontFamily" class="compact-select">
+                                            <option value="Impact">Impact</option>
+                                            <option value="Anton">Anton</option>
+                                            <option value="Bebas Neue">Bebas Neue</option>
+                                            <option value="Oswald">Oswald</option>
+                                            <option value="Fredoka One">Fredoka One</option>
+                                            <option value="Bangers">Bangers</option>
+                                            <option value="Righteous">Righteous</option>
+                                            <option value="Arial Black">Arial Black</option>
+                                        </select>
+                                        <div class="compact-range">
+                                            <input type="range" id="fontSize" min="16" max="120" value="40">
                                             <span id="fontSizeValue">40px</span>
                                         </div>
                                     </div>
-                                    <div class="color-picker-group">
-                                        <div>
-                                            <label class="form-label">Text Color</label>
-                                            <input type="color" id="textColor" class="color-input" value="#ffffff">
+                                    
+                                    <!-- Colors Row -->
+                                    <div class="compact-row">
+                                        <div class="color-group">
+                                            <label>Text</label>
+                                            <input type="color" id="textColor" value="#ffffff">
                                         </div>
-                                        <div>
-                                            <label class="form-label">Stroke Color</label>
-                                            <input type="color" id="strokeColor" class="color-input" value="#000000">
+                                        <div class="color-group">
+                                            <label>Stroke</label>
+                                            <input type="color" id="strokeColor" value="#000000">
                                         </div>
-                                        <div>
-                                            <label class="form-label">Stroke Width</label>
-                                            <input type="range" id="strokeWidth" class="range-input" min="0" max="10" value="2">
+                                        <div class="compact-range">
+                                            <input type="range" id="strokeWidth" min="0" max="10" value="2">
                                             <span id="strokeWidthValue">2px</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Text Alignment -->
+                                    <div class="compact-row">
+                                        <div class="align-buttons">
+                                            <button type="button" id="alignLeft" class="align-btn" title="Left">
+                                                <i class="fas fa-align-left"></i>
+                                            </button>
+                                            <button type="button" id="alignCenter" class="align-btn active" title="Center">
+                                                <i class="fas fa-align-center"></i>
+                                            </button>
+                                            <button type="button" id="alignRight" class="align-btn" title="Right">
+                                                <i class="fas fa-align-right"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Shadow Toggle -->
+                                        <div class="shadow-toggle">
+                                            <input type="checkbox" id="enableShadow">
+                                            <label for="enableShadow">Shadow</label>
+                                            <input type="color" id="shadowColor" value="#000000" style="width: 30px;">
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Element Properties -->
-                                <div class="control-group">
-                                    <h4><i class="fas fa-cog"></i> Element Properties</h4>
-                                    <div class="range-label">
-                                        <span>Opacity</span>
-                                        <span id="opacityValue">100%</span>
-                                    </div>
-                                    <input type="range" id="opacity" class="range-input" min="0" max="100" value="100">
+                                <div class="control-group compact">
+                                    <h5><i class="fas fa-cog"></i> Properties</h5>
                                     
-                                    <div class="form-row" style="margin-top: 15px;">
-                                        <div class="form-col">
-                                            <label class="form-label">Fill Color</label>
-                                            <input type="color" id="fillColor" class="color-input" value="#4DA2FF">
-                                        </div>
-                                        <div class="form-col">
-                                            <label class="form-label">Border Color</label>
-                                            <input type="color" id="borderColor" class="color-input" value="#ffffff">
+                                    <!-- Opacity -->
+                                    <div class="compact-row">
+                                        <label>Opacity</label>
+                                        <div class="compact-range">
+                                            <input type="range" id="opacity" min="0" max="100" value="100">
+                                            <span id="opacityValue">100%</span>
                                         </div>
                                     </div>
-                                    <div class="range-label">
-                                        <span>Border Width</span>
-                                        <span id="borderWidthValue">0px</span>
+                                    
+                                    <!-- Colors -->
+                                    <div class="compact-row">
+                                        <div class="color-group">
+                                            <label>Fill</label>
+                                            <input type="color" id="fillColor" value="#4DA2FF">
+                                        </div>
+                                        <div class="color-group">
+                                            <label>Border</label>
+                                            <input type="color" id="borderColor" value="#ffffff">
+                                        </div>
+                                        <div class="compact-range">
+                                            <input type="range" id="borderWidth" min="0" max="20" value="0">
+                                            <span id="borderWidthValue">0px</span>
+                                        </div>
                                     </div>
-                                    <input type="range" id="borderWidth" class="range-input" min="0" max="20" value="0">
                                 </div>
 
-                                <!-- Layer Management -->
-                                <div class="control-group">
-                                    <h4><i class="fas fa-layer-group"></i> Layers</h4>
-                                    <div class="tool-buttons">
-                                        <button class="tool-btn" id="bringForwardBtn">
-                                            <i class="fas fa-level-up-alt"></i> Forward
+                                <!-- Layers & Actions -->
+                                <div class="control-group compact">
+                                    <h5><i class="fas fa-layer-group"></i> Layers</h5>
+                                    
+                                    <!-- Layer Controls -->
+                                    <div class="compact-buttons">
+                                        <button id="moveToFront" class="compact-btn" title="Front">
+                                            <i class="fas fa-arrow-up"></i>
                                         </button>
-                                        <button class="tool-btn" id="sendBackwardBtn">
-                                            <i class="fas fa-level-down-alt"></i> Backward
+                                        <button id="moveToBack" class="compact-btn" title="Back">
+                                            <i class="fas fa-arrow-down"></i>
+                                        </button>
+                                        <button id="lockObject" class="compact-btn" title="Lock">
+                                            <i class="fas fa-lock"></i>
+                                        </button>
+                                        <button id="duplicateObject" class="compact-btn" title="Duplicate">
+                                            <i class="fas fa-copy"></i>
                                         </button>
                                     </div>
-                                    <div class="form-row">
-                                        <button class="btn-small btn-secondary-small" id="copyBtn" style="flex: 1;" disabled title="Copy selected element (Ctrl+C)">
-                                            <i class="fas fa-copy"></i> Copy
+                                    
+                                    <!-- Layer List -->
+                                    <div class="layer-list" id="layerList">
+                                        <!-- Layers will be populated dynamically -->
+                                    </div>
+                                </div>
+
+                                <!-- Edit Actions -->
+                                <div class="control-group compact">
+                                    <h5><i class="fas fa-edit"></i> Edit</h5>
+                                    
+                                    <div class="compact-buttons">
+                                        <button id="bringForwardBtn" class="compact-btn" title="Forward">
+                                            <i class="fas fa-level-up-alt"></i>
                                         </button>
-                                        <button class="btn-small btn-secondary-small" id="pasteBtn" style="flex: 1;" disabled title="Paste element (Ctrl+V)">
-                                            <i class="fas fa-paste"></i> Paste
+                                        <button id="sendBackwardBtn" class="compact-btn" title="Backward">
+                                            <i class="fas fa-level-down-alt"></i>
+                                        </button>
+                                        <button id="copyBtn" class="compact-btn" disabled title="Copy (Ctrl+C)">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                        <button id="pasteBtn" class="compact-btn" disabled title="Paste (Ctrl+V)">
+                                            <i class="fas fa-paste"></i>
                                         </button>
                                     </div>
-                                    <button class="btn-small btn-secondary-small btn-full" id="deleteBtn" title="Delete selected element (Delete key)">
-                                        <i class="fas fa-trash"></i> Delete Selected
+                                    
+                                    <button id="deleteBtn" class="delete-btn" title="Delete (Del)">
+                                        <i class="fas fa-trash"></i> Delete
                                     </button>
                                 </div>
 
-                                <!-- Actions -->
-                                <div class="control-group">
-                                    <h4><i class="fas fa-share"></i> Save & Share</h4>
-                                    <button class="btn-small btn-full" id="saveBtn" onclick="window.location.href='/coming-soon'">
-                                        <i class="fas fa-save"></i> Save Meme (Coming Soon)
+                                <!-- Save & Share -->
+                                <div class="control-group compact">
+                                    <h5><i class="fas fa-share"></i> Export</h5>
+                                    
+                                    <button id="shareToSocialBtn" class="action-btn primary">
+                                        <i class="fas fa-share-alt"></i> Share
                                     </button>
-                                    <button class="btn-small btn-full btn-share" id="shareToSocialBtn">
-                                        <i class="fas fa-share-alt"></i> Share to Social
-                                    </button>
-                                    <button class="btn-small btn-full btn-secondary-small" id="directShareBtn" style="margin-top: 10px;">
-                                        <i class="fas fa-share"></i> Quick Share (No Save)
+                                    <button id="exportBtn" class="action-btn secondary">
+                                        <i class="fas fa-download"></i> Download
                                     </button>
                                 </div>
                             </div>
@@ -297,21 +392,43 @@
                             <!-- Canvas Section (Right Side) -->
                             <div class="canvas-section">
                                 <div class="canvas-toolbar">
-                                    <button class="btn-small btn-secondary-small" id="undoBtn">
-                                        <i class="fas fa-undo"></i> Undo
-                                    </button>
-                                    <button class="btn-small btn-secondary-small" id="redoBtn">
-                                        <i class="fas fa-redo"></i> Redo
-                                    </button>
-                                    <button class="btn-small btn-secondary-small" id="clearBtn">
-                                        <i class="fas fa-trash"></i> Clear
-                                    </button>
-                                    <button class="btn-small" id="exportBtn">
-                                        <i class="fas fa-download"></i> Export
-                                    </button>
+                                    <!-- Basic Actions -->
+                                    <div class="toolbar-group">
+                                        <button class="compact-btn" id="undoBtn" title="Undo (Ctrl+Z)">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                        <button class="compact-btn" id="redoBtn" title="Redo (Ctrl+Y)">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                        <button class="compact-btn" id="clearBtn" title="Clear Canvas">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <button class="compact-btn" id="changeImageBtn" title="Change Image">
+                                            <i class="fas fa-image"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Export Actions -->
+                                    <div class="toolbar-group">
+                                        <button class="compact-btn secondary" id="saveDraftBtn" title="Save Draft">
+                                            <i class="fas fa-save"></i>
+                                        </button>
+                                        <button class="compact-btn success" id="publishBtn" title="Publish">
+                                            <i class="fas fa-share"></i>
+                                        </button>
+                                        <button class="compact-btn primary" id="exportBtn" title="Download">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="canvas-container">
                                     <canvas id="memeCanvas" width="600" height="600"></canvas>
+                                </div>
+                                
+                                <!-- Meme Title Input -->
+                                <div class="meme-title-container">
+                                    <label for="memeTitle">Meme Title:</label>
+                                    <input type="text" id="memeTitle" placeholder="Enter a title for your meme..." maxlength="100">
                                 </div>
                             </div>
                         </div>
@@ -321,6 +438,32 @@
         </div>
     </main>
 
+        <!-- Image Selection Modal -->
+    <div class="modal-overlay" id="imageSelectionModal">
+        <div class="modal-content">
+            <button class="modal-close" data-action="close-modal">&times;</button>
+            <div class="modal-header">
+                <h2><i class="fas fa-image"></i> Use This Image?</h2>
+            </div>
+
+            <div class="image-selection-preview">
+                <img id="selectedImagePreview" src="" alt="Selected image">
+                <p style="color: var(--text-light); margin: 15px 0; text-align: center;">
+                    Do you want to use this image for your meme?
+                </p>
+            </div>
+
+            <div class="modal-actions" style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                <button class="btn-small btn-secondary-small" id="goBackToImages">
+                    <i class="fas fa-arrow-left"></i> Back to Images
+                </button>
+                <button class="btn-small btn-primary" id="useSelectedImage">
+                    <i class="fas fa-check"></i> Use Image
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Social Sharing Modal -->
     <div class="modal-overlay" id="shareModal">
         <div class="modal-content">
@@ -328,13 +471,13 @@
             <div class="modal-header">
                 <h2><i class="fas fa-share-alt"></i> Share Your Meme</h2>
             </div>
-            
+
             <div class="share-preview">
                 <img id="sharePreviewImage" src="" alt="Meme preview">
                 <h4 style="color: var(--text-light); margin: 10px 0;">Add a message (optional):</h4>
                 <textarea class="share-message" id="shareMessage" placeholder="Check out this awesome meme I made! 🔥 #AQUA #MemeGenerator"></textarea>
             </div>
-            
+
             <div class="social-platforms">
                 <a href="#" class="social-platform universal" data-platform="universal" style="background: linear-gradient(45deg, #4CAF50, #45a049);">
                     <i class="fas fa-share"></i> Share
@@ -357,10 +500,160 @@
         </div>
     </footer>
 
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <!-- Terms of Service Modal -->
+    <div id="tosModal" class="modal" style="display: none;">
+        <div class="modal-content terms-modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-contract"></i> Terms of Service</h2>
+                <span class="close" onclick="closeTosModal()">&times;</span>
+            </div>
+            <div class="modal-body terms-content">
+                
+                <div class="terms-section">
+                    <h3><i class="fas fa-info-circle"></i> Service Overview</h3>
+                    <p>Welcome to the $AQUA Meme Generator! This service allows you to create, edit, and share memes using AI-powered image generation and advanced editing tools.</p>
+                </div>
+
+                <div class="terms-section">
+                    <h3><i class="fas fa-user-shield"></i> User Accounts & Authentication</h3>
+                    <ul>
+                        <li><strong>Anonymous Users:</strong> Limited to 3 AI generations per 24-hour period (Pacific Time)</li>
+                        <li><strong>X (Twitter) Authentication:</strong> Optional login provides enhanced features and credit system</li>
+                        <li><strong>Account Benefits:</strong> 50 welcome credits, 30 daily credits, unlimited generations (5 credits each)</li>
+                        <li><strong>No Personal Data Sales:</strong> We never sell your personal information</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><i class="fas fa-coins"></i> Credit System</h3>
+                    <ul>
+                        <li><strong>Anonymous Limits:</strong> 3 free generations per rolling 24-hour period</li>
+                        <li><strong>First X Login Bonus:</strong> 50 credits upon first authentication</li>
+                        <li><strong>Daily Bonus:</strong> 30 credits available once per 24-hour period</li>
+                        <li><strong>Generation Cost:</strong> 5 credits per AI image generation</li>
+                        <li><strong>Remix Cost:</strong> 5 credits per image remix</li>
+                        <li><strong>Timezone:</strong> All rate limits and bonuses reset at midnight Pacific Time (America/Los_Angeles)</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><i class="fas fa-database"></i> Image Storage & Privacy</h3>
+                    <ul>
+                        <li><strong>Local Storage:</strong> Your generated images are stored locally in your browser only</li>
+                        <li><strong>No Server Storage:</strong> Images in "Your Images" section are NOT stored on our servers</li>
+                        <li><strong>Device-Specific:</strong> Images are tied to your browser/device, not your account</li>
+                        <li><strong>Automatic Cleanup:</strong> Browser storage is automatically cleaned when approaching limits (keeps 5 most recent)</li>
+                        <li><strong>Manual Control:</strong> You can delete individual images or clear all stored images at any time</li>
+                        <li><strong>Privacy-First:</strong> Your personal image collection never leaves your device unless you choose to publish to gallery</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><i class="fas fa-share-alt"></i> Content Ownership & Usage</h3>
+                    <ul>
+                        <li><strong>Community Benefit:</strong> All memes created and published to the gallery are assigned to the $AQUA community for promotional use</li>
+                        <li><strong>Free Usage Rights:</strong> $AQUA may use published content for community marketing, social media, and promotional purposes</li>
+                        <li><strong>Creator Attribution:</strong> When possible, original creators will be credited</li>
+                        <li><strong>No Commercial Licensing:</strong> Published content is for $AQUA community use only</li>
+                        <li><strong>Personal Use:</strong> You retain rights to use your creations for personal, non-commercial purposes</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><i class="fas fa-trophy"></i> Weekly Competitions</h3>
+                    <ul>
+                        <li><strong>Competition Period:</strong> Monday to Sunday, Pacific Time</li>
+                        <li><strong>Prize:</strong> $10 USD equivalent in SUI tokens for weekly winner</li>
+                        <li><strong>Voting System:</strong> Winner determined by most likes received</li>
+                        <li><strong>Eligibility:</strong> All published memes automatically entered in current week's competition</li>
+                        <li><strong>Admin Discretion:</strong> Final winner selection subject to admin review for quality and appropriateness</li>
+                        <li><strong>Prize Distribution:</strong> Winners contacted via X (Twitter) for prize distribution</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><i class="fas fa-recycle"></i> Remix System</h3>
+                    <ul>
+                        <li><strong>Remix Eligibility:</strong> Only original/AI-generated images can be remixed (not final edited versions)</li>
+                        <li><strong>Clean Loading:</strong> Remixed images load without text overlays or edits</li>
+                        <li><strong>Credit Cost:</strong> 5 credits charged per remix</li>
+                        <li><strong>New Creation:</strong> Remixes create new memes, not versions of originals</li>
+                        <li><strong>Attribution:</strong> Original creators credited when possible</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><i class="fas fa-shield-alt"></i> Technical & Security</h3>
+                    <ul>
+                        <li><strong>Rate Limiting:</strong> Enforced by IP address for anonymous users</li>
+                        <li><strong>Data Security:</strong> All communications encrypted via HTTPS</li>
+                        <li><strong>Browser Storage:</strong> Local storage quotas managed automatically (4MB limit)</li>
+                        <li><strong>Service Availability:</strong> Best effort uptime, no guarantees for continuous availability</li>
+                        <li><strong>Technical Support:</strong> Community-based support via social media channels</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><i class="fas fa-gavel"></i> Acceptable Use</h3>
+                    <ul>
+                        <li><strong>Content Guidelines:</strong> No illegal, harmful, or offensive content</li>
+                        <li><strong>Copyright Respect:</strong> Do not use copyrighted material without permission</li>
+                        <li><strong>Community Standards:</strong> Maintain respectful, family-friendly content when possible</li>
+                        <li><strong>No Abuse:</strong> Do not attempt to circumvent rate limits or exploit the system</li>
+                        <li><strong>Reporting:</strong> Report inappropriate content via social media channels</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Disclaimers</h3>
+                    <ul>
+                        <li><strong>Service Availability:</strong> Service provided "as is" without warranties</li>
+                        <li><strong>Content Responsibility:</strong> Users responsible for their own content</li>
+                        <li><strong>Technical Limitations:</strong> Browser storage and performance may vary</li>
+                        <li><strong>Credit System:</strong> Credits have no monetary value and cannot be transferred</li>
+                        <li><strong>Competition Changes:</strong> Competition rules and prizes subject to change</li>
+                    </ul>
+                </div>
+
+                <div class="terms-section">
+                    <h3><i class="fas fa-clock"></i> Effective Date & Changes</h3>
+                    <p>These terms are effective as of the date of access. We reserve the right to modify these terms at any time. Continued use of the service constitutes acceptance of any changes.</p>
+                    <p><strong>Last Updated:</strong> <span id="tosDate"></span></p>
+                </div>
+
+                <div class="terms-section contact-section">
+                    <h3><i class="fas fa-envelope"></i> Contact</h3>
+                    <p>Questions about these terms? Contact us via our social media channels or through the $AQUA community.</p>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeTosModal()">
+                    <i class="fas fa-check"></i> I Understand
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
-    <script src="/js/script.js?v=2.0"></script>
+    <script src="/js/script.js?v=<%= Date.now() %>"></script>
+    <script src="/js/auth.js?v=<%= Date.now() %>"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="/js/meme-generator.js?v=1.0"></script>
+    <script src="/js/meme-generator.js?v=<%= Date.now() %>"></script>
+    
+    <% if (typeof autoOpenTerms !== 'undefined' && autoOpenTerms) { %>
+    <script>
+        // Auto-open Terms of Service modal when accessed via direct URL
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                openTosModal();
+            }, 500);
+        });
+    </script>
+    <% } %>
 </body>
 </html> 

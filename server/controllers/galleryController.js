@@ -358,6 +358,50 @@ const galleryController = {
         error: 'Failed to fetch featured memes'
       });
     }
+  },
+
+  // POST /api/gallery/:id/remix - Start remix (deducts 5 credits)
+  startRemix: async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Find the meme to remix
+      const meme = await Meme.findById(id);
+      if (!meme) {
+        return res.status(404).json({
+          success: false,
+          error: 'Meme not found'
+        });
+      }
+
+      // Check if the meme is remixable
+      if (!meme.isRemixable) {
+        return res.status(400).json({
+          success: false,
+          error: 'This meme is not available for remixing'
+        });
+      }
+
+      // Credits are already deducted by checkRemixLimit middleware
+      // Return the original image URL for the editor
+      res.json({
+        success: true,
+        message: 'Remix started successfully! 5 credits deducted.',
+        originalImageUrl: meme.originalImageUrl,
+        sourceImageId: meme._id,
+        aiPrompt: meme.aiPrompt,
+        category: meme.category,
+        rateLimitInfo: req.rateLimitInfo,
+        redirectUrl: `/preview/meme-generator?remix=${id}`
+      });
+
+    } catch (error) {
+      console.error('Error starting remix:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to start remix'
+      });
+    }
   }
 };
 
