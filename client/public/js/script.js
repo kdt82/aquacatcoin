@@ -201,16 +201,21 @@ function showPostLaunchState(contractAddress = 'TBA') {
     if (countdownContainer) countdownContainer.style.display = 'block';
     
     if (countdownCard) {
+        // Force the card to be wider with inline styles
+        countdownCard.style.maxWidth = '1260px';
+        countdownCard.style.width = '95%';
+        countdownCard.style.padding = '25px 40px';
+        
         countdownCard.innerHTML = `
                 <h2 class="countdown-title">🎉 WE ARE LIVE!</h2>
-                <h3 class="countdown-now-open" style="background: red; color: #e6cd87 !important; font-size: 1.8rem !important; white-space: nowrap !important;">GET READY TO GET SOGGY! <span style="color: #e6cd87 !important;">🚀</span></h3>
+                <h3 class="countdown-now-open" style="color: #e6cd87 !important; font-size: 1.4rem !important; white-space: nowrap !important;">GET READY TO GET SOGGY! <span style="color: #e6cd87 !important;">🚀</span></h3>
             
             <div class="contract-section" style="margin: 25px 0;">
                 <div class="contract-container">
-                    <div class="contract-address-line">
-                        <span class="contract-text">Contract Address:</span>
-                        <span class="contract-address" id="postLaunchAddress">${contractAddress}</span>
-                        <button class="copy-btn" id="postLaunchCopyBtn" onclick="copyPostLaunchAddress()">
+                    <div class="contract-address-line" style="min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <span class="contract-text" style="display: flex; align-items: center; height: 40px; color: #a8c5ff;">Contract Address:</span>
+                        <span class="contract-address" id="postLaunchAddress" style="background: #0c2a44 !important; padding: 10px 14px; display: flex; align-items: center; height: 40px; color: #a8c5ff; font-family: 'Courier New', monospace; border-radius: 8px; border: 1px solid rgba(77, 162, 255, 0.3);">${contractAddress}</span>
+                        <button class="copy-btn" id="postLaunchCopyBtn" onclick="copyPostLaunchAddress()" style="min-width: 40px; height: 40px; background: #4DA2FF; border: none; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-copy"></i>
                         </button>
                     </div>
