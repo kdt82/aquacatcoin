@@ -82,11 +82,25 @@ class AdvancedMemeGenerator {
         
         // Update the HTML canvas element size
         const canvasElement = this.canvas.getElement();
-        canvasElement.style.width = canvasSize + 'px';
-        canvasElement.style.height = canvasSize + 'px';
+        if (canvasElement) {
+            canvasElement.style.width = canvasSize + 'px';
+            canvasElement.style.height = canvasSize + 'px';
+            
+            // Force browser reflow
+            canvasElement.offsetHeight; // Trigger reflow
+        }
+        
+        // Update container size if needed
+        const container = document.querySelector('.canvas-container');
+        if (container) {
+            container.style.width = canvasSize + 'px';
+            container.style.height = canvasSize + 'px';
+        }
         
         // Re-render canvas
         this.canvas.renderAll();
+        
+        console.log('📏 Canvas resized to:', canvasSize, 'x', canvasSize);
         
         // Update mobile touch handling
         this.setupMobileTouchHandling();
@@ -802,6 +816,14 @@ class AdvancedMemeGenerator {
                     // Final verification
                     console.log('✅ Image should now be visible on canvas');
                     console.log('📊 Canvas objects count:', this.canvas.getObjects().length);
+                    
+                    // Fix canvas size after image load
+                    console.log('🔧 Fixing canvas size after image load...');
+                    setTimeout(() => {
+                        this.resizeCanvas();
+                        this.canvas.requestRenderAll();
+                        console.log('✅ Canvas size fixed and re-rendered');
+                    }, 100);
                     
                     // Ensure canvas visibility and fix layering issues
                     const canvasElement = document.getElementById('memeCanvas');
