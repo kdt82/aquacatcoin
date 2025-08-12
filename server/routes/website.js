@@ -1,20 +1,43 @@
 const express = require('express');
 const router = express.Router();
+const { checkAutoLaunch, adminLaunchControl } = require('../middleware/launch');
+const launchConfig = require('../config/launch');
+
+// Apply auto-launch check to all routes
+router.use(checkAutoLaunch);
 
 // Home page route
 router.get('/', (req, res) => {
-  res.render('index');
+  res.render('index', {
+    launchConfig: req.launchConfig,
+    isLive: req.isLive,
+    shouldShowCountdown: req.shouldShowCountdown
+  });
 });
 
-// Meme Generator Coming Soon route (PUBLIC)
+// Meme Generator route - Auto-switches between coming-soon and live
 router.get('/meme-generator', (req, res) => {
-  res.render('coming-soon', {
-    title: 'Meme Generator – Coming Soon | $AQUA',
-    description: 'Our AI-powered $AQUA Meme Generator is almost here. Get ready to create, remix, and share the soggiest memes on the SUI Network.',
-    canonicalUrl: 'https://www.aquacatcoin.xyz/meme-generator',
-    ogImage: 'https://www.aquacatcoin.xyz/aquacat.png',
-    currentPath: '/meme-generator'
-  });
+  if (req.isLive) {
+    // Site is live - serve the actual meme generator
+    res.render('meme-generator', {
+      title: '$AQUA Meme Generator | Create & Share Crypto Memes',
+      description: 'Create hilarious $AQUA memes with our AI-powered generator! Upload images or generate new ones with Leonardo AI.',
+      canonicalUrl: 'https://www.aquacatcoin.xyz/meme-generator',
+      ogImage: 'https://www.aquacatcoin.xyz/aquacat.png',
+      currentPath: '/meme-generator'
+    });
+  } else {
+    // Still in coming-soon mode
+    res.render('coming-soon', {
+      title: 'Meme Generator – Coming Soon | $AQUA',
+      description: 'Our AI-powered $AQUA Meme Generator is almost here. Get ready to create, remix, and share the soggiest memes on the SUI Network.',
+      canonicalUrl: 'https://www.aquacatcoin.xyz/meme-generator',
+      ogImage: 'https://www.aquacatcoin.xyz/aquacat.png',
+      currentPath: '/meme-generator',
+      launchConfig: req.launchConfig,
+      shouldShowCountdown: req.shouldShowCountdown
+    });
+  }
 });
 
 // Terms of Service route (PUBLIC - when live)
@@ -29,14 +52,79 @@ router.get('/meme-generator/terms', (req, res) => {
   });
 });
 
-// Gallery Coming Soon route (PUBLIC)
+// Gallery route - Auto-switches between coming-soon and live
 router.get('/gallery', (req, res) => {
-  res.render('coming-soon', {
-    title: 'Gallery – Coming Soon | $AQUA',
-    description: 'Our $AQUA Meme Gallery is almost ready. Soon you\'ll be able to browse, like, and remix the best community memes.',
-    canonicalUrl: 'https://www.aquacatcoin.xyz/gallery',
-    ogImage: 'https://www.aquacatcoin.xyz/aquacat.png',
-    currentPath: '/gallery'
+  if (req.isLive) {
+    // Site is live - serve the actual gallery
+    res.render('gallery', {
+      title: '$AQUA Meme Gallery | Community Created Crypto Memes',
+      description: 'Explore the funniest $AQUA memes created by our community! Browse AI-generated and user-created memes featuring the soggy cat.',
+      canonicalUrl: 'https://www.aquacatcoin.xyz/gallery',
+      ogImage: 'https://www.aquacatcoin.xyz/aquacat.png',
+      currentPath: '/gallery'
+    });
+  } else {
+    // Still in coming-soon mode
+    res.render('coming-soon', {
+      title: 'Gallery – Coming Soon | $AQUA',
+      description: 'Our $AQUA Meme Gallery is almost ready. Soon you\'ll be able to browse, like, and remix the best community memes.',
+      canonicalUrl: 'https://www.aquacatcoin.xyz/gallery',
+      ogImage: 'https://www.aquacatcoin.xyz/aquacat.png',
+      currentPath: '/gallery',
+      launchConfig: req.launchConfig,
+      shouldShowCountdown: req.shouldShowCountdown
+    });
+  }
+});
+
+// ===========================================
+// ADMIN LAUNCH CONTROL ROUTES
+// ===========================================
+
+// Get launch status (admin only)
+router.get('/admin/launch/status', adminLaunchControl, (req, res) => {
+  res.json({
+    success: true,
+    config: req.launchConfig,
+    isLive: req.isLive,
+    shouldShowCountdown: req.shouldShowCountdown,
+    currentTime: new Date().toISOString()
+  });
+});
+
+// Manually trigger launch (admin only)
+router.post('/admin/launch/go-live', adminLaunchControl, (req, res) => {
+  const success = launchConfig.updateConfig({ isLive: true });
+  res.json({
+    success,
+    message: success ? 'Site is now LIVE!' : 'Failed to update launch status',
+    config: launchConfig.getConfig()
+  });
+});
+
+// Manually revert to coming-soon (admin only)
+router.post('/admin/launch/revert', adminLaunchControl, (req, res) => {
+  const success = launchConfig.updateConfig({ isLive: false });
+  res.json({
+    success,
+    message: success ? 'Site reverted to coming-soon mode' : 'Failed to update launch status',
+    config: launchConfig.getConfig()
+  });
+});
+
+// Update launch configuration (admin only)
+router.post('/admin/launch/config', adminLaunchControl, (req, res) => {
+  const { launchDate, countdownVisibleDate } = req.body;
+  const updates = {};
+  
+  if (launchDate) updates.launchDate = launchDate;
+  if (countdownVisibleDate) updates.countdownVisibleDate = countdownVisibleDate;
+  
+  const success = launchConfig.updateConfig(updates);
+  res.json({
+    success,
+    message: success ? 'Configuration updated successfully' : 'Failed to update configuration',
+    config: launchConfig.getConfig()
   });
 });
 

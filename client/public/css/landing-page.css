@@ -54,6 +54,181 @@
   margin-bottom: 30px;
 }
 
+/* Countdown Timer Section */
+.countdown-container {
+  margin: 30px auto;
+  max-width: 800px;
+  width: 100%;
+  animation: fadeIn 1s ease-out;
+}
+
+.countdown-card {
+  background: rgba(77, 162, 255, 0.08);
+  border: 2px solid rgba(77, 162, 255, 0.2);
+  border-radius: 25px;
+  padding: 35px 25px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(77, 162, 255, 0.1);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.countdown-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(77, 162, 255, 0.1), transparent);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.countdown-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 2.2rem;
+  margin-bottom: 25px;
+  background: linear-gradient(45deg, #4DA2FF, #87CEEB);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(77, 162, 255, 0.3);
+  position: relative;
+  z-index: 2;
+}
+
+.countdown-timer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin: 25px 0;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 2;
+}
+
+.time-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(77, 162, 255, 0.3);
+  border-radius: 15px;
+  padding: 20px 15px;
+  min-width: 90px;
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+}
+
+.time-unit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(77, 162, 255, 0.2);
+  border-color: rgba(77, 162, 255, 0.5);
+}
+
+.time-value {
+  font-family: 'Fredoka One', cursive;
+  font-size: 3.5rem;
+  color: #1e3a8a;
+  text-shadow: 0 0 10px rgba(77, 162, 255, 0.3);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.time-label {
+  font-size: 1rem;
+  color: #4DA2FF;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.countdown-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-light);
+  opacity: 0.9;
+  margin-top: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Responsive Design for Countdown */
+@media (max-width: 768px) {
+  .countdown-card {
+    padding: 25px 15px;
+    margin: 20px 10px;
+  }
+  
+  .countdown-title {
+    font-size: 1.8rem;
+  }
+  
+  .countdown-timer {
+    gap: 15px;
+  }
+  
+  .time-unit {
+    min-width: 70px;
+    padding: 15px 10px;
+  }
+  
+  .time-value {
+    font-size: 2.5rem;
+  }
+  
+  .time-label {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .countdown-timer {
+    gap: 10px;
+  }
+  
+  .time-unit {
+    min-width: 60px;
+    padding: 12px 8px;
+  }
+  
+  .time-value {
+    font-size: 2rem;
+  }
+}
+
+/* Final countdown animation */
+.final-countdown .countdown-card {
+  animation: finalCountdownPulse 2s infinite;
+  border-color: #ff6b6b;
+}
+
+.final-countdown .time-value {
+  color: #ff6b6b !important;
+  animation: urgentPulse 1s infinite;
+}
+
+@keyframes finalCountdownPulse {
+  0%, 100% { 
+    box-shadow: 0 8px 32px rgba(77, 162, 255, 0.1);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes urgentPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
 /* Contract Address Section */
 .contract-section {
   margin-top: 30px;
