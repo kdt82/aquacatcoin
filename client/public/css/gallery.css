@@ -168,7 +168,8 @@
 .meme-image {
     width: 100%;
     aspect-ratio: 1 / 1;
-    object-fit: cover;
+    object-fit: contain;
+    background: rgba(77, 162, 255, 0.05);
     transition: transform 0.3s ease;
 }
 

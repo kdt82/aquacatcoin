@@ -46,8 +46,8 @@ const imageHelpers = {
     return cloudinary.url(publicId, {
       width,
       height,
-      crop: 'fill',
-      gravity: 'center',
+      crop: 'fit',
+      background: 'auto:transparent',
       quality: 'auto:good',
       fetch_format: 'auto'
     });

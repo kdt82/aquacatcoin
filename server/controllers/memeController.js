@@ -540,13 +540,21 @@ const memeController = {
         });
       }
 
+      // Extract original image URL from object if needed
+      let cleanOriginalUrl = originalImageUrl;
+      if (typeof originalImageUrl === 'object' && originalImageUrl?.url) {
+        cleanOriginalUrl = originalImageUrl.url;
+      }
+
       // Convert data URLs to Cloudinary URLs
       let savedImageUrl = null;
       let savedThumbnailUrl = null;
       let cloudinaryPublicId = null;
+      let savedOriginalUrl = null;
+      let originalCloudinaryPublicId = null;
 
       if (finalMemeUrl.startsWith('data:image/')) {
-        // Upload base64 image to Cloudinary
+        // Upload final meme to Cloudinary
         try {
           const uploadResult = await imageHelpers.uploadBase64(finalMemeUrl, {
             folder: 'aqua-memes/user-generated'
@@ -554,9 +562,9 @@ const memeController = {
           savedImageUrl = uploadResult.secure_url;
           cloudinaryPublicId = uploadResult.public_id;
           savedThumbnailUrl = imageHelpers.getThumbnail(cloudinaryPublicId, 300, 200);
-          console.log('✅ Meme uploaded to Cloudinary:', cloudinaryPublicId);
+          console.log('✅ Final meme uploaded to Cloudinary:', cloudinaryPublicId);
         } catch (error) {
-          console.error('❌ Failed to upload to Cloudinary:', error);
+          console.error('❌ Failed to upload final meme to Cloudinary:', error);
           // Fallback to local storage if Cloudinary fails
           const base64Data = finalMemeUrl.replace(/^data:image\/\w+;base64,/, '');
           const imageBuffer = Buffer.from(base64Data, 'base64');
@@ -572,10 +580,21 @@ const memeController = {
         }
       }
 
-      // Extract original image URL from object if needed
-      let cleanOriginalUrl = originalImageUrl;
-      if (typeof originalImageUrl === 'object' && originalImageUrl?.url) {
-        cleanOriginalUrl = originalImageUrl.url;
+      // Also upload original image to Cloudinary for remixing
+      if (cleanOriginalUrl && cleanOriginalUrl.startsWith('data:image/')) {
+        try {
+          const originalUploadResult = await imageHelpers.uploadBase64(cleanOriginalUrl, {
+            folder: 'aqua-memes/originals'
+          });
+          savedOriginalUrl = originalUploadResult.secure_url;
+          originalCloudinaryPublicId = originalUploadResult.public_id;
+          console.log('✅ Original image uploaded to Cloudinary:', originalCloudinaryPublicId);
+        } catch (error) {
+          console.error('❌ Failed to upload original image to Cloudinary:', error);
+          savedOriginalUrl = cleanOriginalUrl; // Keep original URL as fallback
+        }
+      } else {
+        savedOriginalUrl = cleanOriginalUrl;
       }
 
       // Process text elements to match schema requirements
@@ -597,11 +616,12 @@ const memeController = {
       const meme = new Meme({
         id: memeId,
         title: customTitle || `Generated Meme ${Date.now()}`,
-        originalImageUrl: cleanOriginalUrl || savedImageUrl,
+        originalImageUrl: savedOriginalUrl || savedImageUrl,
         finalMemeUrl: savedImageUrl,
         thumbnail: savedThumbnailUrl,
         cloudinaryPublicId: cloudinaryPublicId,
         cloudinaryFolder: cloudinaryPublicId ? 'aqua-memes/user-generated' : null,
+        originalCloudinaryPublicId: originalCloudinaryPublicId,
         textElements: processedTextElements,
         generationType: 'upload', // Valid enum value for user-generated content
         source: source || 'web-generator',
