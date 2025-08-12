@@ -106,7 +106,7 @@
 
 .countdown-now-open {
   font-family: 'Fredoka One', cursive;
-  font-size: 2.2rem; /* Reduced size to fit on one line */
+  font-size: 1.8rem; /* Further reduced to fit on one line */
   margin-bottom: 20px;
   color: #e6cd87; /* Golden color */
   text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -114,6 +114,7 @@
   z-index: 2;
   font-weight: 900;
   line-height: 1;
+  white-space: nowrap; /* Prevent line breaks */
 }
 
 .countdown-timer {
@@ -202,7 +203,7 @@
   }
   
   .countdown-now-open {
-    font-size: 1.8rem; /* Reduced to fit on one line on mobile */
+    font-size: 1.4rem; /* Further reduced for mobile */
     margin-bottom: 15px;
   }
   
@@ -254,7 +255,7 @@
   }
   
   .countdown-now-open {
-    font-size: 1.5rem; /* Reduced to fit on one line on small mobile */
+    font-size: 1.2rem; /* Further reduced for small mobile */
     margin-bottom: 12px;
   }
   
@@ -320,6 +321,7 @@
   font-size: 0.9rem;
   line-height: 1.4;
   width: 100%;
+  min-height: 40px; /* Ensure consistent height */
 }
 
 .contract-text {
@@ -333,12 +335,15 @@
   font-family: 'Courier New', monospace;
   color: var(--text-light);
   background: #0c2a44; /* Changed from black to blue-dark */
-  padding: 8px 12px;
+  padding: 10px 14px; /* Slightly more padding for better alignment */
   border-radius: 6px;
   border: 1px solid rgba(77, 162, 255, 0.3);
   letter-spacing: 0.5px;
   font-size: 0.85rem;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  min-height: 20px; /* Consistent height */
 }
 
 .copy-btn {
