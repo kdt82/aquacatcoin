@@ -206,20 +206,21 @@ function showPostLaunchState(contractAddress = 'TBA') {
             background: rgba(77, 162, 255, 0.08);
             border: 2px solid rgba(77, 162, 255, 0.2);
             border-radius: 25px;
-            padding: 25px 40px;
+            padding: 25px 60px;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(77, 162, 255, 0.1);
             text-align: center;
             position: relative;
             overflow: hidden;
-            max-width: 1260px;
-            width: 95%;
+            max-width: 1400px !important;
+            width: 98% !important;
             margin: 0 auto;
+            min-width: 1200px;
         `;
         
         newCard.innerHTML = `
             <h2 style="font-family: 'Fredoka One', cursive; font-size: 2.5rem; margin-bottom: 10px; color: #4DA2FF; text-shadow: 0 0 20px rgba(77, 162, 255, 0.3); position: relative; z-index: 2;">🎉 WE ARE LIVE!</h2>
-            <h3 style="font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 20px; color: #e6cd87; text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 2; font-weight: 900; line-height: 1; white-space: nowrap;">GET READY TO GET SOGGY! <span style="color: #e6cd87;">🚀</span></h3>
+            <h3 style="font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 20px; color: #e6cd87; text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 2; font-weight: 900; line-height: 1; white-space: nowrap;">GET READY TO GET SOGGY! <span style="color: #e6cd87; filter: hue-rotate(45deg) saturate(2); font-size: 1.6rem;">🚀</span></h3>
             
             <div style="margin: 25px 0;">
                 <div style="min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
@@ -246,6 +247,7 @@ function showPostLaunchState(contractAddress = 'TBA') {
         countdownContainer.style.display = 'block';
         
         console.log('DEBUG: Completely new card created and inserted');
+        console.log('DEBUG: Card width should be:', newCard.style.maxWidth, 'and width:', newCard.style.width);
     }
 }
 
