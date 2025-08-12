@@ -429,13 +429,26 @@ const socialController = {
       });
 
     } catch (error) {
-      console.error('Error posting to X:', error.response?.data || error.message);
+      console.error('Error posting to X:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method
+        }
+      });
       
       let errorMessage = 'Failed to post to X';
       if (error.response?.status === 401) {
         errorMessage = 'X authentication expired. Please sign in again.';
       } else if (error.response?.status === 403) {
         errorMessage = 'Permission denied. Please ensure your X app has write permissions.';
+      } else if (error.response?.data?.detail) {
+        errorMessage = `X API Error: ${error.response.data.detail}`;
+      } else if (error.response?.data?.error) {
+        errorMessage = `X API Error: ${error.response.data.error}`;
       }
 
       res.status(error.response?.status || 500).json({
