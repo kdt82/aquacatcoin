@@ -138,14 +138,8 @@ class AdvancedMemeGenerator {
         
         // Upload functionality removed - AI generation only
         
-        // AI Generation
-        const generateBtn = document.getElementById('generateBtn');
-        if (generateBtn) {
-            generateBtn.addEventListener('click', this.generateAIImage.bind(this));
-            console.log('✅ Generate button event listener attached');
-        } else {
-            console.error('❌ Generate button not found! ID: generateBtn');
-        }
+        // AI Generation - with better error handling
+        this.setupGenerateButton();
         
         // Canvas tools
         document.getElementById('undoBtn').addEventListener('click', this.undo.bind(this));
@@ -283,6 +277,32 @@ class AdvancedMemeGenerator {
                     </div>
                 </div>
             `;
+        }
+    }
+
+    setupGenerateButton() {
+        const setupButton = () => {
+            const generateBtn = document.getElementById('generateBtn');
+            if (generateBtn) {
+                // Add new listener
+                generateBtn.addEventListener('click', this.generateAIImage.bind(this));
+                generateBtn.setAttribute('data-listener-attached', 'true');
+                console.log('✅ Generate button event listener attached');
+                return true;
+            } else {
+                console.warn('⚠️ Generate button not found, retrying...');
+                return false;
+            }
+        };
+
+        // Try immediately
+        if (!setupButton()) {
+            // If not found, retry after a short delay
+            setTimeout(() => {
+                if (!setupButton()) {
+                    console.error('❌ Generate button not found after retry! ID: generateBtn');
+                }
+            }, 500);
         }
     }
 
@@ -2849,20 +2869,41 @@ document.addEventListener('click', (event) => {
 
 // Start initialization when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize scroll animations immediately
+    // Initialize scroll animations with smooth loading
     setupScrollAnimations();
     // Then initialize meme generator
     initializeMemeGenerator();
+    
+    // Add global fallback for Generate button
+    setTimeout(() => {
+        const generateBtn = document.getElementById('generateBtn');
+        if (generateBtn && !generateBtn.hasAttribute('data-listener-attached')) {
+            generateBtn.addEventListener('click', function() {
+                console.log('🔄 Fallback Generate button clicked!');
+                if (window.memeGenerator && window.memeGenerator.generateAIImage) {
+                    window.memeGenerator.generateAIImage();
+                } else {
+                    console.error('❌ Meme generator not available!');
+                }
+            });
+            generateBtn.setAttribute('data-listener-attached', 'true');
+            console.log('🛡️ Fallback Generate button listener added');
+        }
+    }, 1000);
 });
 
 // Setup scroll animations function (standalone)
 function setupScrollAnimations() {
-    // First, immediately show all scroll-animate elements to prevent blank page
-    document.querySelectorAll('.scroll-animate').forEach(el => {
-        el.classList.add('in-view');
+    // Add a small delay for smooth sequential animation
+    const elements = document.querySelectorAll('.scroll-animate');
+    
+    elements.forEach((el, index) => {
+        setTimeout(() => {
+            el.classList.add('in-view');
+        }, index * 150); // Stagger animation by 150ms
     });
     
-    // Then set up the intersection observer for future animations
+    // Set up intersection observer for future elements
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -2876,8 +2917,7 @@ function setupScrollAnimations() {
         });
     }, observerOptions);
     
-    // Observe elements that might be added later
-    document.querySelectorAll('.scroll-animate').forEach(el => {
+    elements.forEach(el => {
         observer.observe(el);
     });
 }
