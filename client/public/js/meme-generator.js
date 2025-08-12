@@ -54,19 +54,25 @@ class AdvancedMemeGenerator {
 
     resizeCanvas() {
         const container = document.querySelector('.canvas-container');
-        if (!container) return;
+        if (!container) {
+            console.warn('⚠️ Canvas container not found, using default size');
+            this.canvas.setDimensions({ width: 600, height: 600 });
+            return;
+        }
         
-        const containerWidth = container.clientWidth - 4; // Account for border
+        const containerWidth = Math.max(container.clientWidth - 4, 300); // Account for border, min 300px
         const isMobile = window.innerWidth <= 768;
         
         let canvasSize;
         if (isMobile) {
             // On mobile, use container width but maintain aspect ratio
-            canvasSize = Math.min(containerWidth, window.innerHeight * 0.4);
+            canvasSize = Math.max(Math.min(containerWidth, window.innerHeight * 0.4), 300);
         } else {
             // On desktop, use fixed size or container width, whichever is smaller
-            canvasSize = Math.min(600, containerWidth);
+            canvasSize = Math.max(Math.min(600, containerWidth), 300);
         }
+        
+        console.log('📐 Resizing canvas to:', canvasSize, 'x', canvasSize);
         
         // Update canvas dimensions
         this.canvas.setDimensions({
@@ -662,6 +668,14 @@ class AdvancedMemeGenerator {
         
         console.log('✅ Canvas is initialized:', this.canvas);
         
+        // Ensure canvas has proper initial dimensions
+        if (this.canvas.width <= 0 || this.canvas.height <= 0) {
+            console.warn('⚠️ Canvas has invalid initial dimensions, fixing...');
+            this.canvas.setDimensions({ width: 600, height: 600 });
+            this.canvas.requestRenderAll();
+            console.log('✅ Canvas dimensions initialized to 600x600');
+        }
+        
         // Validate image URL
         if (!imageUrl || typeof imageUrl !== 'string') {
             console.error('❌ Invalid image URL provided:', imageUrl);
@@ -731,11 +745,20 @@ class AdvancedMemeGenerator {
                     
                     console.log('✅ Fabric image created');
                     
-                    // Scale image to fit canvas
-                    const canvasWidth = this.canvas.width || 600;
-                    const canvasHeight = this.canvas.height || 600;
+                    // Ensure canvas has proper dimensions
+                    let canvasWidth = this.canvas.width || 600;
+                    let canvasHeight = this.canvas.height || 600;
                     
-                    console.log('Canvas dimensions:', canvasWidth, 'x', canvasHeight);
+                    // Fix negative or invalid canvas dimensions
+                    if (canvasWidth <= 0 || canvasHeight <= 0) {
+                        console.warn('⚠️ Canvas has invalid dimensions, setting defaults...');
+                        canvasWidth = 600;
+                        canvasHeight = 600;
+                        this.canvas.setDimensions({ width: canvasWidth, height: canvasHeight });
+                        console.log('✅ Canvas dimensions fixed to:', canvasWidth, 'x', canvasHeight);
+                    } else {
+                        console.log('Canvas dimensions:', canvasWidth, 'x', canvasHeight);
+                    }
                     
                     // Calculate scale to fit within canvas
                     const scaleX = canvasWidth / fabricImg.width;
