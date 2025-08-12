@@ -360,7 +360,7 @@ const socialController = {
   // POST /api/social/post-to-x - Upload image directly to X
   postToX: async (req, res) => {
     try {
-      const { imageData, text } = req.body;
+      const { imageData, text, memeId } = req.body;
       
       if (!req.user) {
         return res.status(401).json({
@@ -388,8 +388,10 @@ const socialController = {
         .toBuffer();
 
       // Post tweet with text only (v2 API doesn't support direct media upload with OAuth 2.0)
-      // Always include a link to view the meme in the gallery
-      const memeUrl = `https://aquacatcoin.xyz/gallery`; // Production gallery URL
+      // Always include a link to view the specific meme
+      const memeUrl = memeId 
+        ? `https://aquacatcoin.xyz/gallery?meme=${memeId}` 
+        : `https://aquacatcoin.xyz/gallery`; // Fallback to general gallery
       
       let tweetText;
       if (text && text.trim()) {

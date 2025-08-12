@@ -2168,6 +2168,12 @@ class AdvancedMemeGenerator {
 
     async postDirectlyToX(text) {
         try {
+            // First, save the meme to get the meme ID
+            const savedMeme = await this.saveMeme(null, null, true); // true for isSharing
+            if (!savedMeme || !savedMeme.id) {
+                throw new Error('Failed to save meme before posting');
+            }
+            
             // Get current canvas as image data
             const imageData = this.canvas.toDataURL('image/jpeg', 0.9);
             
@@ -2179,7 +2185,8 @@ class AdvancedMemeGenerator {
                 credentials: 'include', // This sends cookies automatically
                 body: JSON.stringify({
                     imageData,
-                    text
+                    text,
+                    memeId: savedMeme.id
                 }),
             });
             
