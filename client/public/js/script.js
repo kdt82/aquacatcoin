@@ -214,21 +214,24 @@ function showPostLaunchState(contractAddress = 'TBA') {
             overflow: hidden;
             max-width: 1400px !important;
             width: 98% !important;
-            margin: 0 auto;
+            margin: 0 auto !important;
             min-width: 1200px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
+            display: block !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            position: relative !important;
         `;
         
         newCard.innerHTML = `
             <h2 style="font-family: 'Fredoka One', cursive; font-size: 2.5rem; margin-bottom: 10px; color: #4DA2FF; text-shadow: 0 0 20px rgba(77, 162, 255, 0.3); position: relative; z-index: 2;"><span style="filter: hue-rotate(200deg) saturate(2) brightness(1.1);">🎉</span> WE ARE LIVE!</h2>
-            <h3 style="font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 20px; color: #e6cd87; text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 2; font-weight: 900; line-height: 1; white-space: nowrap;">GET READY TO GET SOGGY! <span style="filter: hue-rotate(45deg) saturate(4) brightness(1.3) contrast(1.2); font-size: 1.6rem;">🚀</span></h3>
+            <h3 style="font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 20px; color: #e6cd87; text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 2; font-weight: 900; line-height: 1; white-space: nowrap;">GET READY TO GET SOGGY! <span style="color: #FFD700 !important; font-size: 1.6rem; text-shadow: 0 0 10px #FFD700;">🚀</span></h3>
             
             <div style="margin: 25px 0;">
                 <div class="post-launch-ca-container" style="min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; max-width: 100%;">
                     <span style="display: flex; align-items: center; height: 40px; color: #a8c5ff; font-size: 1rem; white-space: nowrap;">Contract Address:</span>
-                    <span id="postLaunchAddress" class="post-launch-ca-field" style="background: #0c2a44; padding: 12px 25px; display: flex; align-items: center; justify-content: center; height: 40px; color: #a8c5ff; font-family: 'Courier New', monospace; border-radius: 8px; border: 1px solid rgba(77, 162, 255, 0.3); font-size: 1rem; min-width: 320px; flex: 1; max-width: 400px; text-align: center;">${contractAddress.length > 10 ? contractAddress : '0x1234567890abcdef1234567890abcdef12345678'}</span>
+                    <span id="postLaunchAddress" class="post-launch-ca-field" style="background: #0c2a44; padding: 12px 30px; display: flex; align-items: center; justify-content: center; height: 40px; color: #a8c5ff; font-family: 'Courier New', monospace; border-radius: 8px; border: 1px solid rgba(77, 162, 255, 0.3); font-size: 1rem; min-width: 500px; flex: 1; max-width: 600px; text-align: center; width: 100%;">0x1234567890abcdef1234567890abcdef12345678901234567890</span>
                     <button id="postLaunchCopyBtn" onclick="copyPostLaunchAddress()" style="min-width: 40px; height: 40px; background: #4DA2FF; border: none; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="fas fa-copy"></i>
                     </button>
@@ -269,10 +272,19 @@ function showPostLaunchState(contractAddress = 'TBA') {
         // Add class to the card for mobile targeting
         newCard.className = 'post-launch-card';
         
+        // Center the countdown container itself
+        countdownContainer.style.cssText = `
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100% !important;
+            margin: 0 auto !important;
+            text-align: center !important;
+        `;
+        
         // Replace the entire countdown container content
         countdownContainer.innerHTML = '';
         countdownContainer.appendChild(newCard);
-        countdownContainer.style.display = 'block';
         
         console.log('DEBUG: Completely new card created and inserted');
         console.log('DEBUG: Card width should be:', newCard.style.maxWidth, 'and width:', newCard.style.width);
