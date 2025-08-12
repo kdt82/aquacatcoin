@@ -2814,7 +2814,7 @@ function initializeMemeGenerator() {
     console.log('  - testDelete() - Test delete function specifically');
     console.log('  - fixCanvas() - Fix canvas corruption issues');
     console.log('  - resetCanvas() - Emergency canvas reset');
-});
+}
 
 // Terms of Service Modal Functions
 function openTosModal() {
