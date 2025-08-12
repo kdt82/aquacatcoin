@@ -2888,8 +2888,15 @@ function setupScrollAnimations() {
     const container = document.querySelector('.meme-generator-container');
     const elements = document.querySelectorAll('.scroll-animate');
     
+    console.log('🔍 Animation debug:', {
+        container: !!container,
+        elementsFound: elements.length,
+        elementsArray: Array.from(elements).map(el => el.className)
+    });
+    
     if (!container || elements.length === 0) {
         console.error('❌ Animation setup failed - container or elements not found');
+        console.log('Available elements:', document.querySelectorAll('*[class*="animate"]'));
         return;
     }
     
@@ -2897,12 +2904,15 @@ function setupScrollAnimations() {
     try {
         // Add animation class to container to enable CSS animations
         container.classList.add('js-animations');
-        console.log('✅ Animation CSS class added');
+        console.log('✅ Animation CSS class added to container');
+        console.log('🔍 Container classes:', container.className);
         
         // Add staggered animation
         elements.forEach((el, index) => {
+            console.log(`⏳ Scheduling animation for element ${index}:`, el.className);
             setTimeout(() => {
                 el.classList.add('in-view');
+                console.log(`✨ Applied in-view to element ${index}:`, el.className);
             }, index * 150);
         });
         
