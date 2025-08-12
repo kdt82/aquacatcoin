@@ -332,13 +332,18 @@ class AdvancedMemeGenerator {
                     if (generation.status === 'COMPLETE' && generation.generated_images && generation.generated_images.length > 0) {
                         // Generation completed successfully
                         const imageUrl = generation.generated_images[0].url;
+                        console.log('AI generation completed! Image URL:', imageUrl);
                         statusDiv.innerHTML = `<i class="fas fa-check" style="color: #10B981;"></i> Image generated successfully!`;
                         
                         // Add the generated image to user images
                         await this.addUserImage(imageUrl, 'generated');
                         
-                        // Show step 2 (Your Images) and highlight the new image
-                        this.expandStep('step2');
+                        // Automatically load the generated image to canvas
+                        console.log('Loading generated image to canvas...');
+                        this.loadImageToCanvas(imageUrl);
+                        
+                        // Show step 3 (Edit Canvas) since we loaded the image
+                        this.expandStep('step3');
                         
                         // Hide status after a moment
                         setTimeout(() => {
