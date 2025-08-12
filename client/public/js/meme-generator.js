@@ -71,8 +71,9 @@ class AdvancedMemeGenerator {
             // On tablet, use more space but keep reasonable
             canvasSize = Math.max(Math.min(containerWidth, 500), 400);
         } else {
-            // On desktop, use more available space
-            canvasSize = Math.max(Math.min(containerWidth, 700), 400);
+            // On desktop, use much more available space
+            const maxDesktopSize = Math.min(containerWidth * 0.95, 800); // Use 95% of container or max 800px
+            canvasSize = Math.max(maxDesktopSize, 500);
         }
         
         console.log('📐 Resizing canvas to:', canvasSize, 'x', canvasSize);
@@ -2854,10 +2855,13 @@ document.addEventListener('click', (event) => {
 
 // Start initialization when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize scroll animations with smooth loading
-    setupScrollAnimations();
-    // Then initialize meme generator
+    // Initialize meme generator first
     initializeMemeGenerator();
+    
+    // Setup animations after a short delay to ensure DOM is ready
+    setTimeout(() => {
+        setupScrollAnimations();
+    }, 100);
     
     // Add global fallback for Generate button
     setTimeout(() => {
