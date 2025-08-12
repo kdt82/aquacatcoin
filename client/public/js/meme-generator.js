@@ -2848,7 +2848,32 @@ document.addEventListener('click', (event) => {
 });
 
 // Start initialization when DOM is ready
-document.addEventListener('DOMContentLoaded', initializeMemeGenerator);
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize scroll animations immediately
+    setupScrollAnimations();
+    // Then initialize meme generator
+    initializeMemeGenerator();
+});
+
+// Setup scroll animations function (standalone)
+function setupScrollAnimations() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('in-view');
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.scroll-animate').forEach(el => {
+        observer.observe(el);
+    });
+}
 
 // Close modal with Escape key
 document.addEventListener('keydown', (event) => {
