@@ -652,25 +652,41 @@ class AdvancedMemeGenerator {
     }
     
     loadImageToCanvas(imageUrl) {
-        console.log('Loading image to canvas...');
+        console.log('🚀 Loading image to canvas...', imageUrl);
         
         // Ensure canvas is initialized
         if (!this.canvas) {
-            console.error('Canvas not initialized. Cannot load image.');
+            console.error('❌ Canvas not initialized. Cannot load image.');
             return;
         }
         
+        console.log('✅ Canvas is initialized:', this.canvas);
+        
         // Validate image URL
         if (!imageUrl || typeof imageUrl !== 'string') {
-            console.error('Invalid image URL provided:', imageUrl);
+            console.error('❌ Invalid image URL provided:', imageUrl);
             return;
         }
         
         // Clean up canvas before loading new image
+        console.log('🧹 Cleaning up canvas...');
         this.cleanupCanvas();
         
         // Set canvas background
         this.canvas.backgroundColor = '#ffffff';
+        
+        // Test canvas is working by adding a temporary test shape
+        console.log('🧪 Testing canvas with temporary shape...');
+        const testRect = new fabric.Rect({
+            left: 10,
+            top: 10,
+            width: 50,
+            height: 50,
+            fill: 'red'
+        });
+        this.canvas.add(testRect);
+        this.canvas.requestRenderAll();
+        console.log('🧪 Test shape added - canvas should show red rectangle');
         
         // Convert data URL to blob to avoid CORS issues
         const convertDataUrlToBlob = (dataUrl) => {
@@ -703,6 +719,8 @@ class AdvancedMemeGenerator {
             
             testImg.onload = () => {
                 try {
+                    console.log('✅ Image loaded successfully:', testImg.width, 'x', testImg.height);
+                    
                     // Create Fabric image from the loaded HTML image element
                     const fabricImg = new fabric.Image(testImg);
                     
@@ -711,9 +729,13 @@ class AdvancedMemeGenerator {
                         return;
                     }
                     
+                    console.log('✅ Fabric image created');
+                    
                     // Scale image to fit canvas
                     const canvasWidth = this.canvas.width || 600;
                     const canvasHeight = this.canvas.height || 600;
+                    
+                    console.log('Canvas dimensions:', canvasWidth, 'x', canvasHeight);
                     
                     // Calculate scale to fit within canvas
                     const scaleX = canvasWidth / fabricImg.width;
@@ -734,14 +756,29 @@ class AdvancedMemeGenerator {
                         top: 0
                     });
                     
+                    // Remove test rectangle if it exists
+                    const testObjects = this.canvas.getObjects().filter(obj => obj.fill === 'red');
+                    testObjects.forEach(obj => this.canvas.remove(obj));
+                    
                     // Add image to canvas
+                    console.log('🎨 Adding image to canvas...');
                     this.canvas.add(fabricImg);
                     
                     // Center the image
+                    console.log('🎯 Centering image...');
                     this.canvas.centerObject(fabricImg);
                     
                     // Set the image as active object
+                    console.log('👆 Setting as active object...');
                     this.canvas.setActiveObject(fabricImg);
+                    
+                    // Force canvas to render
+                    console.log('🖼️ Forcing canvas render...');
+                    this.canvas.requestRenderAll();
+                    
+                    // Final verification
+                    console.log('✅ Image should now be visible on canvas');
+                    console.log('📊 Canvas objects count:', this.canvas.getObjects().length);
                     
                     // Ensure canvas visibility and fix layering issues
                     const canvasElement = document.getElementById('memeCanvas');
@@ -814,7 +851,7 @@ class AdvancedMemeGenerator {
                 }
             };
             
-            testImg.onerror = (error) => {
+            testImg.onerror = async (error) => {
                 console.error('Failed to load image:', error);
                 console.error('Image URL that failed:', imageUrl);
                 console.error('Processed URL that failed:', processedImageUrl);
@@ -822,6 +859,26 @@ class AdvancedMemeGenerator {
                 // Clean up blob URL if created
                 if (processedImageUrl !== imageUrl) {
                     URL.revokeObjectURL(processedImageUrl);
+                }
+                
+                // Try fallback method: fetch and convert to base64
+                if (imageUrl.startsWith('http') && processedImageUrl.includes('/api/proxy-image')) {
+                    console.log('🔄 Trying fallback method: direct fetch to base64...');
+                    try {
+                        const response = await fetch(processedImageUrl);
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                                console.log('✅ Fallback successful, retrying with base64...');
+                                this.loadImageToCanvas(reader.result);
+                            };
+                            reader.readAsDataURL(blob);
+                            return; // Don't show error if fallback is attempted
+                        }
+                    } catch (fallbackError) {
+                        console.error('Fallback method also failed:', fallbackError);
+                    }
                 }
                 
                 // Show user-friendly error
