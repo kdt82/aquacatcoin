@@ -23,7 +23,6 @@ class AdvancedMemeGenerator {
         this.loadAIModels();
         this.refreshUserImagesDisplay();
         this.updateStorageInfo();
-        this.setupScrollAnimations();
         this.initializeStepStates();
         this.initializeAdvancedFeatures();
         this.loadCreditInfo();
@@ -1939,24 +1938,7 @@ class AdvancedMemeGenerator {
         }
     }
     
-    setupScrollAnimations() {
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('in-view');
-                }
-            });
-        }, observerOptions);
-        
-        document.querySelectorAll('.scroll-animate').forEach(el => {
-            observer.observe(el);
-});
-    }
+
 
     loadUserImages() {
         try {
