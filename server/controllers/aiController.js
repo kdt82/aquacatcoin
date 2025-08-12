@@ -15,14 +15,37 @@ const AQUA_MODEL = {
 
 // Rate limiting middleware function
 const checkRateLimit = (req, res, next) => {
-  const rateLimitKey = req.ip || 'unknown';
+  // TEMPORARY: Disable rate limiting for development/testing
+  if (process.env.NODE_ENV !== 'production' || process.env.DISABLE_RATE_LIMIT === 'true') {
+    console.log(`🔓 Rate limiting disabled for development/testing`);
+    return next();
+  }
+  
+  // Get IP from various possible headers (Railway might use proxies)
+  const possibleIPs = [
+    req.ip,
+    req.connection.remoteAddress,
+    req.socket.remoteAddress,
+    req.headers['x-forwarded-for']?.split(',')[0]?.trim(),
+    req.headers['x-real-ip'],
+    req.headers['x-client-ip']
+  ].filter(Boolean);
+  
+  const rateLimitKey = possibleIPs[0] || 'unknown';
   const now = Date.now();
   const hour = 60 * 60 * 1000; // 1 hour in milliseconds
   
+  // Debug: Log all detected IPs
+  console.log(`🔍 Rate limit check - Detected IPs: ${JSON.stringify(possibleIPs)}, Using: ${rateLimitKey}`);
+  
   // Exception for specific IP addresses (bypass rate limiting)
-  const exemptIPs = ['125.253.17.216'];
-  if (exemptIPs.includes(rateLimitKey)) {
-    console.log(`🔓 Rate limit bypassed for exempt IP: ${rateLimitKey}`);
+  const exemptIPs = ['125.253.17.216', '127.0.0.1', 'localhost'];
+  
+  // Check if any of the possible IPs match exempt list
+  const isExempt = possibleIPs.some(ip => exemptIPs.includes(ip));
+  
+  if (isExempt) {
+    console.log(`🔓 Rate limit bypassed for exempt IP in list: ${possibleIPs.join(', ')}`);
     return next();
   }
   
