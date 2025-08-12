@@ -216,16 +216,19 @@ function showPostLaunchState(contractAddress = 'TBA') {
             width: 98% !important;
             margin: 0 auto;
             min-width: 1200px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         `;
         
         newCard.innerHTML = `
             <h2 style="font-family: 'Fredoka One', cursive; font-size: 2.5rem; margin-bottom: 10px; color: #4DA2FF; text-shadow: 0 0 20px rgba(77, 162, 255, 0.3); position: relative; z-index: 2;">🎉 WE ARE LIVE!</h2>
-            <h3 style="font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 20px; color: #e6cd87; text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 2; font-weight: 900; line-height: 1; white-space: nowrap;">GET READY TO GET SOGGY! <span style="color: #e6cd87; filter: hue-rotate(45deg) saturate(2); font-size: 1.6rem;">🚀</span></h3>
+            <h3 style="font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 20px; color: #e6cd87; text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 2; font-weight: 900; line-height: 1; white-space: nowrap;">GET READY TO GET SOGGY! <span style="filter: hue-rotate(60deg) saturate(3) brightness(1.2); font-size: 1.6rem;">🚀</span></h3>
             
             <div style="margin: 25px 0;">
                 <div style="min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
                     <span style="display: flex; align-items: center; height: 40px; color: #a8c5ff; font-size: 1rem;">Contract Address:</span>
-                    <span id="postLaunchAddress" style="background: #0c2a44; padding: 10px 14px; display: flex; align-items: center; height: 40px; color: #a8c5ff; font-family: 'Courier New', monospace; border-radius: 8px; border: 1px solid rgba(77, 162, 255, 0.3); font-size: 0.9rem;">${contractAddress}</span>
+                    <span id="postLaunchAddress" style="background: #0c2a44; padding: 10px 20px; display: flex; align-items: center; height: 40px; color: #a8c5ff; font-family: 'Courier New', monospace; border-radius: 8px; border: 1px solid rgba(77, 162, 255, 0.3); font-size: 0.9rem; min-width: 200px;">${contractAddress}</span>
                     <button id="postLaunchCopyBtn" onclick="copyPostLaunchAddress()" style="min-width: 40px; height: 40px; background: #4DA2FF; border: none; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-copy"></i>
                     </button>
