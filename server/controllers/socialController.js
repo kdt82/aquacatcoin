@@ -387,30 +387,17 @@ const socialController = {
         .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
         .toBuffer();
 
-      // Step 1: Upload media to X
-      const formData = new FormData();
-      formData.append('media', processedImage, {
-        filename: 'meme.jpg',
-        contentType: 'image/jpeg'
-      });
+      // Post tweet with text only (v2 API doesn't support direct media upload with OAuth 2.0)
+      // Include a link to view the meme in the gallery
+      const memeUrl = `https://aquacatcoin.xyz/preview/gallery`; // Could be specific meme URL later
+      const tweetText = text || `Check out this hilarious meme I made with the $AQUA Meme Generator! 🐱💧 
+      
+View it here: ${memeUrl}
 
-      const mediaResponse = await axios.post('https://upload.twitter.com/1.1/media/upload.json', formData, {
-        headers: {
-          ...formData.getHeaders(),
-          'Authorization': `Bearer ${user.twitterAccessToken}`
-        }
-      });
-
-      const mediaId = mediaResponse.data.media_id_string;
-
-      // Step 2: Post tweet with media
-      const tweetText = text || `Check out this hilarious meme I made with the $AQUA Meme Generator! 🐱💧 #AQUAonSUI #MemeCoin #AQUA #SUINetwork`;
+#AQUAonSUI #MemeCoin #AQUA #SUINetwork`;
       
       const tweetResponse = await axios.post('https://api.twitter.com/2/tweets', {
-        text: tweetText,
-        media: {
-          media_ids: [mediaId]
-        }
+        text: tweetText
       }, {
         headers: {
           'Authorization': `Bearer ${user.twitterAccessToken}`,
