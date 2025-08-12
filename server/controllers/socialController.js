@@ -390,11 +390,9 @@ const socialController = {
       // Post tweet with text only (v2 API doesn't support direct media upload with OAuth 2.0)
       // Include a link to view the meme in the gallery
       const memeUrl = `https://aquacatcoin.xyz/preview/gallery`; // Could be specific meme URL later
-      const tweetText = text || `Check out this hilarious meme I made with the $AQUA Meme Generator! 🐱💧 
+      const tweetText = text || `Check out this hilarious meme I made with the $AQUA Meme Generator! 🐱💧\n\nView it here: ${memeUrl}\n\n#AQUAonSUI #MemeCoin #AQUA #SUINetwork`;
       
-View it here: ${memeUrl}
-
-#AQUAonSUI #MemeCoin #AQUA #SUINetwork`;
+      console.log('📱 Posting tweet to X:', { tweetText, userToken: user.twitterAccessToken ? 'Present' : 'Missing' });
       
       const tweetResponse = await axios.post('https://api.twitter.com/2/tweets', {
         text: tweetText
@@ -403,6 +401,12 @@ View it here: ${memeUrl}
           'Authorization': `Bearer ${user.twitterAccessToken}`,
           'Content-Type': 'application/json'
         }
+      });
+
+      console.log('✅ X API Response:', {
+        status: tweetResponse.status,
+        data: tweetResponse.data,
+        tweetId: tweetResponse.data?.data?.id
       });
 
       const tweetData = tweetResponse.data.data;
@@ -416,7 +420,7 @@ View it here: ${memeUrl}
       });
 
     } catch (error) {
-      console.error('Error posting to X:', {
+      console.error('❌ Error posting to X:', {
         status: error.response?.status,
         statusText: error.response?.statusText,
         data: error.response?.data,
@@ -424,7 +428,9 @@ View it here: ${memeUrl}
         config: {
           url: error.config?.url,
           method: error.config?.method
-        }
+        },
+        userHasToken: !!user.twitterAccessToken,
+        username: user.twitterUsername
       });
       
       let errorMessage = 'Failed to post to X';
@@ -436,6 +442,9 @@ View it here: ${memeUrl}
         errorMessage = `X API Error: ${error.response.data.detail}`;
       } else if (error.response?.data?.error) {
         errorMessage = `X API Error: ${error.response.data.error}`;
+      } else if (error.response?.data?.errors) {
+        const errors = error.response.data.errors.map(e => e.message || e.detail).join(', ');
+        errorMessage = `X API Errors: ${errors}`;
       }
 
       res.status(error.response?.status || 500).json({
