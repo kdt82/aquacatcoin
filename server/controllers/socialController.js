@@ -388,9 +388,17 @@ const socialController = {
         .toBuffer();
 
       // Post tweet with text only (v2 API doesn't support direct media upload with OAuth 2.0)
-      // Include a link to view the meme in the gallery
+      // Always include a link to view the meme in the gallery
       const memeUrl = `https://aquacatcoin.xyz/preview/gallery`; // Could be specific meme URL later
-      const tweetText = text || `Check out this hilarious meme I made with the $AQUA Meme Generator! 🐱💧\n\nView it here: ${memeUrl}\n\n#AQUAonSUI #MemeCoin #AQUA #SUINetwork`;
+      
+      let tweetText;
+      if (text && text.trim()) {
+        // User provided custom text - append gallery link
+        tweetText = `${text}\n\nView it here: ${memeUrl}\n\n#AQUAonSUI #MemeCoin #AQUA #SUINetwork`;
+      } else {
+        // Use default text with gallery link
+        tweetText = `Check out this hilarious meme I made with the $AQUA Meme Generator! 🐱💧\n\nView it here: ${memeUrl}\n\n#AQUAonSUI #MemeCoin #AQUA #SUINetwork`;
+      }
       
       console.log('📱 Posting tweet to X:', { tweetText, userToken: user.twitterAccessToken ? 'Present' : 'Missing' });
       
