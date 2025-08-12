@@ -369,7 +369,7 @@ const socialController = {
         });
       }
 
-      const user = await User.findById(req.user.userId);
+      const user = req.user; // User is already populated by middleware
       if (!user || !user.twitterAccessToken) {
         return res.status(401).json({
           success: false,
