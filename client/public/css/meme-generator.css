@@ -4,6 +4,12 @@
     padding-bottom: 50px;
 }
 
+/* Ensure content is visible even if JavaScript fails */
+.meme-generator-container .scroll-animate {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
 .generator-hero {
     text-align: center;
     margin-bottom: 40px;

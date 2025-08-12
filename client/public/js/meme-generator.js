@@ -2857,6 +2857,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Setup scroll animations function (standalone)
 function setupScrollAnimations() {
+    // First, immediately show all scroll-animate elements to prevent blank page
+    document.querySelectorAll('.scroll-animate').forEach(el => {
+        el.classList.add('in-view');
+    });
+    
+    // Then set up the intersection observer for future animations
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -2870,6 +2876,7 @@ function setupScrollAnimations() {
         });
     }, observerOptions);
     
+    // Observe elements that might be added later
     document.querySelectorAll('.scroll-animate').forEach(el => {
         observer.observe(el);
     });
