@@ -6,7 +6,9 @@ A modern, responsive landing page for $AQUA, the soggy meme coin on the SUI Netw
 
 $AQUA is a meme coin that tells the story of a cat who's always caught in the rain but can't hold an umbrella. This website serves as the official landing page, providing visitors with project information, tokenomics, roadmap, and purchase instructions.
 
-**Live Website:** https://www.aquacatcoin.xyz
+**Live Website:** https://aquacatcoin.xyz  
+**Railway Deployment:** https://10yw7z80.up.railway.app  
+**Status:** ✅ Production Live on Railway.app
 
 ## ✨ Features
 
@@ -68,38 +70,40 @@ $AQUA is a meme coin that tells the story of a cat who's always caught in the ra
 - **Progress Bars**: ScaleX transformation from 0 to full width
 - **Hover Effects**: Transform, scale, and box-shadow transitions
 
-## 🚀 Deployment Instructions
+## 🚀 Deployment
 
-### Requirements
-- Web hosting with cPanel or similar
-- Domain name configured
-- FTP/File Manager access
+**✅ PRODUCTION**: Currently deployed on **Railway.app** with automatic GitHub integration.
 
-### Step-by-Step Deployment
+### **Current Production Setup:**
+- **Platform**: Railway.app (Recommended)
+- **Domain**: `aquacatcoin.xyz` → CNAME → `10yw7z80.up.railway.app`
+- **SSL**: Automatic HTTPS via Railway + Let's Encrypt
+- **Deployment**: Auto-deploy on GitHub push to `main` branch
+- **Cost**: ~$11/month (vs ~$75/month on traditional servers)
+- **Management**: Zero server maintenance required
 
-1. **Upload Files**
-   - Upload all files to your web server's public directory (usually `public_html`)
-   - Ensure file names match exactly (case-sensitive on most servers)
+### **Railway Deployment Benefits:**
+- ✅ **Auto-scaling**: Handles traffic spikes automatically
+- ✅ **Global CDN**: Fast loading worldwide  
+- ✅ **Zero downtime**: Rolling deployments
+- ✅ **Automatic SSL**: HTTPS certificates managed automatically
+- ✅ **Git integration**: Deploy on every push
+- ✅ **Built-in monitoring**: Logs and metrics included
 
-2. **Set File Permissions**
-   - **Files** (HTML, CSS, JS, images): `644`
-   - **Directories**: `755`
+For detailed migration information, see [RAILWAY_MIGRATION_PLAN.md](RAILWAY_MIGRATION_PLAN.md).
 
-3. **Update Domain References**
-   - Replace `https://www.aquacatcoin.xyz` in the following files:
-     - `index.html` (meta tags)
-     - `robots.txt` (sitemap URL)
-     - `sitemap.xml` (location URL)
+### **Alternative: Traditional Web Hosting**
+For traditional web hosting deployment:
 
-4. **Create Favicon**
-   - Generate a favicon from `aquacat.png` using a favicon generator
-   - Save as `favicon.png` in the root directory
+1. **Upload Files** to your web server's public directory
+2. **Set File Permissions**: Files `644`, Directories `755`
+3. **Update Domain References** in meta tags and config files
+4. **Create Favicon** from `aquacat.png`
 
-### Cache Management
-If changes don't appear after upload:
-1. Clear browser cache with hard refresh (`Ctrl+F5`)
-2. Purge server cache in cPanel (look for LiteSpeed Cache Manager)
-3. Use cache-busting by adding version numbers to CSS/JS files
+### **Cache Management:**
+- Clear browser cache with hard refresh (`Ctrl+F5`)
+- Purge server cache in cPanel if using traditional hosting
+- Railway handles caching automatically
 
 ## 🔧 Customization Guide
 

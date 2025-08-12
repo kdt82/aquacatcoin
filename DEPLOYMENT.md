@@ -1,5 +1,27 @@
 # $AQUA Deployment Guide
 
+## 🚀 **RECOMMENDED: Railway Deployment (CURRENT PRODUCTION)**
+
+**✅ LIVE PRODUCTION**: The $AQUA meme generator is currently deployed on Railway.app
+
+- **Live URL**: https://aquacatcoin.xyz
+- **Railway URL**: https://10yw7z80.up.railway.app  
+- **Deployment**: Automatic via GitHub integration
+- **Cost**: ~$11/month (vs $75/month on Ubuntu server)
+- **Management**: Zero server maintenance required
+
+### Quick Railway Setup:
+1. **Connect GitHub** to Railway.app
+2. **Add custom domain** `aquacatcoin.xyz` 
+3. **Update DNS** CNAME to Railway target
+4. **Auto-deploy** on every git push
+
+---
+
+## 📋 **ALTERNATIVE: Ubuntu Server Deployment**
+
+*Note: The following Ubuntu deployment guide is kept for reference, but Railway is the recommended and current production setup.*
+
 Deploy your $AQUA website to an Ubuntu server in under 10 minutes.
 
 ## Prerequisites
