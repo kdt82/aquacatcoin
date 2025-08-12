@@ -2894,32 +2894,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Setup scroll animations function (standalone)
 function setupScrollAnimations() {
-    // Add a small delay for smooth sequential animation
+    console.log('🎬 Setting up scroll animations...');
+    
+    const container = document.querySelector('.meme-generator-container');
     const elements = document.querySelectorAll('.scroll-animate');
     
-    elements.forEach((el, index) => {
-        setTimeout(() => {
-            el.classList.add('in-view');
-        }, index * 150); // Stagger animation by 150ms
-    });
+    if (!container || elements.length === 0) {
+        console.error('❌ Animation setup failed - container or elements not found');
+        return;
+    }
     
-    // Set up intersection observer for future elements
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('in-view');
-            }
+    // Only enable animations if we can successfully set them up
+    try {
+        // Add animation class to container to enable CSS animations
+        container.classList.add('js-animations');
+        console.log('✅ Animation CSS class added');
+        
+        // Add staggered animation
+        elements.forEach((el, index) => {
+            setTimeout(() => {
+                el.classList.add('in-view');
+            }, index * 150);
         });
-    }, observerOptions);
-    
-    elements.forEach(el => {
-        observer.observe(el);
-    });
+        
+        // Set up intersection observer for future elements
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                }
+            });
+        }, observerOptions);
+        
+        elements.forEach(el => {
+            observer.observe(el);
+        });
+        
+        console.log('✅ Scroll animations setup complete');
+    } catch (error) {
+        console.error('❌ Animation setup failed:', error);
+        // If animation setup fails, remove the animation class so content stays visible
+        if (container) {
+            container.classList.remove('js-animations');
+        }
+    }
 }
 
 // Close modal with Escape key
