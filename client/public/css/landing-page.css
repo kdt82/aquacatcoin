@@ -72,7 +72,7 @@
   text-align: center;
   position: relative;
   overflow: hidden;
-  max-width: 900px; /* Wider card */
+  max-width: 1260px; /* 40% wider than 900px (900 * 1.4 = 1260) */
   width: 95%; /* More responsive width */
 }
 
@@ -329,6 +329,9 @@
   opacity: 0.8;
   font-weight: 500;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  height: 40px; /* Match the address height */
 }
 
 .contract-address {
@@ -343,7 +346,7 @@
   white-space: nowrap;
   display: flex;
   align-items: center;
-  min-height: 20px; /* Consistent height */
+  height: 40px; /* Fixed height to match label */
 }
 
 .copy-btn {
@@ -358,8 +361,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
-  height: 36px;
+  min-width: 40px; /* Match the height */
+  height: 40px; /* Match address height */
 }
 
 .copy-btn:hover {
