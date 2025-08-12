@@ -658,7 +658,7 @@ section {
 .contract-address {
   margin-top: 30px;
   padding: 20px;
-  background: #000;
+  background: #0c2a44; /* Changed from #000 to match blue-dark */
   border-radius: 10px;
   word-wrap: break-word;
   font-family: 'Courier New', Courier, monospace;
