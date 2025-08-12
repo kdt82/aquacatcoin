@@ -2784,8 +2784,17 @@ class AdvancedMemeGenerator {
     }
 }
 
-// Initialize the generator once the DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize the generator once the DOM and Fabric.js are ready
+function initializeMemeGenerator() {
+    console.log('🚀 Initializing Meme Generator...');
+    
+    if (typeof fabric === 'undefined') {
+        console.log('⏳ Waiting for Fabric.js to load...');
+        setTimeout(initializeMemeGenerator, 100);
+        return;
+    }
+    
+    console.log('✅ Fabric.js loaded, creating AdvancedMemeGenerator...');
     window.memeGenerator = new AdvancedMemeGenerator();
     
     // Add test functions to global scope for debugging
@@ -2837,6 +2846,9 @@ document.addEventListener('click', (event) => {
         closeTosModal();
     }
 });
+
+// Start initialization when DOM is ready
+document.addEventListener('DOMContentLoaded', initializeMemeGenerator);
 
 // Close modal with Escape key
 document.addEventListener('keydown', (event) => {
