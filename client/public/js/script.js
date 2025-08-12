@@ -201,10 +201,7 @@ function showPostLaunchState(contractAddress = 'TBA') {
     if (countdownContainer) countdownContainer.style.display = 'block';
     
     if (countdownCard) {
-        // Force the card to be wider with inline styles
-        countdownCard.style.maxWidth = '1260px';
-        countdownCard.style.width = '95%';
-        countdownCard.style.padding = '25px 40px';
+        console.log('DEBUG: countdownCard found, applying styles...');
         
         countdownCard.innerHTML = `
                 <h2 class="countdown-title">🎉 WE ARE LIVE!</h2>
@@ -230,6 +227,36 @@ function showPostLaunchState(contractAddress = 'TBA') {
                 </a>
             </div>
         `;
+        
+        // Apply styles after DOM update with a slight delay
+        setTimeout(() => {
+            console.log('DEBUG: Applying post-render styles...');
+            
+            // Force card width and padding
+            countdownCard.style.cssText += 'max-width: 1260px !important; width: 95% !important; padding: 25px 40px !important;';
+            
+            // Get the elements and force their styles
+            const nowOpenElement = countdownCard.querySelector('.countdown-now-open');
+            const contractLine = countdownCard.querySelector('.contract-address-line');
+            const contractAddress = countdownCard.querySelector('.contract-address');
+            
+            if (nowOpenElement) {
+                nowOpenElement.style.cssText += 'font-size: 1.4rem !important; white-space: nowrap !important; color: #e6cd87 !important;';
+                console.log('DEBUG: Applied styles to now-open element');
+            }
+            
+            if (contractLine) {
+                contractLine.style.cssText += 'display: flex !important; align-items: center !important; justify-content: center !important; gap: 10px !important; min-height: 40px !important;';
+                console.log('DEBUG: Applied styles to contract line');
+            }
+            
+            if (contractAddress) {
+                contractAddress.style.cssText += 'background: #0c2a44 !important; height: 40px !important; display: flex !important; align-items: center !important;';
+                console.log('DEBUG: Applied styles to contract address');
+            }
+            
+            console.log('DEBUG: All post-render styles applied');
+        }, 100);
     }
 }
 
