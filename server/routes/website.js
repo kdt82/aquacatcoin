@@ -15,8 +15,10 @@ router.get('/', (req, res) => {
   });
 });
 
-// Meme Generator route - Auto-switches between coming-soon and live
+// Meme Generator route - Will be manually switched to live before token launch
 router.get('/meme-generator', (req, res) => {
+  // Note: This route behavior will be manually controlled, not auto-switched by countdown
+  // The countdown is for token launch on Moonbags.io, not meme generator launch
   if (req.isLive) {
     // Site is live - serve the actual meme generator
     res.render('meme-generator', {
@@ -52,8 +54,10 @@ router.get('/meme-generator/terms', (req, res) => {
   });
 });
 
-// Gallery route - Auto-switches between coming-soon and live
+// Gallery route - Will be manually switched to live before token launch  
 router.get('/gallery', (req, res) => {
+  // Note: This route behavior will be manually controlled, not auto-switched by countdown
+  // The countdown is for token launch on Moonbags.io, not gallery launch
   if (req.isLive) {
     // Site is live - serve the actual gallery
     res.render('gallery', {

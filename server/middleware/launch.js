@@ -3,11 +3,12 @@ const launchConfig = require('../config/launch');
 // Middleware to check for auto-launch
 function checkAutoLaunch(req, res, next) {
   try {
-    // Check if we should auto-launch
-    if (launchConfig.shouldAutoLaunch()) {
-      console.log('🚀 Auto-launch triggered!');
-      launchConfig.autoLaunch();
-    }
+    // NOTE: Auto-launch disabled - countdown is for token launch on Moonbags.io
+    // Site launch (meme generator/gallery) will be manually controlled
+    // if (launchConfig.shouldAutoLaunch()) {
+    //   console.log('🚀 Auto-launch triggered!');
+    //   launchConfig.autoLaunch();
+    // }
     
     // Add launch status to request object for use in routes
     req.launchConfig = launchConfig.getConfig();

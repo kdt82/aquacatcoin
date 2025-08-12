@@ -146,24 +146,19 @@ function initializeCountdownTimer() {
         const countdownCard = document.querySelector('.countdown-card');
         if (countdownCard) {
             countdownCard.innerHTML = `
-                <h2 class="countdown-title">🎉 LAUNCH WINDOW IS OPEN!</h2>
-                <p class="countdown-subtitle">The soggiest launch in crypto history is here! 💧</p>
-                <p class="countdown-launch-info">We're now live!<br>— Start creating and sharing your $AQUA memes!</p>
-                <div style="margin-top: 20px;">
-                    <a href="/meme-generator" class="btn btn-primary" style="margin: 0 10px;">Start Creating Memes</a>
-                    <a href="/gallery" class="btn btn-secondary" style="margin: 0 10px;">View Gallery</a>
+                <h2 class="countdown-title">🎉 4 HOUR LAUNCH WINDOW IS NOW OPEN!</h2>
+                <p class="countdown-subtitle">Get Your SUI ready for the soggiest launch in crypto history! 💧</p>
+                <p class="countdown-launch-info">Head over to Moonbags.io to watch the launch live!</p>
+                <div style="margin-top: 25px; text-align: center;">
+                    <a href="https://moonbags.io" target="_blank" class="btn btn-primary" style="font-size: 1.1rem; padding: 12px 30px;">Moonbags.io</a>
                 </div>
             `;
         }
         
-        // Auto-redirect to live site (this would need backend route changes)
-        console.log('🚀 Launch time reached! Time to go live!');
+        // Token launch window opened - no route changes needed
+        console.log('🚀 Token launch window opened! Head to Moonbags.io!');
         
-        // Optional: Automatically redirect to the live meme generator after a few seconds
-        setTimeout(() => {
-            // This could redirect to the live routes instead of coming-soon
-            // window.location.href = '/meme-generator';
-        }, 5000);
+        // No automatic redirects - user chooses where to go
     }
     
     // Initial update
