@@ -389,7 +389,7 @@ const socialController = {
 
       // Post tweet with text only (v2 API doesn't support direct media upload with OAuth 2.0)
       // Always include a link to view the meme in the gallery
-      const memeUrl = `https://aquacatcoin.xyz/preview/gallery`; // Could be specific meme URL later
+      const memeUrl = `https://aquacatcoin.xyz/gallery`; // Production gallery URL
       
       let tweetText;
       if (text && text.trim()) {
