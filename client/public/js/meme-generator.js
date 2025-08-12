@@ -139,7 +139,13 @@ class AdvancedMemeGenerator {
         // Upload functionality removed - AI generation only
         
         // AI Generation
-        document.getElementById('generateBtn').addEventListener('click', this.generateAIImage.bind(this));
+        const generateBtn = document.getElementById('generateBtn');
+        if (generateBtn) {
+            generateBtn.addEventListener('click', this.generateAIImage.bind(this));
+            console.log('✅ Generate button event listener attached');
+        } else {
+            console.error('❌ Generate button not found! ID: generateBtn');
+        }
         
         // Canvas tools
         document.getElementById('undoBtn').addEventListener('click', this.undo.bind(this));
@@ -281,8 +287,19 @@ class AdvancedMemeGenerator {
     }
 
     async generateAIImage() {
-        const prompt = document.getElementById('aiPrompt').value;
+        console.log('🚀 Generate AI Image button clicked!');
+        
+        const promptInput = document.getElementById('aiPrompt');
+        if (!promptInput) {
+            console.error('❌ Prompt input not found!');
+            return;
+        }
+        
+        const prompt = promptInput.value;
+        console.log('📝 Prompt:', prompt);
+        
         if (!prompt.trim()) {
+            console.log('⚠️ Empty prompt, showing alert...');
             await this.showCustomAlert('Please enter a description for your image.', 'warning', 'Missing Description');
             return;
         }
