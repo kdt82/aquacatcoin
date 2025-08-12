@@ -203,6 +203,48 @@ function showPostLaunchState(contractAddress = 'TBA') {
     if (countdownCard) {
         console.log('DEBUG: countdownCard found, applying styles...');
         
+        // Add a unique class to completely override existing styles
+        countdownCard.className = 'countdown-card post-launch-override';
+        
+        // Inject CSS directly into the head to ensure it takes precedence
+        const style = document.createElement('style');
+        style.textContent = `
+            .post-launch-override {
+                max-width: 1260px !important;
+                width: 95% !important;
+                padding: 25px 40px !important;
+            }
+            .post-launch-override .countdown-now-open {
+                font-size: 1.4rem !important;
+                white-space: nowrap !important;
+                color: #e6cd87 !important;
+            }
+            .post-launch-override .contract-address-line {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 10px !important;
+                min-height: 40px !important;
+            }
+            .post-launch-override .contract-address {
+                background: #0c2a44 !important;
+                height: 40px !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+            .post-launch-override .contract-text {
+                display: flex !important;
+                align-items: center !important;
+                height: 40px !important;
+            }
+            .post-launch-override .copy-btn {
+                min-width: 40px !important;
+                height: 40px !important;
+            }
+        `;
+        document.head.appendChild(style);
+        console.log('DEBUG: Injected override CSS');
+        
         countdownCard.innerHTML = `
                 <h2 class="countdown-title">🎉 WE ARE LIVE!</h2>
                 <h3 class="countdown-now-open" style="color: #e6cd87 !important; font-size: 1.4rem !important; white-space: nowrap !important;">GET READY TO GET SOGGY! <span style="color: #e6cd87 !important;">🚀</span></h3>
@@ -228,67 +270,7 @@ function showPostLaunchState(contractAddress = 'TBA') {
             </div>
         `;
         
-        // Apply styles after DOM update with a slight delay
-        setTimeout(() => {
-            console.log('DEBUG: Applying post-render styles...');
-            
-            // Force card width and padding with individual property setting
-            countdownCard.style.setProperty('max-width', '1260px', 'important');
-            countdownCard.style.setProperty('width', '95%', 'important');
-            countdownCard.style.setProperty('padding', '25px 40px', 'important');
-            
-            console.log('DEBUG: Card computed styles after setting:', {
-                maxWidth: window.getComputedStyle(countdownCard).maxWidth,
-                width: window.getComputedStyle(countdownCard).width,
-                padding: window.getComputedStyle(countdownCard).padding
-            });
-            
-            // Get the elements and force their styles
-            const nowOpenElement = countdownCard.querySelector('.countdown-now-open');
-            const contractLine = countdownCard.querySelector('.contract-address-line');
-            const contractAddress = countdownCard.querySelector('.contract-address');
-            
-            if (nowOpenElement) {
-                nowOpenElement.style.setProperty('font-size', '1.4rem', 'important');
-                nowOpenElement.style.setProperty('white-space', 'nowrap', 'important');
-                nowOpenElement.style.setProperty('color', '#e6cd87', 'important');
-                
-                console.log('DEBUG: Now-open computed styles:', {
-                    fontSize: window.getComputedStyle(nowOpenElement).fontSize,
-                    whiteSpace: window.getComputedStyle(nowOpenElement).whiteSpace,
-                    color: window.getComputedStyle(nowOpenElement).color
-                });
-            }
-            
-            if (contractLine) {
-                contractLine.style.setProperty('display', 'flex', 'important');
-                contractLine.style.setProperty('align-items', 'center', 'important');
-                contractLine.style.setProperty('justify-content', 'center', 'important');
-                contractLine.style.setProperty('gap', '10px', 'important');
-                contractLine.style.setProperty('min-height', '40px', 'important');
-                
-                console.log('DEBUG: Contract line computed styles:', {
-                    display: window.getComputedStyle(contractLine).display,
-                    alignItems: window.getComputedStyle(contractLine).alignItems,
-                    minHeight: window.getComputedStyle(contractLine).minHeight
-                });
-            }
-            
-            if (contractAddress) {
-                contractAddress.style.setProperty('background', '#0c2a44', 'important');
-                contractAddress.style.setProperty('height', '40px', 'important');
-                contractAddress.style.setProperty('display', 'flex', 'important');
-                contractAddress.style.setProperty('align-items', 'center', 'important');
-                
-                console.log('DEBUG: Contract address computed styles:', {
-                    background: window.getComputedStyle(contractAddress).background,
-                    height: window.getComputedStyle(contractAddress).height,
-                    display: window.getComputedStyle(contractAddress).display
-                });
-            }
-            
-            console.log('DEBUG: All post-render styles applied');
-        }, 100);
+        console.log('DEBUG: Post-launch state applied with injected CSS override');
     }
 }
 
