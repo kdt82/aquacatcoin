@@ -61,14 +61,18 @@ class AdvancedMemeGenerator {
         
         const containerWidth = Math.max(container.clientWidth - 4, 300); // Account for border, min 300px
         const isMobile = window.innerWidth <= 768;
+        const isTablet = window.innerWidth <= 1024;
         
         let canvasSize;
         if (isMobile) {
-            // On mobile, use container width but maintain aspect ratio
-            canvasSize = Math.max(Math.min(containerWidth, window.innerHeight * 0.4), 300);
+            // On mobile, use most of container width
+            canvasSize = Math.max(Math.min(containerWidth, window.innerWidth * 0.9), 300);
+        } else if (isTablet) {
+            // On tablet, use more space but keep reasonable
+            canvasSize = Math.max(Math.min(containerWidth, 500), 400);
         } else {
-            // On desktop, use fixed size or container width, whichever is smaller
-            canvasSize = Math.max(Math.min(600, containerWidth), 300);
+            // On desktop, use more available space
+            canvasSize = Math.max(Math.min(containerWidth, 700), 400);
         }
         
         console.log('📐 Resizing canvas to:', canvasSize, 'x', canvasSize);
@@ -393,12 +397,12 @@ class AdvancedMemeGenerator {
                         // Add the generated image to user images
                         await this.addUserImage(imageUrl, 'generated');
                         
-                        // Automatically load the generated image to canvas
-                        console.log('Loading generated image to canvas...');
-                        this.loadImageToCanvas(imageUrl);
+                        // Show step 2 (Your Images) so user can see the generated image
+                        console.log('Generated image added to Your Images gallery');
+                        this.expandStep('step2');
                         
-                        // Show step 3 (Edit Canvas) since we loaded the image
-                        this.expandStep('step3');
+                        // Refresh the user images display to show the new image
+                        this.refreshUserImagesDisplay();
                         
                         // Hide status after a moment
                         setTimeout(() => {

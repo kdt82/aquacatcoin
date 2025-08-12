@@ -40,13 +40,13 @@ const checkRateLimit = (req, res, next) => {
   }
   
   // Check if user has exceeded rate limit
-  if (rateLimitData.generations.length >= 4) {
+  if (rateLimitData.generations.length >= 20) {
     return res.status(429).json({
       success: false,
       error: 'Rate limit exceeded',
-      message: 'You can only generate 4 images per hour. Please try again later.',
+      message: 'You can only generate 20 images per hour. Please try again later.',
       rateLimitInfo: {
-        limit: 4,
+        limit: 20,
         used: rateLimitData.generations.length,
         remaining: 0,
         resetTime: new Date(rateLimitData.lastReset + hour)
