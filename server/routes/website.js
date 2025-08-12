@@ -128,6 +128,16 @@ router.post('/admin/launch/config', adminLaunchControl, (req, res) => {
   });
 });
 
+// Test route to preview launch complete state (admin only)
+router.get('/admin/launch/preview', adminLaunchControl, (req, res) => {
+  res.render('index', {
+    launchConfig: { isLive: true, launchDate: '2024-01-01T12:00:00-07:00' },
+    isLive: true,
+    shouldShowCountdown: true,
+    previewMode: true
+  });
+});
+
 // ===========================================
 // PREVIEW/TESTING ROUTES (DEVELOPMENT ONLY)
 // ===========================================
