@@ -137,8 +137,8 @@
 .time-value {
   font-family: 'Fredoka One', cursive;
   font-size: 4rem; /* Larger numbers for better visibility */
-  color: #0f172a; /* Darker blue for better contrast */
-  text-shadow: 0 0 15px rgba(77, 162, 255, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); /* Enhanced shadow for visibility */
+  color: #e6cd87; /* Golden/light yellow color */
+  text-shadow: 0 0 15px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); /* Enhanced shadow for visibility */
   line-height: 1;
   margin-bottom: 8px;
   font-weight: 900; /* Extra bold */

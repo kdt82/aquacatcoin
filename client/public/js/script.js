@@ -136,7 +136,7 @@ function initializeCountdownTimer() {
             setTimeout(() => {
                 element.textContent = value;
                 element.style.transform = 'scale(1)';
-                element.style.color = '#1e3a8a';
+                element.style.color = '#e6cd87'; // Golden color to match CSS
             }, 150);
         }
     }
@@ -148,7 +148,7 @@ function initializeCountdownTimer() {
             countdownCard.innerHTML = `
                 <h2 class="countdown-title">🎉 LAUNCH WINDOW IS OPEN!</h2>
                 <p class="countdown-subtitle">The soggiest launch in crypto history is here! 💧</p>
-                <p class="countdown-launch-info">We're now live! Start creating and sharing your $AQUA memes!</p>
+                <p class="countdown-launch-info">We're now live!<br>— Start creating and sharing your $AQUA memes!</p>
                 <div style="margin-top: 20px;">
                     <a href="/meme-generator" class="btn btn-primary" style="margin: 0 10px;">Start Creating Memes</a>
                     <a href="/gallery" class="btn btn-secondary" style="margin: 0 10px;">View Gallery</a>
