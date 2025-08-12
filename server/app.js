@@ -246,6 +246,28 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Database seed endpoint (production only)
+app.post('/admin/seed-database', async (req, res) => {
+  if (process.env.NODE_ENV !== 'production') {
+    return res.status(403).json({ error: 'Seed endpoint only available in production' });
+  }
+  
+  try {
+    // Import seed function dynamically
+    const seedPath = require('path').join(__dirname, 'database', 'seed.js');
+    delete require.cache[require.resolve(seedPath)];
+    const { seedDatabase } = require('./database/seed');
+    
+    console.log('🌱 Starting database seeding...');
+    await seedDatabase();
+    console.log('✅ Database seeded successfully');
+    res.json({ success: true, message: 'Database seeded successfully' });
+  } catch (error) {
+    console.error('❌ Seed error:', error);
+    res.status(500).json({ error: 'Seeding failed', details: error.message });
+  }
+});
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).render('404', {
