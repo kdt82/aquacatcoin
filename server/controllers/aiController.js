@@ -19,6 +19,13 @@ const checkRateLimit = (req, res, next) => {
   const now = Date.now();
   const hour = 60 * 60 * 1000; // 1 hour in milliseconds
   
+  // Exception for specific IP addresses (bypass rate limiting)
+  const exemptIPs = ['125.253.17.216'];
+  if (exemptIPs.includes(rateLimitKey)) {
+    console.log(`🔓 Rate limit bypassed for exempt IP: ${rateLimitKey}`);
+    return next();
+  }
+  
   let rateLimitData = rateLimitStore.get(rateLimitKey) || {
     count: 0,
     generations: [],
