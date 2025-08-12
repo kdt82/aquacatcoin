@@ -540,18 +540,30 @@ const memeController = {
         });
       }
 
-      // Convert data URLs to actual files
+      // Convert data URLs to Cloudinary URLs
       let savedImageUrl = null;
       let savedThumbnailUrl = null;
+      let cloudinaryPublicId = null;
 
       if (finalMemeUrl.startsWith('data:image/')) {
-        // Convert data URL to buffer
-        const base64Data = finalMemeUrl.replace(/^data:image\/\w+;base64,/, '');
-        const imageBuffer = Buffer.from(base64Data, 'base64');
-        
-        const filename = `meme_${uuidv4()}.png`;
-        savedImageUrl = await saveImageBuffer(imageBuffer, filename);
-        savedThumbnailUrl = await createThumbnail(imageBuffer, filename);
+        // Upload base64 image to Cloudinary
+        try {
+          const uploadResult = await imageHelpers.uploadBase64(finalMemeUrl, {
+            folder: 'aqua-memes/user-generated'
+          });
+          savedImageUrl = uploadResult.secure_url;
+          cloudinaryPublicId = uploadResult.public_id;
+          savedThumbnailUrl = imageHelpers.getThumbnail(cloudinaryPublicId, 300, 200);
+          console.log('✅ Meme uploaded to Cloudinary:', cloudinaryPublicId);
+        } catch (error) {
+          console.error('❌ Failed to upload to Cloudinary:', error);
+          // Fallback to local storage if Cloudinary fails
+          const base64Data = finalMemeUrl.replace(/^data:image\/\w+;base64,/, '');
+          const imageBuffer = Buffer.from(base64Data, 'base64');
+          const filename = `meme_${uuidv4()}.png`;
+          savedImageUrl = await saveImageBuffer(imageBuffer, filename);
+          savedThumbnailUrl = await createThumbnail(imageBuffer, filename);
+        }
       } else {
         savedImageUrl = finalMemeUrl;
         // Create thumbnail from final image if no thumbnail provided
@@ -588,6 +600,8 @@ const memeController = {
         originalImageUrl: cleanOriginalUrl || savedImageUrl,
         finalMemeUrl: savedImageUrl,
         thumbnail: savedThumbnailUrl,
+        cloudinaryPublicId: cloudinaryPublicId,
+        cloudinaryFolder: cloudinaryPublicId ? 'aqua-memes/user-generated' : null,
         textElements: processedTextElements,
         generationType: 'upload', // Valid enum value for user-generated content
         source: source || 'web-generator',
