@@ -232,8 +232,16 @@ function showPostLaunchState(contractAddress = 'TBA') {
         setTimeout(() => {
             console.log('DEBUG: Applying post-render styles...');
             
-            // Force card width and padding
-            countdownCard.style.cssText += 'max-width: 1260px !important; width: 95% !important; padding: 25px 40px !important;';
+            // Force card width and padding with individual property setting
+            countdownCard.style.setProperty('max-width', '1260px', 'important');
+            countdownCard.style.setProperty('width', '95%', 'important');
+            countdownCard.style.setProperty('padding', '25px 40px', 'important');
+            
+            console.log('DEBUG: Card computed styles after setting:', {
+                maxWidth: window.getComputedStyle(countdownCard).maxWidth,
+                width: window.getComputedStyle(countdownCard).width,
+                padding: window.getComputedStyle(countdownCard).padding
+            });
             
             // Get the elements and force their styles
             const nowOpenElement = countdownCard.querySelector('.countdown-now-open');
@@ -241,18 +249,42 @@ function showPostLaunchState(contractAddress = 'TBA') {
             const contractAddress = countdownCard.querySelector('.contract-address');
             
             if (nowOpenElement) {
-                nowOpenElement.style.cssText += 'font-size: 1.4rem !important; white-space: nowrap !important; color: #e6cd87 !important;';
-                console.log('DEBUG: Applied styles to now-open element');
+                nowOpenElement.style.setProperty('font-size', '1.4rem', 'important');
+                nowOpenElement.style.setProperty('white-space', 'nowrap', 'important');
+                nowOpenElement.style.setProperty('color', '#e6cd87', 'important');
+                
+                console.log('DEBUG: Now-open computed styles:', {
+                    fontSize: window.getComputedStyle(nowOpenElement).fontSize,
+                    whiteSpace: window.getComputedStyle(nowOpenElement).whiteSpace,
+                    color: window.getComputedStyle(nowOpenElement).color
+                });
             }
             
             if (contractLine) {
-                contractLine.style.cssText += 'display: flex !important; align-items: center !important; justify-content: center !important; gap: 10px !important; min-height: 40px !important;';
-                console.log('DEBUG: Applied styles to contract line');
+                contractLine.style.setProperty('display', 'flex', 'important');
+                contractLine.style.setProperty('align-items', 'center', 'important');
+                contractLine.style.setProperty('justify-content', 'center', 'important');
+                contractLine.style.setProperty('gap', '10px', 'important');
+                contractLine.style.setProperty('min-height', '40px', 'important');
+                
+                console.log('DEBUG: Contract line computed styles:', {
+                    display: window.getComputedStyle(contractLine).display,
+                    alignItems: window.getComputedStyle(contractLine).alignItems,
+                    minHeight: window.getComputedStyle(contractLine).minHeight
+                });
             }
             
             if (contractAddress) {
-                contractAddress.style.cssText += 'background: #0c2a44 !important; height: 40px !important; display: flex !important; align-items: center !important;';
-                console.log('DEBUG: Applied styles to contract address');
+                contractAddress.style.setProperty('background', '#0c2a44', 'important');
+                contractAddress.style.setProperty('height', '40px', 'important');
+                contractAddress.style.setProperty('display', 'flex', 'important');
+                contractAddress.style.setProperty('align-items', 'center', 'important');
+                
+                console.log('DEBUG: Contract address computed styles:', {
+                    background: window.getComputedStyle(contractAddress).background,
+                    height: window.getComputedStyle(contractAddress).height,
+                    display: window.getComputedStyle(contractAddress).display
+                });
             }
             
             console.log('DEBUG: All post-render styles applied');
