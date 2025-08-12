@@ -72,7 +72,7 @@
   text-align: center;
   position: relative;
   overflow: hidden;
-  max-width: 1260px !important; /* 40% wider than 900px (900 * 1.4 = 1260) - FORCE OVERRIDE */
+  max-width: 1000px !important; /* Reduced by 20% from 1260px - FORCE OVERRIDE */
   width: 95% !important; /* More responsive width - FORCE OVERRIDE */
 }
 
