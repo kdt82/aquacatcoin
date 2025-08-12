@@ -582,6 +582,7 @@ const memeController = {
 
       // Also upload original image to Cloudinary for remixing
       if (cleanOriginalUrl && cleanOriginalUrl.startsWith('data:image/')) {
+        // Original image is base64 - upload to Cloudinary
         try {
           const originalUploadResult = await imageHelpers.uploadBase64(cleanOriginalUrl, {
             folder: 'aqua-memes/originals'
@@ -592,6 +593,22 @@ const memeController = {
         } catch (error) {
           console.error('❌ Failed to upload original image to Cloudinary:', error);
           savedOriginalUrl = cleanOriginalUrl; // Keep original URL as fallback
+        }
+      } else if (cleanOriginalUrl && cleanOriginalUrl.includes('cloudinary.com')) {
+        // Original image is already a Cloudinary URL - extract public ID
+        try {
+          const urlParts = cleanOriginalUrl.split('/');
+          const versionIndex = urlParts.findIndex(part => part.startsWith('v'));
+          if (versionIndex > -1 && versionIndex < urlParts.length - 1) {
+            // Extract public ID from Cloudinary URL (remove file extension)
+            const publicIdPart = urlParts.slice(versionIndex + 1).join('/');
+            originalCloudinaryPublicId = publicIdPart.replace(/\.[^/.]+$/, '');
+          }
+          savedOriginalUrl = cleanOriginalUrl;
+          console.log('✅ Original Cloudinary image linked:', originalCloudinaryPublicId);
+        } catch (error) {
+          console.error('❌ Failed to extract Cloudinary public ID:', error);
+          savedOriginalUrl = cleanOriginalUrl;
         }
       } else {
         savedOriginalUrl = cleanOriginalUrl;

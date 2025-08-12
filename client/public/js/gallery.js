@@ -141,9 +141,12 @@ function displayMemes(memes) {
                 <i class="fas fa-paint-brush"></i> Use Original
             </a>` : '';
 
+        // Use thumbnail, fallback to finalMemeUrl, then to a placeholder
+        const imageUrl = meme.thumbnail || meme.finalMemeUrl || '/images/placeholder-meme.jpg';
+        
         return `
             <div class="meme-card" onclick="openMemeModal('${meme.id}')">
-                <img src="${meme.thumbnail}" alt="Meme" class="meme-image" loading="lazy">
+                <img src="${imageUrl}" alt="Meme" class="meme-image" loading="lazy" onerror="this.src='/images/placeholder-meme.jpg'; this.onerror=null;">
                 <div class="meme-info">
                     ${badge}
                     <div class="meme-title">${title}</div>
