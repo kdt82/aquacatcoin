@@ -90,7 +90,6 @@ class AdvancedMemeGenerator {
         }
         
         // Update container size if needed
-        const container = document.querySelector('.canvas-container');
         if (container) {
             container.style.width = canvasSize + 'px';
             container.style.height = canvasSize + 'px';
