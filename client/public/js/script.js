@@ -212,21 +212,16 @@ function showPostLaunchState(contractAddress = 'TBA') {
             text-align: center;
             position: relative;
             overflow: hidden;
-            max-width: 1400px !important;
-            width: 98% !important;
-            margin: 0 auto !important;
+            max-width: 1400px;
+            width: 95%;
+            margin: 0 auto;
             min-width: 1200px;
-            display: block !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-            left: 50% !important;
-            transform: translateX(-50%) !important;
-            position: relative !important;
+            display: block;
         `;
         
         newCard.innerHTML = `
-            <h2 style="font-family: 'Fredoka One', cursive; font-size: 2.5rem; margin-bottom: 10px; color: #4DA2FF; text-shadow: 0 0 20px rgba(77, 162, 255, 0.3); position: relative; z-index: 2;"><span style="filter: hue-rotate(200deg) saturate(2) brightness(1.1);">🎉</span> WE ARE LIVE!</h2>
-            <h3 style="font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 20px; color: #e6cd87; text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 2; font-weight: 900; line-height: 1; white-space: nowrap;">GET READY TO GET SOGGY! <span style="color: #FFD700 !important; font-size: 1.6rem; text-shadow: 0 0 10px #FFD700;">🚀</span></h3>
+            <h2 style="font-family: 'Fredoka One', cursive; font-size: 2.5rem; margin-bottom: 10px; color: #4DA2FF; text-shadow: 0 0 20px rgba(77, 162, 255, 0.3); position: relative; z-index: 2;"><span style="color: #4DA2FF !important; font-size: 2.8rem; text-shadow: 0 0 15px #4DA2FF;">★</span> WE ARE LIVE!</h2>
+            <h3 style="font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 20px; color: #e6cd87; text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 2; font-weight: 900; line-height: 1; white-space: nowrap;">GET READY TO GET SOGGY! <span style="color: #FFD700 !important; font-size: 1.6rem; text-shadow: 0 0 15px #FFD700; font-weight: 900;">▲</span></h3>
             
             <div style="margin: 25px 0;">
                 <div class="post-launch-ca-container" style="min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; max-width: 100%;">
@@ -272,14 +267,13 @@ function showPostLaunchState(contractAddress = 'TBA') {
         // Add class to the card for mobile targeting
         newCard.className = 'post-launch-card';
         
-        // Center the countdown container itself
+        // Reset countdown container to use default CSS centering
         countdownContainer.style.cssText = `
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            width: 100% !important;
-            margin: 0 auto !important;
-            text-align: center !important;
+            margin: 30px auto;
+            max-width: 1400px;
+            width: 100%;
+            display: block;
+            text-align: center;
         `;
         
         // Replace the entire countdown container content
