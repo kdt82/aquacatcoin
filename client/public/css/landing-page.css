@@ -106,7 +106,7 @@
 
 .countdown-now-open {
   font-family: 'Fredoka One', cursive;
-  font-size: 2.64rem; /* 20% bigger than countdown-title (2.2 * 1.2) */
+  font-size: 2.2rem; /* Reduced size to fit on one line */
   margin-bottom: 20px;
   color: #e6cd87; /* Golden color */
   text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -202,7 +202,7 @@
   }
   
   .countdown-now-open {
-    font-size: 2.16rem; /* 20% bigger than mobile countdown-title */
+    font-size: 1.8rem; /* Reduced to fit on one line on mobile */
     margin-bottom: 15px;
   }
   
@@ -254,7 +254,7 @@
   }
   
   .countdown-now-open {
-    font-size: 1.8rem; /* 20% bigger than small mobile countdown-title */
+    font-size: 1.5rem; /* Reduced to fit on one line on small mobile */
     margin-bottom: 12px;
   }
   
@@ -332,7 +332,7 @@
 .contract-address {
   font-family: 'Courier New', monospace;
   color: var(--text-light);
-  background: rgba(0, 0, 0, 0.6);
+  background: #0c2a44; /* Changed from black to blue-dark */
   padding: 8px 12px;
   border-radius: 6px;
   border: 1px solid rgba(77, 162, 255, 0.3);
