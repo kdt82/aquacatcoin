@@ -2174,10 +2174,9 @@ class AdvancedMemeGenerator {
             const response = await fetch('/api/social/post-to-x', {
                 method: 'POST',
                 headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Content-Type': 'application/json'
                 },
-                credentials: 'include',
+                credentials: 'include', // This sends cookies automatically
                 body: JSON.stringify({
                     imageData,
                     text
