@@ -146,8 +146,9 @@ function initializeCountdownTimer() {
         const countdownCard = document.querySelector('.countdown-card');
         if (countdownCard) {
             countdownCard.innerHTML = `
-                <h2 class="countdown-title">🎉 WE'RE LIVE!</h2>
+                <h2 class="countdown-title">🎉 LAUNCH WINDOW IS OPEN!</h2>
                 <p class="countdown-subtitle">The soggiest launch in crypto history is here! 💧</p>
+                <p class="countdown-launch-info">We're now live! Start creating and sharing your $AQUA memes!</p>
                 <div style="margin-top: 20px;">
                     <a href="/meme-generator" class="btn btn-primary" style="margin: 0 10px;">Start Creating Memes</a>
                     <a href="/gallery" class="btn btn-secondary" style="margin: 0 10px;">View Gallery</a>

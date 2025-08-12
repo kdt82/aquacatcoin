@@ -66,12 +66,14 @@
   background: rgba(77, 162, 255, 0.08);
   border: 2px solid rgba(77, 162, 255, 0.2);
   border-radius: 25px;
-  padding: 35px 25px;
+  padding: 25px 40px; /* Reduced vertical, increased horizontal padding */
   backdrop-filter: blur(10px);
   box-shadow: 0 8px 32px rgba(77, 162, 255, 0.1);
   text-align: center;
   position: relative;
   overflow: hidden;
+  max-width: 900px; /* Wider card */
+  width: 95%; /* More responsive width */
 }
 
 .countdown-card::before {
@@ -93,7 +95,7 @@
 .countdown-title {
   font-family: 'Fredoka One', cursive;
   font-size: 2.2rem;
-  margin-bottom: 25px;
+  margin-bottom: 20px; /* Reduced margin for thinner card */
   background: linear-gradient(45deg, #4DA2FF, #87CEEB);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -106,8 +108,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 30px;
-  margin: 25px 0;
+  gap: 40px; /* Increased gap for wider spacing */
+  margin: 20px 0; /* Reduced margin for thinner card */
   flex-wrap: wrap;
   position: relative;
   z-index: 2;
@@ -134,11 +136,12 @@
 
 .time-value {
   font-family: 'Fredoka One', cursive;
-  font-size: 3.5rem;
-  color: #1e3a8a;
-  text-shadow: 0 0 10px rgba(77, 162, 255, 0.3);
+  font-size: 4rem; /* Larger numbers for better visibility */
+  color: #0f172a; /* Darker blue for better contrast */
+  text-shadow: 0 0 15px rgba(77, 162, 255, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); /* Enhanced shadow for visibility */
   line-height: 1;
   margin-bottom: 8px;
+  font-weight: 900; /* Extra bold */
 }
 
 .time-label {
@@ -153,52 +156,88 @@
   font-size: 1.1rem;
   color: var(--text-light);
   opacity: 0.9;
-  margin-top: 20px;
+  margin-top: 15px; /* Reduced margin for thinner card */
+  margin-bottom: 8px; /* Space before launch info */
   position: relative;
   z-index: 2;
+}
+
+.countdown-launch-info {
+  font-size: 0.95rem;
+  color: #87CEEB; /* Light blue color */
+  opacity: 0.85;
+  margin: 0;
+  font-style: italic;
+  font-weight: 500;
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid rgba(77, 162, 255, 0.2);
+  padding-top: 10px;
+  margin-top: 10px;
 }
 
 /* Responsive Design for Countdown */
 @media (max-width: 768px) {
   .countdown-card {
-    padding: 25px 15px;
+    padding: 20px 20px; /* Adjusted for thinner card */
     margin: 20px 10px;
+    width: 90%; /* Better mobile width */
   }
   
   .countdown-title {
     font-size: 1.8rem;
+    margin-bottom: 15px;
   }
   
   .countdown-timer {
-    gap: 15px;
+    gap: 25px; /* Adjusted gap for mobile */
+    margin: 15px 0;
   }
   
   .time-unit {
-    min-width: 70px;
-    padding: 15px 10px;
+    min-width: 75px;
+    padding: 15px 12px;
   }
   
   .time-value {
-    font-size: 2.5rem;
+    font-size: 3rem; /* Larger for better visibility on mobile */
   }
   
   .time-label {
     font-size: 0.85rem;
   }
+  
+  .countdown-subtitle {
+    font-size: 1rem;
+    margin-top: 12px;
+  }
+  
+  .countdown-launch-info {
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 480px) {
   .countdown-timer {
-    gap: 10px;
+    gap: 15px; /* Better spacing on small screens */
   }
   
   .time-unit {
-    min-width: 60px;
-    padding: 12px 8px;
+    min-width: 65px;
+    padding: 12px 10px;
   }
   
   .time-value {
-    font-size: 2rem;
+    font-size: 2.5rem; /* Larger for better visibility */
+  }
+  
+  .countdown-title {
+    font-size: 1.5rem;
+  }
+  
+  .countdown-launch-info {
+    font-size: 0.85rem;
+    padding-top: 8px;
   }
 }
 
