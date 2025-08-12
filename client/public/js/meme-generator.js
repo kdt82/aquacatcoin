@@ -691,6 +691,10 @@ class AdvancedMemeGenerator {
             if (imageUrl.startsWith('data:')) {
                 const blob = convertDataUrlToBlob(imageUrl);
                 processedImageUrl = URL.createObjectURL(blob);
+            } else if (imageUrl.startsWith('http') && !imageUrl.includes(window.location.hostname)) {
+                // For external HTTP URLs (like Leonardo AI), proxy through our server to avoid CORS
+                processedImageUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
+                console.log('Using proxied URL for external image:', processedImageUrl);
             }
             
             // Create image element
@@ -812,11 +816,16 @@ class AdvancedMemeGenerator {
             
             testImg.onerror = (error) => {
                 console.error('Failed to load image:', error);
+                console.error('Image URL that failed:', imageUrl);
+                console.error('Processed URL that failed:', processedImageUrl);
                 
                 // Clean up blob URL if created
                 if (processedImageUrl !== imageUrl) {
                     URL.revokeObjectURL(processedImageUrl);
                 }
+                
+                // Show user-friendly error
+                alert('Failed to load generated image. This might be due to CORS restrictions or network issues.');
             };
             
             testImg.src = processedImageUrl;

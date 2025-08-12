@@ -268,6 +268,52 @@ app.post('/admin/seed-database', async (req, res) => {
   }
 });
 
+// Image proxy endpoint to handle CORS issues with external images
+app.get('/api/proxy-image', async (req, res) => {
+  try {
+    const { url } = req.query;
+    
+    if (!url) {
+      return res.status(400).json({ error: 'URL parameter required' });
+    }
+    
+    // Only allow Leonardo AI and Cloudinary URLs for security
+    const allowedDomains = [
+      'cloud.leonardo.ai',
+      'cdn.leonardo.ai', 
+      'res.cloudinary.com',
+      'cloudinary.com'
+    ];
+    
+    const urlObj = new URL(url);
+    if (!allowedDomains.some(domain => urlObj.hostname.includes(domain))) {
+      return res.status(403).json({ error: 'Domain not allowed' });
+    }
+    
+    // Fetch the image
+    const fetch = require('node-fetch');
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Failed to fetch image' });
+    }
+    
+    // Set appropriate headers
+    res.set({
+      'Content-Type': response.headers.get('content-type') || 'image/jpeg',
+      'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
+      'Access-Control-Allow-Origin': '*'
+    });
+    
+    // Stream the image
+    response.body.pipe(res);
+    
+  } catch (error) {
+    console.error('Image proxy error:', error);
+    res.status(500).json({ error: 'Proxy error' });
+  }
+});
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).render('404', {
