@@ -2202,11 +2202,11 @@ class AdvancedMemeGenerator {
         } catch (error) {
             console.error('Failed to post directly to X:', error);
             
-            if (error.message.includes('authentication')) {
+            if (error.message.includes('authentication') || error.message.includes('Authentication required')) {
                 this.showCustomAlert(
-                    'Please sign in with X first to post images directly.', 
+                    'Please sign in with X again to get posting permissions. <br><br><button onclick="window.authManager.login()" style="background: #1DA1F2; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Sign in with X</button>', 
                     'warning',
-                    'Authentication Required'
+                    'X Authentication Required'
                 );
             } else {
                 this.showCustomAlert(

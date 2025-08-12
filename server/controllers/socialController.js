@@ -373,7 +373,7 @@ const socialController = {
       if (!user || !user.twitterAccessToken) {
         return res.status(401).json({
           success: false,
-          error: 'X authentication required. Please sign in with X first.'
+          error: 'X authentication required. Please sign in with X again to get posting permissions.'
         });
       }
 
