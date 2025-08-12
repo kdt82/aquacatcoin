@@ -7,7 +7,11 @@ const TimezoneUtils = require('../utils/timezone');
 const isWhitelistedIP = (ip) => {
   const whitelist = process.env.RATE_LIMIT_WHITELIST_IPS || '';
   const whitelistedIPs = whitelist.split(',').map(ip => ip.trim()).filter(ip => ip.length > 0);
-  return whitelistedIPs.includes(ip);
+  
+  // Add hardcoded whitelist for development
+  const hardcodedWhitelist = ['125.253.17.216', '127.0.0.1', 'localhost'];
+  
+  return whitelistedIPs.includes(ip) || hardcodedWhitelist.includes(ip);
 };
 
 // JWT Authentication Middleware
@@ -291,15 +295,32 @@ const checkRemixLimit = async (req, res, next) => {
 const checkGenerationLimit = async (req, res, next) => {
   const GENERATION_COST = parseInt(process.env.AUTHENTICATED_GENERATION_COST || '5', 10);
   const ANONYMOUS_LIMIT = parseInt(process.env.ANONYMOUS_GENERATION_LIMIT || '3', 10);
-  const userIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+  
+  // Get IP from various possible headers (Railway might use proxies)
+  const possibleIPs = [
+    req.ip,
+    req.connection.remoteAddress,
+    req.socket.remoteAddress,
+    req.headers['x-forwarded-for']?.split(',')[0]?.trim(),
+    req.headers['x-real-ip'],
+    req.headers['x-client-ip']
+  ].filter(Boolean);
+  
+  const userIP = possibleIPs[0] || 'unknown';
+  
+  // Debug logging
+  console.log(`🔍 Generation limit check - Detected IPs: ${JSON.stringify(possibleIPs)}, Using: ${userIP}`);
 
-  // Check if IP is whitelisted for unlimited access
-  if (isWhitelistedIP(userIP)) {
-    console.log(`🟢 Generation limit bypassed for whitelisted IP: ${userIP}`);
+  // Check if any IP is whitelisted for unlimited access
+  const isWhitelisted = possibleIPs.some(ip => isWhitelistedIP(ip));
+  
+  if (isWhitelisted) {
+    console.log(`🟢 Generation limit bypassed for whitelisted IP in list: ${possibleIPs.join(', ')}`);
     req.rateLimitInfo = {
       type: 'whitelisted',
       unlimited: true,
-      ip: userIP
+      ip: userIP,
+      allIPs: possibleIPs
     };
     return next();
   }
