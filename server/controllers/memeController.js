@@ -5,11 +5,27 @@ const path = require('path');
 const fs = require('fs').promises;
 const { Meme } = require('../models');
 const { paths } = require('../config/paths');
+const { cloudinary, storage: cloudinaryStorage, imageHelpers } = require('../config/cloudinary');
 
-// Configure multer for file uploads
-const storage = multer.memoryStorage();
+// Configure multer for file uploads with Cloudinary
 const upload = multer({
-  storage: storage,
+  storage: cloudinaryStorage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.'));
+    }
+  }
+});
+
+// Fallback memory storage for local processing if needed
+const memoryUpload = multer({
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
@@ -173,21 +189,29 @@ const memeController = {
         });
       }
 
-      const filename = `upload_${uuidv4()}.${req.file.mimetype.split('/')[1]}`;
-      const imageUrl = await saveImageBuffer(req.file.buffer, filename);
-      const thumbnailUrl = await createThumbnail(req.file.buffer, filename);
+      // Cloudinary automatically handles the upload via multer-storage-cloudinary
+      const imageUrl = req.file.path; // Cloudinary URL
+      const publicId = req.file.public_id; // Cloudinary public ID
+      
+      // Generate optimized thumbnail using Cloudinary
+      const thumbnailUrl = imageHelpers.getThumbnail(publicId, 300, 200);
+      
+      // Generate different sizes for responsive design
+      const optimizedUrl = imageHelpers.getOptimizedUrl(publicId, { width: 800, height: 600 });
 
       res.json({
         success: true,
-        imageUrl: imageUrl,
+        imageUrl: optimizedUrl,
         thumbnailUrl: thumbnailUrl,
-        message: 'Image uploaded successfully'
+        originalUrl: imageUrl,
+        publicId: publicId,
+        message: 'Image uploaded successfully to Cloudinary'
       });
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('Error uploading image to Cloudinary:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to upload image'
+        error: 'Failed to upload image to Cloudinary'
       });
     }
   },
@@ -215,14 +239,29 @@ const memeController = {
         });
       }
 
-      // Handle canvas image if provided
+      // Handle canvas image if provided (uploaded via Cloudinary)
       let finalMemeUrl = baseImageUrl;
       let thumbnailUrl = null;
+      let cloudinaryPublicId = null;
 
       if (req.file) {
-        const filename = `meme_${uuidv4()}.${req.file.mimetype.split('/')[1]}`;
-        finalMemeUrl = await saveImageBuffer(req.file.buffer, filename);
-        thumbnailUrl = await createThumbnail(req.file.buffer, filename);
+        // Cloudinary automatically handled the upload
+        finalMemeUrl = req.file.path; // Cloudinary URL
+        cloudinaryPublicId = req.file.public_id; // Cloudinary public ID
+        thumbnailUrl = imageHelpers.getThumbnail(cloudinaryPublicId, 300, 200);
+      } else if (baseImageUrl && baseImageUrl.startsWith('data:image')) {
+        // Handle base64 images (AI generated) - upload to Cloudinary
+        try {
+          const uploadResult = await imageHelpers.uploadBase64(baseImageUrl, {
+            folder: 'aqua-memes/ai-generated'
+          });
+          finalMemeUrl = uploadResult.secure_url;
+          cloudinaryPublicId = uploadResult.public_id;
+          thumbnailUrl = imageHelpers.getThumbnail(cloudinaryPublicId, 300, 200);
+        } catch (error) {
+          console.error('Error uploading AI image to Cloudinary:', error);
+          // Fallback to original base64 if Cloudinary fails
+        }
       }
 
       // Create meme document
@@ -233,6 +272,8 @@ const memeController = {
         originalImageUrl: originalImageUrl || baseImageUrl,
         finalMemeUrl,
         thumbnail: thumbnailUrl || finalMemeUrl,
+        cloudinaryPublicId: cloudinaryPublicId,
+        cloudinaryFolder: 'aqua-memes',
         generationType: generationType || 'manual',
         aiPrompt: aiPrompt || null,
         parentMemeId: parentMemeId || null,

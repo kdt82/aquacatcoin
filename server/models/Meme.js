@@ -58,6 +58,16 @@ const memeSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
+
+  // Cloudinary integration
+  cloudinaryPublicId: {
+    type: String,
+    index: true // For efficient lookups and deletions
+  },
+  cloudinaryFolder: {
+    type: String,
+    default: 'aqua-memes'
+  },
   
   // Generation info
   generationType: { 
