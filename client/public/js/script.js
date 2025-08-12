@@ -219,8 +219,8 @@ function showPostLaunchState(contractAddress = 'TBA') {
         `;
         
         newCard.innerHTML = `
-            <h2 style="font-family: 'Fredoka One', cursive; font-size: 2.5rem; margin-bottom: 10px; color: #4DA2FF; text-shadow: 0 0 20px rgba(77, 162, 255, 0.3); position: relative; z-index: 2;"><span style="color: #0066FF !important; font-size: 2.8rem; text-shadow: 0 0 15px #0066FF; font-weight: 900;">★</span> WE ARE LIVE!</h2>
-            <h3 style="font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 20px; color: #e6cd87; text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 2; font-weight: 900; line-height: 1; white-space: nowrap;">GET READY TO GET SOGGY! <span style="color: #FFFF00 !important; font-size: 1.6rem; text-shadow: 0 0 15px #FFFF00; font-weight: 900;">▲</span></h3>
+            <h2 style="font-family: 'Fredoka One', cursive; font-size: 2.5rem; margin-bottom: 10px; color: #4DA2FF; text-shadow: 0 0 20px rgba(77, 162, 255, 0.3); position: relative; z-index: 2;"><span style="color: #4DA2FF !important; font-size: 2.8rem; text-shadow: 0 0 15px #4DA2FF; font-weight: 900; filter: hue-rotate(0deg);">🎉</span> WE ARE LIVE!</h2>
+            <h3 style="font-family: 'Fredoka One', cursive; font-size: 1.4rem; margin-bottom: 20px; color: #e6cd87; text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3); position: relative; z-index: 2; font-weight: 900; line-height: 1; white-space: nowrap;">GET READY TO GET SOGGY! <span style="color: #e7c781 !important; font-size: 1.6rem; text-shadow: 0 0 15px #e7c781; font-weight: 900; filter: sepia(1) saturate(2) hue-rotate(30deg) brightness(1.2);">🚀</span></h3>
             
             <div style="margin: 25px 0;">
                 <div class="post-launch-ca-container" style="min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; max-width: 100%;">
