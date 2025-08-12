@@ -146,7 +146,8 @@ function initializeCountdownTimer() {
         const countdownCard = document.querySelector('.countdown-card');
         if (countdownCard) {
             countdownCard.innerHTML = `
-                <h2 class="countdown-title">🎉 4 HOUR LAUNCH WINDOW IS NOW OPEN!</h2>
+                <h2 class="countdown-title">🎉 4 HOUR LAUNCH WINDOW</h2>
+                <h3 class="countdown-now-open">NOW OPEN!</h3>
                 <p class="countdown-subtitle">Get Your SUI ready for the soggiest launch in crypto history! 💧</p>
                 <p class="countdown-launch-info">Head over to Moonbags.io to watch the launch live!</p>
                 <div style="margin-top: 25px; text-align: center;">
@@ -191,6 +192,101 @@ function initializeCountdownTimer() {
         document.body.appendChild(testIndicator);
     }
 }
+
+// Function to show post-launch state (manually triggered)
+function showPostLaunchState(contractAddress = 'TBA') {
+    const countdownContainer = document.getElementById('countdownContainer');
+    const countdownCard = document.querySelector('.countdown-card');
+    
+    if (countdownContainer) countdownContainer.style.display = 'block';
+    
+    if (countdownCard) {
+        countdownCard.innerHTML = `
+            <h2 class="countdown-title">🎉 WE ARE LIVE!</h2>
+            <h3 class="countdown-now-open">GET READY TO GET SOGGY! 🚀</h3>
+            
+            <div class="contract-section" style="margin: 25px 0;">
+                <div class="contract-container">
+                    <div class="contract-address-line">
+                        <span class="contract-text">Contract Address:</span>
+                        <span class="contract-address" id="postLaunchAddress">${contractAddress}</span>
+                        <button class="copy-btn" id="postLaunchCopyBtn" onclick="copyPostLaunchAddress()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="countdown-launch-info">Get involved with $AQUA Community at the Telegram!</p>
+            
+            <div style="margin-top: 25px; text-align: center;">
+                <a href="https://t.me/AQUA_CAT_ON_SUI" target="_blank" class="btn btn-primary" style="font-size: 1.1rem; padding: 12px 30px;">
+                    <i class="fab fa-telegram"></i> Join Telegram
+                </a>
+            </div>
+        `;
+    }
+}
+
+// Copy function for post-launch contract address
+function copyPostLaunchAddress() {
+    const addressElement = document.getElementById('postLaunchAddress');
+    const copyBtn = document.getElementById('postLaunchCopyBtn');
+    
+    if (!addressElement || !copyBtn) return;
+    
+    const contractAddress = addressElement.textContent;
+    
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(contractAddress).then(() => {
+            showPostLaunchCopySuccess();
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+            fallbackCopyTextToClipboard(contractAddress);
+        });
+    } else {
+        fallbackCopyTextToClipboard(contractAddress);
+    }
+}
+
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showPostLaunchCopySuccess();
+    } catch (err) {
+        console.error('Fallback: Oops, unable to copy', err);
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+function showPostLaunchCopySuccess() {
+    const copyBtn = document.getElementById('postLaunchCopyBtn');
+    if (!copyBtn) return;
+    
+    const originalHTML = copyBtn.innerHTML;
+    
+    copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+    copyBtn.classList.add('copied');
+    
+    setTimeout(() => {
+        copyBtn.innerHTML = originalHTML;
+        copyBtn.classList.remove('copied');
+    }, 2000);
+}
+
+// Make functions globally available
+window.showPostLaunchState = showPostLaunchState;
+window.copyPostLaunchAddress = copyPostLaunchAddress;
 
 // The old copy logic can be removed or kept for other purposes.
 // For this task, I'm assuming it's no longer needed for the hero section.

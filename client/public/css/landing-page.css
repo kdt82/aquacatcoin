@@ -95,13 +95,25 @@
 .countdown-title {
   font-family: 'Fredoka One', cursive;
   font-size: 2.2rem;
-  margin-bottom: 20px; /* Reduced margin for thinner card */
+  margin-bottom: 10px; /* Reduced for "NOW OPEN!" line */
   background: linear-gradient(45deg, #4DA2FF, #87CEEB);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 0 20px rgba(77, 162, 255, 0.3);
   position: relative;
   z-index: 2;
+}
+
+.countdown-now-open {
+  font-family: 'Fredoka One', cursive;
+  font-size: 2.64rem; /* 20% bigger than countdown-title (2.2 * 1.2) */
+  margin-bottom: 20px;
+  color: #e6cd87; /* Golden color */
+  text-shadow: 0 0 20px rgba(230, 205, 135, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 2;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .countdown-timer {
@@ -186,6 +198,11 @@
   
   .countdown-title {
     font-size: 1.8rem;
+    margin-bottom: 8px;
+  }
+  
+  .countdown-now-open {
+    font-size: 2.16rem; /* 20% bigger than mobile countdown-title */
     margin-bottom: 15px;
   }
   
@@ -233,6 +250,12 @@
   
   .countdown-title {
     font-size: 1.5rem;
+    margin-bottom: 6px;
+  }
+  
+  .countdown-now-open {
+    font-size: 1.8rem; /* 20% bigger than small mobile countdown-title */
+    margin-bottom: 12px;
   }
   
   .countdown-launch-info {

@@ -142,6 +142,41 @@ router.get('/admin/launch/preview', adminLaunchControl, (req, res) => {
   });
 });
 
+// Test route to preview post-launch state (admin only)
+router.get('/admin/launch/preview-post-launch', adminLaunchControl, (req, res) => {
+  const contractAddress = req.query.contract || 'TBA';
+  res.render('index', {
+    launchConfig: { isLive: true, launchDate: '2024-01-01T12:00:00-07:00' },
+    isLive: true,
+    shouldShowCountdown: true,
+    postLaunchMode: true,
+    contractAddress: contractAddress
+  });
+});
+
+// Manually trigger post-launch state (admin only)
+router.post('/admin/launch/post-launch', adminLaunchControl, (req, res) => {
+  const { contractAddress } = req.body;
+  
+  if (!contractAddress) {
+    return res.status(400).json({
+      success: false,
+      error: 'Contract address is required'
+    });
+  }
+  
+  const success = launchConfig.updateConfig({ 
+    isPostLaunch: true, 
+    contractAddress: contractAddress 
+  });
+  
+  res.json({
+    success,
+    message: success ? 'Post-launch state activated!' : 'Failed to activate post-launch state',
+    config: launchConfig.getConfig()
+  });
+});
+
 // ===========================================
 // PREVIEW/TESTING ROUTES (DEVELOPMENT ONLY)
 // ===========================================
