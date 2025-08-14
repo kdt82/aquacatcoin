@@ -29,6 +29,26 @@ const AVAILABLE_MODELS = {
     trained: false,
     supportsPromptMagic: false, // Flux-based models don't support Prompt Magic
     userElements: [] // No LoRA for base model
+  },
+  dreamshaper_v7: {
+    id: "1e60896f-3c26-4296-8ecc-53e2afecc132", // DreamShaper v7 model ID (corrected)
+    name: "DreamShaper v7",
+    description: "Popular Stable Diffusion 1.5 based model known for versatile, high-quality generations with excellent prompt adherence",
+    example: "A serene landscape featuring a crystal-clear lake surrounded by autumn trees, mountains in background",
+    type: "finetuned",
+    trained: false,
+    supportsPromptMagic: true, // SD 1.5 based models support Prompt Magic
+    userElements: [] // No LoRA for this model
+  },
+  leonardo_creative: {
+    id: "b24e16ff-06e3-43eb-8d33-4416c2d75876", // Leonardo Creative model ID (estimated)
+    name: "Leonardo Creative",
+    description: "Leonardo's creative model optimized for artistic and imaginative content with vibrant colors and dynamic compositions",
+    example: "A futuristic cityscape with towering skyscrapers, flying cars, and neon lights illuminating the night sky",
+    type: "platform",
+    trained: false,
+    supportsPromptMagic: true, // Leonardo platform models support Prompt Magic
+    userElements: [] // No LoRA for this model
   }
 };
 
@@ -171,6 +191,7 @@ class AIGenerationService {
       payload.promptMagic = true;
       payload.promptMagicVersion = "v3";
       payload.promptMagicStrength = 0.5;
+      payload.alchemy = true; // Required for Prompt Magic
     }
 
     // Log the payload for debugging

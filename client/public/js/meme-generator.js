@@ -351,6 +351,22 @@ class AdvancedMemeGenerator {
                     type: "base",
                     trained: false,
                     supportsPromptMagic: false
+                },
+                dreamshaper_v7: {
+                    name: "DreamShaper v7",
+                    description: "Popular Stable Diffusion 1.5 based model known for versatile, high-quality generations",
+                    example: "A serene landscape featuring a crystal-clear lake surrounded by autumn trees",
+                    type: "finetuned",
+                    trained: false,
+                    supportsPromptMagic: true
+                },
+                leonardo_creative: {
+                    name: "Leonardo Creative",
+                    description: "Leonardo's creative model optimized for artistic and imaginative content",
+                    example: "A futuristic cityscape with towering skyscrapers and neon lights",
+                    type: "platform",
+                    trained: false,
+                    supportsPromptMagic: true
                 }
             };
             this.selectedModel = 'aqua_lora';
