@@ -9,12 +9,14 @@ class AdvancedMemeGenerator {
         return element;
     }
     constructor() {
+        console.log('🚀 MemeGenerator constructor starting...');
         // Check if canvas element exists before creating Fabric canvas
         const canvasElement = document.getElementById('memeCanvas');
         if (!canvasElement) {
             console.error('❌ Canvas element with id "memeCanvas" not found!');
             throw new Error('Canvas element not found. Please ensure the DOM is loaded.');
         }
+        console.log('✅ Canvas element found, proceeding with initialization...');
         
         this.canvas = new fabric.Canvas('memeCanvas', {
             backgroundColor: '#ffffff',
