@@ -9,6 +9,7 @@ const rateLimit = require('express-rate-limit');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const cookieParser = require('cookie-parser');
+const { xssProtection, rateLimitValidation } = require('./middleware/validation');
 
 // Load environment variables: prefer root .env in production, fallback to local.env in development
 const rootDir = path.join(__dirname, '..');
@@ -29,32 +30,12 @@ app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.set('views', paths.viewsDir);
 
-// Security middleware - disable HTTPS enforcement for development
-app.use((req, res, next) => {
-  const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(req.get('User-Agent') || '');
-  
-  if (isMobile) {
-    // Disable CSP for mobile devices temporarily for debugging
-    console.log('📱 Mobile device detected - disabling CSP for debugging');
-    next();
-  } else {
-    // Apply CSP for desktop
-    helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
-          fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-          scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://static.cloudflareinsights.com"],
-          scriptSrcAttr: ["'unsafe-inline'"],
-          imgSrc: ["'self'", "data:", "https:", "blob:"],
-          connectSrc: ["'self'", "https://cloud.leonardo.ai"]
-        }
-      },
-      hsts: false
-    })(req, res, next);
-  }
-});
+// Enhanced security headers
+const { securityHeaders, apiSecurityHeaders, rateLimitHeaders, cspReportHandler } = require('./middleware/securityHeaders');
+
+app.use(securityHeaders);
+app.use(apiSecurityHeaders);
+app.use(rateLimitHeaders);
 
 // CORS configuration
 app.use(cors({
@@ -182,6 +163,10 @@ app.use('/generated', express.static(paths.generatedDir));
 
 app.use(generalLimiter);
 
+// Apply global XSS protection and rate limit validation
+app.use(xssProtection);
+app.use(rateLimitValidation);
+
 // Database connection
 const connectDB = async () => {
   try {
@@ -226,6 +211,9 @@ app.get('/test-css', (req, res) => {
     res.status(404).json({ error: 'CSS file not found', path: cssPath });
   }
 });
+
+// CSP violation reporting endpoint
+app.post('/csp-report', express.json({ type: 'application/csp-report' }), cspReportHandler);
 
 // Routes
 app.use('/', require('./routes/website'));
