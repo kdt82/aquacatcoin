@@ -12,6 +12,7 @@ const AVAILABLE_MODELS = {
     example: "A wet blue cat mascot sitting in the rain, crypto themed, digital art",
     type: "lora",
     trained: true,
+    supportsPromptMagic: false, // Flux-based models don't support Prompt Magic
     userElements: [
       {
         userLoraId: 119467,
@@ -26,6 +27,7 @@ const AVAILABLE_MODELS = {
     example: "A detailed digital artwork of a cat, high quality, professional",
     type: "base",
     trained: false,
+    supportsPromptMagic: false, // Flux-based models don't support Prompt Magic
     userElements: [] // No LoRA for base model
   }
 };
@@ -161,12 +163,15 @@ class AIGenerationService {
       num_inference_steps: 15,
       scheduler: "DPM_SOLVER",
       public: false,
-      userElements: selectedModel.userElements,
-      // Leonardo AI prompt enhancement options
-      promptMagic: params.enhancePrompt === true, // Enable prompt magic if requested
-      promptMagicVersion: params.enhancePrompt === true ? "v3" : undefined, // Use latest version
-      promptMagicStrength: params.enhancePrompt === true ? 0.5 : undefined // Medium enhancement strength
+      userElements: selectedModel.userElements
     };
+
+    // Only add Prompt Magic if the model supports it AND it's requested
+    if (params.enhancePrompt === true && selectedModel.supportsPromptMagic === true) {
+      payload.promptMagic = true;
+      payload.promptMagicVersion = "v3";
+      payload.promptMagicStrength = 0.5;
+    }
 
     // Log the payload for debugging
     console.log('🚀 API PAYLOAD being sent to Leonardo AI:');

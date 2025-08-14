@@ -377,6 +377,22 @@
     font-size: 0.85rem;
 }
 
+/* Disabled state for prompt enhancement */
+.checkbox-container input[type="checkbox"]:disabled + .checkmark {
+    background: rgba(77, 162, 255, 0.03);
+    border-color: rgba(77, 162, 255, 0.1);
+    cursor: not-allowed;
+}
+
+.checkbox-container input[type="checkbox"]:disabled ~ .checkbox-text {
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+}
+
+.checkbox-container input[type="checkbox"]:disabled ~ .checkbox-text i {
+    color: rgba(77, 162, 255, 0.3);
+}
+
 .enhance-description {
     color: rgba(255, 255, 255, 0.6);
     font-size: 0.75rem;

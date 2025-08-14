@@ -341,14 +341,16 @@ class AdvancedMemeGenerator {
                     description: "Custom LoRA trained model specifically for AQUA meme generation featuring the soggy cat",
                     example: "A wet blue cat mascot sitting in the rain, crypto themed",
                     type: "lora",
-                    trained: true
+                    trained: true,
+                    supportsPromptMagic: false
                 },
                 flux_dev: {
                     name: "Flux Dev",
                     description: "High-quality Flux Dev model for general image generation",
                     example: "A detailed digital artwork of a cat, high quality",
                     type: "base",
-                    trained: false
+                    trained: false,
+                    supportsPromptMagic: false
                 }
             };
             this.selectedModel = 'aqua_lora';
@@ -387,6 +389,30 @@ class AdvancedMemeGenerator {
                     this.selectModel(modelKey);
                 });
             });
+        }
+        
+        // Update prompt enhancement availability
+        this.updatePromptEnhancementAvailability();
+    }
+    
+    updatePromptEnhancementAvailability() {
+        const enhanceToggle = document.getElementById('enhancePromptToggle');
+        const enhanceContainer = document.querySelector('.checkbox-container');
+        
+        if (enhanceToggle && enhanceContainer && this.availableModels && this.selectedModel) {
+            const currentModel = this.availableModels[this.selectedModel];
+            const supportsPromptMagic = currentModel.supportsPromptMagic === true;
+            
+            if (supportsPromptMagic) {
+                enhanceToggle.disabled = false;
+                enhanceContainer.style.opacity = '1';
+                enhanceContainer.title = '';
+            } else {
+                enhanceToggle.disabled = true;
+                enhanceToggle.checked = false; // Uncheck if not supported
+                enhanceContainer.style.opacity = '0.5';
+                enhanceContainer.title = 'Prompt Magic is not supported with Flux-based models';
+            }
         }
     }
     
