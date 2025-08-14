@@ -34,10 +34,11 @@
     window.launchConfig = {
       isLive: <%= typeof isLive !== 'undefined' ? JSON.stringify(isLive) : 'false' %>,
       shouldShowCountdown: <%= typeof shouldShowCountdown !== 'undefined' ? JSON.stringify(shouldShowCountdown) : 'false' %>,
-      launchDate: '<%= typeof launchConfig !== 'undefined' && launchConfig.launchDate ? launchConfig.launchDate : '2025-08-21T12:00:00-07:00' %>',
-      countdownVisibleDate: '<%= typeof launchConfig !== 'undefined' && launchConfig.countdownVisibleDate ? launchConfig.countdownVisibleDate : '2025-08-14T12:00:00-07:00' %>',
+      launchDate: '<%= typeof launchConfig !== 'undefined' && launchConfig.launchDate ? launchConfig.launchDate : '2025-08-25T12:00:00-07:00' %>',
+      countdownVisibleDate: '<%= typeof launchConfig !== 'undefined' && launchConfig.countdownVisibleDate ? launchConfig.countdownVisibleDate : '2025-08-18T12:00:00-07:00' %>',
       postLaunchMode: <%= typeof postLaunchMode !== 'undefined' ? JSON.stringify(postLaunchMode) : 'false' %>,
-      contractAddress: '<%= typeof contractAddress !== 'undefined' ? contractAddress : 'TBA' %>'
+      contractAddress: '<%= typeof contractAddress !== 'undefined' ? contractAddress : 'TBA' %>',
+      moonbagsRedirectUrl: '<%= typeof launchConfig !== 'undefined' && launchConfig.moonbagsRedirectUrl ? launchConfig.moonbagsRedirectUrl : 'https://moonbags.io' %>'
     };
     
     // Auto-trigger post-launch state if in post-launch mode

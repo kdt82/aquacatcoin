@@ -78,8 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function initializeCountdownTimer() {
     // Get configuration from server (set in EJS template)
     const config = window.launchConfig || {};
-    const visibilityDate = new Date(config.countdownVisibleDate || '2025-08-14T12:00:00-07:00');
-    const launchDate = new Date(config.launchDate || '2025-08-21T12:00:00-07:00');
+    const visibilityDate = new Date(config.countdownVisibleDate || '2025-08-18T12:00:00-07:00');
+    const launchDate = new Date(config.launchDate || '2025-08-25T12:00:00-07:00');
     
     const countdownContainer = document.getElementById('countdownContainer');
     const daysElement = document.getElementById('days');
@@ -144,14 +144,16 @@ function initializeCountdownTimer() {
     function handleLaunchComplete() {
         // Hide countdown and show launch message
         const countdownCard = document.querySelector('.countdown-card');
+        const moonbagsUrl = config.moonbagsRedirectUrl || 'https://moonbags.io';
+        
         if (countdownCard) {
             countdownCard.innerHTML = `
-                <h2 class="countdown-title">🎉 4 HOUR LAUNCH WINDOW</h2>
-                <h3 class="countdown-now-open">NOW OPEN!</h3>
+                <h2 class="countdown-title">🎉 LAUNCH WINDOW</h2>
+                <h3 class="countdown-now-open" style="color: #e6cd87; text-shadow: 0 0 20px rgba(230, 205, 135, 0.8);">NOW OPEN!</h3>
                 <p class="countdown-subtitle">Get Your SUI ready for the soggiest launch in crypto history! 💧</p>
                 <p class="countdown-launch-info">Head over to Moonbags.io to watch the launch live!</p>
                 <div style="margin-top: 25px; text-align: center;">
-                    <a href="https://moonbags.io" target="_blank" class="btn btn-primary" style="font-size: 1.1rem; padding: 12px 30px;">Moonbags.io</a>
+                    <a href="${moonbagsUrl}" target="_blank" class="btn btn-primary" style="font-size: 1.1rem; padding: 12px 30px;">Launch on Moonbags.io</a>
                 </div>
             `;
         }

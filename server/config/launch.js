@@ -7,8 +7,9 @@ const configPath = path.join(__dirname, '../../launch-config.json');
 // Default configuration
 const defaultConfig = {
   isLive: false,
-  launchDate: '2025-08-21T12:00:00-07:00', // August 21, 2025 12:00 PM PDT
-  countdownVisibleDate: '2025-08-14T12:00:00-07:00', // August 14, 2025 12:00 PM PDT
+  launchDate: '2025-08-25T12:00:00-07:00', // August 25, 2025 12:00 PM PDT
+  countdownVisibleDate: '2025-08-18T12:00:00-07:00', // August 18, 2025 12:00 PM PDT
+  moonbagsRedirectUrl: 'https://moonbags.io',
   lastUpdated: new Date().toISOString()
 };
 
