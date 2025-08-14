@@ -7,12 +7,12 @@ const rateLimitStore = new Map();
 const AVAILABLE_MODELS = {
   aqua_lora: {
     id: process.env.AQUA_MODEL_ID || "b2614463-296c-462a-9586-aafdb8f00e36", // Base model ID
-    name: "$AQUA LoRA Trained Model",
-    description: "Custom LoRA trained model specifically designed for AQUA meme generation featuring the iconic soggy cat",
+    name: "$AQUA Trained Model",
+    description: "Perfect for creating $AQUA memes and crypto-themed content. Specialized in generating the iconic soggy blue cat with crypto elements and meme formats.",
     example: "A wet blue cat mascot sitting in the rain, crypto themed, digital art",
+    exampleImage: "/images/aqua_in_Sun.jpg", // Example image path
     type: "lora",
     trained: true,
-    supportsPromptMagic: false, // Flux-based models don't support Prompt Magic
     userElements: [
       {
         userLoraId: 119467,
@@ -23,31 +23,21 @@ const AVAILABLE_MODELS = {
   flux_dev: {
     id: process.env.FLUX_MODEL_ID || "b2614463-296c-462a-9586-aafdb8f00e36", // Flux Dev model ID
     name: "Flux Dev",
-    description: "High-quality Flux Dev model for general image generation with excellent detail and realism",
+    description: "Ideal for photorealistic and highly detailed images. Best choice for professional-quality artwork, portraits, and complex scenes requiring exceptional detail and realism.",
     example: "A detailed digital artwork of a cat, high quality, professional",
+    exampleImage: "/images/staysafe.jpg", // Example image path
     type: "base",
     trained: false,
-    supportsPromptMagic: false, // Flux-based models don't support Prompt Magic
     userElements: [] // No LoRA for base model
   },
-  dreamshaper_v7: {
-    id: "1e60896f-3c26-4296-8ecc-53e2afecc132", // DreamShaper v7 model ID (corrected)
-    name: "DreamShaper v7",
-    description: "Popular Stable Diffusion 1.5 based model known for versatile, high-quality generations with excellent prompt adherence",
+  dreamshaper: {
+    id: "1e60896f-3c26-4296-8ecc-53e2afecc132", // DreamShaper v7 model ID
+    name: "Dreamshaper",
+    description: "Great for artistic and creative content with vibrant colors and imaginative styles. Perfect for fantasy art, creative portraits, and stylized illustrations.",
     example: "A serene landscape featuring a crystal-clear lake surrounded by autumn trees, mountains in background",
+    exampleImage: "/images/GM_with_cofee.jpg", // Example image path
     type: "finetuned",
     trained: false,
-    supportsPromptMagic: true, // SD 1.5 based models support Prompt Magic
-    userElements: [] // No LoRA for this model
-  },
-  leonardo_creative: {
-    id: "b24e16ff-06e3-43eb-8d33-4416c2d75876", // Leonardo Creative model ID (estimated)
-    name: "Leonardo Creative",
-    description: "Leonardo's creative model optimized for artistic and imaginative content with vibrant colors and dynamic compositions",
-    example: "A futuristic cityscape with towering skyscrapers, flying cars, and neon lights illuminating the night sky",
-    type: "platform",
-    trained: false,
-    supportsPromptMagic: true, // Leonardo platform models support Prompt Magic
     userElements: [] // No LoRA for this model
   }
 };
@@ -186,13 +176,7 @@ class AIGenerationService {
       userElements: selectedModel.userElements
     };
 
-    // Only add Prompt Magic if the model supports it AND it's requested
-    if (params.enhancePrompt === true && selectedModel.supportsPromptMagic === true) {
-      payload.promptMagic = true;
-      payload.promptMagicVersion = "v3";
-      payload.promptMagicStrength = 0.5;
-      payload.alchemy = true; // Required for Prompt Magic
-    }
+    // Removed prompt enhancement - using models as-is for consistent results
 
     // Log the payload for debugging
     console.log('🚀 API PAYLOAD being sent to Leonardo AI:');
@@ -321,7 +305,7 @@ const aiController = {
   // POST /api/ai/generate - Generate AI image using selected model
   generateImage: async (req, res) => {
     try {
-      const { prompt, modelId = 'aqua_lora', enhancePrompt = false } = req.body;
+      const { prompt, modelId = 'aqua_lora' } = req.body;
       
       // Log the incoming request for debugging
       console.log('🎯 GENERATE REQUEST received:');
@@ -348,7 +332,7 @@ const aiController = {
       // For authenticated users, credits are already deducted
       // For anonymous users, daily limits are already checked
 
-      const result = await aiService.generateImage({ prompt, modelId, enhancePrompt });
+      const result = await aiService.generateImage({ prompt, modelId });
 
       if (result.demoMode) {
         return res.json({

@@ -337,36 +337,28 @@ class AdvancedMemeGenerator {
             // Show fallback models
             this.availableModels = {
                 aqua_lora: {
-                    name: "$AQUA LoRA Trained Model",
-                    description: "Custom LoRA trained model specifically for AQUA meme generation featuring the soggy cat",
+                    name: "$AQUA Trained Model",
+                    description: "Perfect for creating $AQUA memes and crypto-themed content. Specialized in generating the iconic soggy blue cat with crypto elements and meme formats.",
                     example: "A wet blue cat mascot sitting in the rain, crypto themed",
+                    exampleImage: "/images/aqua_in_Sun.jpg",
                     type: "lora",
-                    trained: true,
-                    supportsPromptMagic: false
+                    trained: true
                 },
                 flux_dev: {
                     name: "Flux Dev",
-                    description: "High-quality Flux Dev model for general image generation",
+                    description: "Ideal for photorealistic and highly detailed images. Best choice for professional-quality artwork, portraits, and complex scenes requiring exceptional detail and realism.",
                     example: "A detailed digital artwork of a cat, high quality",
+                    exampleImage: "/images/staysafe.jpg",
                     type: "base",
-                    trained: false,
-                    supportsPromptMagic: false
+                    trained: false
                 },
-                dreamshaper_v7: {
-                    name: "DreamShaper v7",
-                    description: "Popular Stable Diffusion 1.5 based model known for versatile, high-quality generations",
+                dreamshaper: {
+                    name: "Dreamshaper",
+                    description: "Great for artistic and creative content with vibrant colors and imaginative styles. Perfect for fantasy art, creative portraits, and stylized illustrations.",
                     example: "A serene landscape featuring a crystal-clear lake surrounded by autumn trees",
+                    exampleImage: "/images/GM_with_cofee.jpg",
                     type: "finetuned",
-                    trained: false,
-                    supportsPromptMagic: true
-                },
-                leonardo_creative: {
-                    name: "Leonardo Creative",
-                    description: "Leonardo's creative model optimized for artistic and imaginative content",
-                    example: "A futuristic cityscape with towering skyscrapers and neon lights",
-                    type: "platform",
-                    trained: false,
-                    supportsPromptMagic: true
+                    trained: false
                 }
             };
             this.selectedModel = 'aqua_lora';
@@ -388,10 +380,11 @@ class AdvancedMemeGenerator {
                             <div class="model-card ${key === this.selectedModel ? 'selected' : ''}" data-model="${key}">
                                 <div class="model-header">
                                     <h4>${model.name}</h4>
-                                    ${model.trained ? '<span class="model-badge trained">LoRA</span>' : '<span class="model-badge base">Base</span>'}
                                 </div>
                                 <p class="model-description">${model.description}</p>
-                                <p class="model-example"><strong>Example:</strong> "${model.example}"</p>
+                                <div class="model-example-image">
+                                    <img src="${model.exampleImage || '/images/placeholder.jpg'}" alt="${model.name} example" loading="lazy" />
+                                </div>
                             </div>
                         `).join('')}
                     </div>
@@ -406,31 +399,6 @@ class AdvancedMemeGenerator {
                 });
             });
         }
-        
-        // Update prompt enhancement availability
-        this.updatePromptEnhancementAvailability();
-    }
-    
-    updatePromptEnhancementAvailability() {
-        const enhanceToggle = document.getElementById('enhancePromptToggle');
-        const enhanceContainer = document.querySelector('.checkbox-container');
-        
-        if (enhanceToggle && enhanceContainer && this.availableModels && this.selectedModel) {
-            const currentModel = this.availableModels[this.selectedModel];
-            const supportsPromptMagic = currentModel.supportsPromptMagic === true;
-            
-            if (supportsPromptMagic) {
-                enhanceToggle.disabled = false;
-                enhanceContainer.style.opacity = '1';
-                enhanceContainer.title = '';
-            } else {
-                enhanceToggle.disabled = true;
-                enhanceToggle.checked = false; // Uncheck if not supported
-                enhanceContainer.style.opacity = '0.5';
-                enhanceContainer.title = 'Prompt Magic is not supported with Flux-based models';
-            }
-        }
-    }
     
     selectModel(modelKey) {
         if (this.availableModels && this.availableModels[modelKey]) {
@@ -491,10 +459,6 @@ class AdvancedMemeGenerator {
         if (generateBtn) generateBtn.disabled = true;
         
         try {
-            // Check if prompt enhancement is enabled
-            const enhanceToggle = document.getElementById('enhancePromptToggle');
-            const enhancePrompt = enhanceToggle ? enhanceToggle.checked : false;
-            
             const response = await fetch('/api/ai/generate', {
                 method: 'POST',
                 headers: {
@@ -502,8 +466,7 @@ class AdvancedMemeGenerator {
                 },
                 body: JSON.stringify({
                     prompt: prompt,
-                    modelId: this.selectedModel,
-                    enhancePrompt: enhancePrompt
+                    modelId: this.selectedModel
                 })
             });
             
