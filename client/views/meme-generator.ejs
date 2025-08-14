@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
     <meta name="description" content="<%= description %>">
-    <meta name="keywords" content="$AQUA, AI meme generator, Leonardo AI, crypto memes, SUI network, cryptocurrency memes, meme creator, viral memes, blockchain memes, community memes, social media sharing, meme templates">
+    <meta name="keywords" content="$AQUA, AI meme generator, trained model, crypto memes, SUI network, cryptocurrency memes, meme creator, viral memes, blockchain memes, community memes, social media sharing, meme templates">
     <meta name="author" content="$AQUA Team">
     <link rel="canonical" href="<%= canonicalUrl %>">
     <link rel="icon" type="image/png" href="/aquacat.png">
@@ -146,6 +146,9 @@
                                 <!-- AQUA trained model info will be loaded here -->
                             </div>
                             <label class="form-label">Describe your $AQUA meme image:</label>
+                            <div class="ai-instructions">
+                                <p><i class="fas fa-lightbulb"></i> <strong>Pro tip:</strong> To include text on your image, use quotation marks like "$AQUA" or "To the Moon!"</p>
+                            </div>
                             <textarea class="prompt-input" id="aiPrompt" placeholder="Example: A wet cat sitting in the rain with a sad expression, holding a SUI blockchain logo, digital art style, meme format"></textarea>
                             <button class="btn-small btn-full" id="generateBtn">
                                 <i class="fas fa-magic"></i> Generate with AI

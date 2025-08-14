@@ -289,6 +289,29 @@
     display: block;
 }
 
+/* AI Instructions */
+.ai-instructions {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+}
+
+.ai-instructions p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(16, 185, 129, 0.9);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ai-instructions i {
+    color: rgba(16, 185, 129, 1);
+    font-size: 0.9rem;
+}
+
 .prompt-input {
     width: 100%;
     padding: 15px 20px;
@@ -1308,6 +1331,7 @@
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: left;
+    position: relative;
 }
 
 .model-card:hover {
@@ -1320,6 +1344,38 @@
     background: rgba(77, 162, 255, 0.15);
     border-color: var(--anim-light);
     box-shadow: 0 0 20px rgba(77, 162, 255, 0.3);
+}
+
+.model-card .model-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.model-card h4 {
+    color: var(--main-blue);
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.model-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.model-badge.trained {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.model-badge.base {
+    background: rgba(156, 163, 175, 0.2);
+    color: #9ca3af;
 }
 
 .model-card.recommended {

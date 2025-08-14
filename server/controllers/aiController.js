@@ -3,15 +3,35 @@ const axios = require('axios');
 // Rate limiting storage (in production, use Redis)
 const rateLimitStore = new Map();
 
-// AQUA Model Configuration - Using Flux Dev while custom model is being processed
-const AQUA_MODEL = {
-  id: process.env.AQUA_MODEL_ID || "b2614463-296c-462a-9586-aafdb8f00e36", // Flux Dev fallback
-  name: "AQUA Generation Model (Flux Dev + LoRA)",
-  description: "High-quality Flux Dev model with AQUA LoRA for enhanced styling (custom model pending)",
-  example: "A wet blue cat mascot sitting in the rain, crypto themed, digital art",
-  speed: "Fast",
-  trained: false // Will be true when custom model is available
+// Available Models Configuration
+const AVAILABLE_MODELS = {
+  aqua_lora: {
+    id: process.env.AQUA_MODEL_ID || "b2614463-296c-462a-9586-aafdb8f00e36", // Base model ID
+    name: "$AQUA LoRA Trained Model",
+    description: "Custom LoRA trained model specifically designed for AQUA meme generation featuring the iconic soggy cat",
+    example: "A wet blue cat mascot sitting in the rain, crypto themed, digital art",
+    type: "lora",
+    trained: true,
+    userElements: [
+      {
+        userLoraId: 119467,
+        weight: 1
+      }
+    ]
+  },
+  flux_dev: {
+    id: process.env.FLUX_MODEL_ID || "b2614463-296c-462a-9586-aafdb8f00e36", // Flux Dev model ID
+    name: "Flux Dev",
+    description: "High-quality Flux Dev model for general image generation with excellent detail and realism",
+    example: "A detailed digital artwork of a cat, high quality, professional",
+    type: "base",
+    trained: false,
+    userElements: [] // No LoRA for base model
+  }
 };
+
+// Default model (for backward compatibility)
+const AQUA_MODEL = AVAILABLE_MODELS.aqua_lora;
 
 // Rate limiting middleware function
 const checkRateLimit = (req, res, next) => {
@@ -117,6 +137,7 @@ class AIGenerationService {
   async generateImage(params) {
     if (this.demoMode) {
       // Demo mode - simulate generation
+      console.log('🎭 DEMO MODE - Simulating generation with params:', JSON.stringify(params, null, 2));
       return {
         success: true,
         demoMode: true,
@@ -126,26 +147,27 @@ class AIGenerationService {
       };
     }
 
-    // Use the trained AQUA model for all generations
+    // Get the selected model or default to AQUA LoRA
+    const selectedModel = AVAILABLE_MODELS[params.modelId] || AVAILABLE_MODELS.aqua_lora;
+    
+    // Use the user's exact prompt without any modifications
     const payload = {
-      prompt: `${params.prompt}, aqua cat style, meme, crypto themed`,
+      prompt: params.prompt, // User's exact input only
       num_images: 1,
       width: 512,
       height: 512,
-      modelId: AQUA_MODEL.id,
+      modelId: selectedModel.id,
       guidance_scale: 7,
       num_inference_steps: 15,
       scheduler: "DPM_SOLVER",
       public: false,
-      // AQUA trained model LoRA configuration
-      userElements: [
-        {
-          userLoraId: 119467,
-          weight: 1
-        }
-      ]
-      // Removed promptMagic parameters that require alchemy
+      userElements: selectedModel.userElements
     };
+
+    // Log the payload for debugging
+    console.log('🚀 API PAYLOAD being sent to Leonardo AI:');
+    console.log('📦 Model:', selectedModel.name);
+    console.log('📦 Payload:', JSON.stringify(payload, null, 2));
 
     try {
       const response = await axios.post(`${this.baseURL}/generations`, payload, {
@@ -228,11 +250,12 @@ const promptEnhancer = new PromptEnhancer(aiService);
 
 // Controller functions
 const aiController = {
-  // GET /api/ai/models - Get AQUA trained model
+  // GET /api/ai/models - Get all available models
   getModels: (req, res) => {
     res.json({
       success: true,
-      model: AQUA_MODEL,
+      models: AVAILABLE_MODELS,
+      defaultModel: 'aqua_lora',
       demoMode: aiService.demoMode,
       message: aiService.demoMode ? 
         'Running in demo mode. Configure LEONARDO_API_KEY for full functionality.' : 
@@ -265,10 +288,14 @@ const aiController = {
     res.json(status);
   },
 
-  // POST /api/ai/generate - Generate AI image using trained AQUA model
+  // POST /api/ai/generate - Generate AI image using selected model
   generateImage: async (req, res) => {
     try {
-      const { prompt } = req.body;
+      const { prompt, modelId = 'aqua_lora' } = req.body;
+      
+      // Log the incoming request for debugging
+      console.log('🎯 GENERATE REQUEST received:');
+      console.log('📝 Request body:', JSON.stringify(req.body, null, 2));
 
       if (!prompt || prompt.trim().length === 0) {
         return res.status(400).json({
@@ -278,11 +305,20 @@ const aiController = {
         });
       }
 
+      // Validate model selection
+      if (modelId && !AVAILABLE_MODELS[modelId]) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid model',
+          message: `Model '${modelId}' not found. Available models: ${Object.keys(AVAILABLE_MODELS).join(', ')}`
+        });
+      }
+
       // Credit checking is handled by checkRateLimit middleware
       // For authenticated users, credits are already deducted
       // For anonymous users, rate limit is already checked
 
-      const result = await aiService.generateImage({ prompt });
+      const result = await aiService.generateImage({ prompt, modelId });
 
       if (result.demoMode) {
         return res.json({
@@ -292,17 +328,17 @@ const aiController = {
           message: 'Demo generation started. In demo mode, this will return a placeholder image.',
           rateLimitInfo: req.rateLimitInfo,
           estimatedTime: '5-10 seconds (demo)',
-          model: AQUA_MODEL
+          model: AVAILABLE_MODELS[modelId]
         });
       }
 
       res.json({
         success: true,
         generationId: result.sdGenerationJob.generationId,
-        message: 'AQUA image generation started successfully using trained model',
+        message: `Image generation started successfully using ${AVAILABLE_MODELS[modelId].name}`,
         rateLimitInfo: req.rateLimitInfo,
         estimatedTime: '30-60 seconds',
-        model: AQUA_MODEL
+        model: AVAILABLE_MODELS[modelId]
       });
     } catch (error) {
       console.error('Generation error:', error);

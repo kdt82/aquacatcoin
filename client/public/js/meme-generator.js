@@ -28,7 +28,8 @@ class AdvancedMemeGenerator {
         this.isLoadingFromHistory = false; // Flag to prevent infinite loops during undo/redo
         this.currentMode = null; // 'text', 'shape', null
         this.activeObject = null;
-        this.aquaModel = null; // Will be loaded from API
+        this.availableModels = null; // Will be loaded from API
+        this.selectedModel = 'aqua_lora'; // Default model
         this.selectedUserImage = null;
         this.userImages = this.loadUserImages();
         this.clipboard = null; // For copy/paste functionality
@@ -327,40 +328,73 @@ class AdvancedMemeGenerator {
             const result = await response.json();
             
             if (result.success) {
-                this.aquaModel = result.model;
+                this.availableModels = result.models;
+                this.selectedModel = result.defaultModel || 'aqua_lora';
                 this.updateModelDisplay();
             }
         } catch (error) {
-            console.error('Failed to load AQUA model:', error);
-            // Show fallback model info
-            this.aquaModel = {
-                name: "AQUA Cat Model",
-                description: "Custom trained model specifically for AQUA meme generation featuring the soggy cat",
-                example: "A wet blue cat mascot sitting in the rain, crypto themed",
-                speed: "Fast",
-                trained: true
+            console.error('Failed to load available models:', error);
+            // Show fallback models
+            this.availableModels = {
+                aqua_lora: {
+                    name: "$AQUA LoRA Trained Model",
+                    description: "Custom LoRA trained model specifically for AQUA meme generation featuring the soggy cat",
+                    example: "A wet blue cat mascot sitting in the rain, crypto themed",
+                    type: "lora",
+                    trained: true
+                },
+                flux_dev: {
+                    name: "Flux Dev",
+                    description: "High-quality Flux Dev model for general image generation",
+                    example: "A detailed digital artwork of a cat, high quality",
+                    type: "base",
+                    trained: false
+                }
             };
+            this.selectedModel = 'aqua_lora';
             this.updateModelDisplay();
         }
     }
     
     updateModelDisplay() {
-        // Update the model info display to show AQUA trained model
+        // Update the model info display to show available models with selection
         const modelInfo = document.querySelector('.model-info');
-        if (modelInfo && this.aquaModel) {
+        if (modelInfo && this.availableModels) {
+            const currentModel = this.availableModels[this.selectedModel];
+            
             modelInfo.innerHTML = `
-                <div class="aqua-model-card">
-                    <div class="model-header">
-                        <h3>${this.aquaModel.name}</h3>
-                        <span class="model-badge ${this.aquaModel.trained ? 'trained' : 'flux'}">${this.aquaModel.trained ? '🎯 Trained Model' : '⚡ Flux Dev'}</span>
-                    </div>
-                    <p class="model-description">${this.aquaModel.description}</p>
-                    <p class="model-example"><strong>Example:</strong> "${this.aquaModel.example}"</p>
-                    <div class="model-stats">
-                        <span class="speed-badge">${this.aquaModel.speed}</span>
+                <div class="model-selection">
+                    <label class="form-label">Choose AI Model:</label>
+                    <div class="model-grid">
+                        ${Object.entries(this.availableModels).map(([key, model]) => `
+                            <div class="model-card ${key === this.selectedModel ? 'selected' : ''}" data-model="${key}">
+                                <div class="model-header">
+                                    <h4>${model.name}</h4>
+                                    ${model.trained ? '<span class="model-badge trained">LoRA</span>' : '<span class="model-badge base">Base</span>'}
+                                </div>
+                                <p class="model-description">${model.description}</p>
+                                <p class="model-example"><strong>Example:</strong> "${model.example}"</p>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
             `;
+            
+            // Add click handlers for model selection
+            modelInfo.querySelectorAll('.model-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const modelKey = card.dataset.model;
+                    this.selectModel(modelKey);
+                });
+            });
+        }
+    }
+    
+    selectModel(modelKey) {
+        if (this.availableModels && this.availableModels[modelKey]) {
+            this.selectedModel = modelKey;
+            console.log(`🎯 Selected model: ${this.availableModels[modelKey].name}`);
+            this.updateModelDisplay();
         }
     }
 
@@ -421,7 +455,8 @@ class AdvancedMemeGenerator {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    prompt: prompt
+                    prompt: prompt,
+                    modelId: this.selectedModel
                 })
             });
             
@@ -888,7 +923,7 @@ class AdvancedMemeGenerator {
                 const blob = convertDataUrlToBlob(imageUrl);
                 processedImageUrl = URL.createObjectURL(blob);
             } else if (imageUrl.startsWith('http') && !imageUrl.includes(window.location.hostname)) {
-                // For external HTTP URLs (like Leonardo AI), proxy through our server to avoid CORS
+                // For external HTTP URLs (like AI services), proxy through our server to avoid CORS
                 processedImageUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
                 console.log('Using proxied URL for external image:', processedImageUrl);
             }
@@ -3153,7 +3188,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup animations after a short delay to ensure DOM is ready
     setTimeout(() => {
         setupScrollAnimations();
-    }, 100);
+    }, 200);
     
     // Add global fallback for Generate button
     setTimeout(() => {
