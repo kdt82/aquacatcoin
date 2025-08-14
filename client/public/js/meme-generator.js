@@ -1352,12 +1352,13 @@ class AdvancedMemeGenerator {
     updateStorageInfo() {
         try {
             const storageData = localStorage.getItem('userImages');
-            const sizeInBytes = storageData ? new Blob([storageData]).size : 0;
+            // Each character in localStorage string takes 2 bytes (UTF-16)
+            const sizeInBytes = storageData ? storageData.length * 2 : 0;
             const sizeInKB = Math.round(sizeInBytes / 1024);
             const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(1);
             
             // Debug logging to verify accurate calculation
-            console.log(`📊 Storage Info - Raw data length: ${storageData ? storageData.length : 0}, Blob size: ${sizeInBytes}, Images count: ${this.userImages.length}`);
+            console.log(`📊 Storage Info - String length: ${storageData ? storageData.length : 0} chars, Actual bytes: ${sizeInBytes}, Images count: ${this.userImages.length}`);
             
             const storageElement = document.getElementById('storageUsage');
             if (storageElement) {
