@@ -339,24 +339,24 @@ class AdvancedMemeGenerator {
                 aqua_lora: {
                     name: "$AQUA Trained Model",
                     description: "Perfect for creating $AQUA memes and crypto-themed content. Specialized in generating the iconic soggy blue cat with crypto elements and meme formats.",
-                    example: "A wet blue cat mascot sitting in the rain, crypto themed",
-                    exampleImage: "/images/aqua_in_Sun.jpg",
+                    example: "A disgruntled wet blue cat in a rain-soaked alley, holding a stack of $AQUA coins while suspicious alley cats in trench coats exchange them in the background, puddles reflecting neon signs",
+                    exampleImage: "/images/aqua-example.jpg",
                     type: "lora",
                     trained: true
                 },
                 flux_dev: {
                     name: "Flux Dev",
                     description: "Ideal for photorealistic and highly detailed images. Best choice for professional-quality artwork, portraits, and complex scenes requiring exceptional detail and realism.",
-                    example: "A detailed digital artwork of a cat, high quality",
-                    exampleImage: "/images/staysafe.jpg",
+                    example: "A disgruntled wet blue cat sitting in a laundromat, watching their hoodie spin in the dryer.",
+                    exampleImage: "/images/flux-example.jpg",
                     type: "base",
                     trained: false
                 },
                 dreamshaper: {
                     name: "Dreamshaper",
                     description: "Great for artistic and creative content with vibrant colors and imaginative styles. Perfect for fantasy art, creative portraits, and stylized illustrations.",
-                    example: "A serene landscape featuring a crystal-clear lake surrounded by autumn trees",
-                    exampleImage: "/images/GM_with_cofee.jpg",
+                    example: "A sprawling neon city under perpetual rainfall, holographic billboards in alien languages, a lone figure in a reflective chrome trench coat standing on a rooftop, holding an umbrella with fractal patterns. The scene is lit by a mix of magenta and cyan, with flying cars streaking through the sky.",
+                    exampleImage: "/images/dreamshaper-example.jpg",
                     type: "finetuned",
                     trained: false
                 }
@@ -384,6 +384,10 @@ class AdvancedMemeGenerator {
                                 <p class="model-description">${model.description}</p>
                                 <div class="model-example-image">
                                     <img src="${model.exampleImage || '/images/placeholder.jpg'}" alt="${model.name} example" loading="lazy" />
+                                    <div class="example-prompt">
+                                        <strong>Prompt Used:</strong><br>
+                                        ${model.example}
+                                    </div>
                                 </div>
                             </div>
                         `).join('')}

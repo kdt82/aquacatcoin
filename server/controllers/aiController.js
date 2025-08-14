@@ -5,41 +5,41 @@ const rateLimitStore = new Map();
 
 // Available Models Configuration
 const AVAILABLE_MODELS = {
-  aqua_lora: {
-    id: process.env.AQUA_MODEL_ID || "b2614463-296c-462a-9586-aafdb8f00e36", // Base model ID
-    name: "$AQUA Trained Model",
-    description: "Perfect for creating $AQUA memes and crypto-themed content. Specialized in generating the iconic soggy blue cat with crypto elements and meme formats.",
-    example: "A wet blue cat mascot sitting in the rain, crypto themed, digital art",
-    exampleImage: "/images/aqua_in_Sun.jpg", // Example image path
-    type: "lora",
-    trained: true,
-    userElements: [
-      {
-        userLoraId: 119467,
-        weight: 1
-      }
-    ]
-  },
-  flux_dev: {
-    id: process.env.FLUX_MODEL_ID || "b2614463-296c-462a-9586-aafdb8f00e36", // Flux Dev model ID
-    name: "Flux Dev",
-    description: "Ideal for photorealistic and highly detailed images. Best choice for professional-quality artwork, portraits, and complex scenes requiring exceptional detail and realism.",
-    example: "A detailed digital artwork of a cat, high quality, professional",
-    exampleImage: "/images/staysafe.jpg", // Example image path
-    type: "base",
-    trained: false,
-    userElements: [] // No LoRA for base model
-  },
-  dreamshaper: {
-    id: "1e60896f-3c26-4296-8ecc-53e2afecc132", // DreamShaper v7 model ID
-    name: "Dreamshaper",
-    description: "Great for artistic and creative content with vibrant colors and imaginative styles. Perfect for fantasy art, creative portraits, and stylized illustrations.",
-    example: "A serene landscape featuring a crystal-clear lake surrounded by autumn trees, mountains in background",
-    exampleImage: "/images/GM_with_cofee.jpg", // Example image path
-    type: "finetuned",
-    trained: false,
-    userElements: [] // No LoRA for this model
-  }
+    aqua_lora: {
+        id: process.env.AQUA_MODEL_ID || "b2614463-296c-462a-9586-aafdb8f00e36", // Base model ID
+        name: "$AQUA Trained Model",
+        description: "Perfect for creating $AQUA memes and crypto-themed content. Specialized in generating the iconic soggy blue cat with crypto elements and meme formats.",
+        example: "A disgruntled wet blue cat in a rain-soaked alley, holding a stack of $AQUA coins while suspicious alley cats in trench coats exchange them in the background, puddles reflecting neon signs",
+        exampleImage: "/images/aqua-example.jpg", // Example image path
+        type: "lora",
+        trained: true,
+        userElements: [
+            {
+                userLoraId: 119467,
+                weight: 1
+            }
+        ]
+    },
+    flux_dev: {
+        id: process.env.FLUX_MODEL_ID || "b2614463-296c-462a-9586-aafdb8f00e36", // Flux Dev model ID
+        name: "Flux Dev",
+        description: "Ideal for photorealistic and highly detailed images. Best choice for professional-quality artwork, portraits, and complex scenes requiring exceptional detail and realism.",
+        example: "A disgruntled wet blue cat sitting in a laundromat, watching their hoodie spin in the dryer.",
+        exampleImage: "/images/flux-example.jpg", // Example image path
+        type: "base",
+        trained: false,
+        userElements: [] // No LoRA for base model
+    },
+    dreamshaper: {
+        id: "1e60896f-3c26-4296-8ecc-53e2afecc132", // DreamShaper v7 model ID
+        name: "Dreamshaper",
+        description: "Great for artistic and creative content with vibrant colors and imaginative styles. Perfect for fantasy art, creative portraits, and stylized illustrations.",
+        example: "A sprawling neon city under perpetual rainfall, holographic billboards in alien languages, a lone figure in a reflective chrome trench coat standing on a rooftop, holding an umbrella with fractal patterns. The scene is lit by a mix of magenta and cyan, with flying cars streaking through the sky.",
+        exampleImage: "/images/dreamshaper-example.jpg", // Example image path
+        type: "finetuned",
+        trained: false,
+        userElements: [] // No LoRA for this model
+    }
 };
 
 // Default model (for backward compatibility)

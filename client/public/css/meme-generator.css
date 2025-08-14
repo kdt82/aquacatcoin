@@ -1432,26 +1432,37 @@
 
 /* Model Example Images */
 .model-example-image {
-    width: 100%;
-    height: 120px;
-    border-radius: 8px;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.05);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     margin-top: 10px;
 }
 
 .model-example-image img {
     width: 100%;
-    height: 100%;
+    height: 120px;
     object-fit: cover;
+    border-radius: 8px;
     transition: transform 0.3s ease;
+    margin-bottom: 8px;
 }
 
 .model-card:hover .model-example-image img {
     transform: scale(1.05);
+}
+
+.example-prompt {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.3;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.example-prompt strong {
+    color: #00d4ff;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .model-meta {
