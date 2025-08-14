@@ -1358,15 +1358,45 @@ class AdvancedMemeGenerator {
             // Use whichever key has data (prefer the main one)
             const storageData = storageData1 || storageData2;
             
-            // Each character in localStorage string takes 2 bytes (UTF-16)
+            // Calculate actual localStorage usage (each character = 2 bytes in UTF-16)
             const sizeInBytes = storageData ? storageData.length * 2 : 0;
             const sizeInKB = Math.round(sizeInBytes / 1024);
             const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(1);
             
+            // Detailed analysis for debugging
+            let analysisInfo = '';
+            if (storageData) {
+                try {
+                    const parsedData = JSON.parse(storageData);
+                    const imageCount = Array.isArray(parsedData) ? parsedData.length : 0;
+                    const avgSizePerImage = imageCount > 0 ? Math.round(sizeInBytes / imageCount) : 0;
+                    const avgSizePerImageKB = Math.round(avgSizePerImage / 1024);
+                    
+                    // Analyze first image to understand data structure
+                    if (imageCount > 0 && parsedData[0]) {
+                        const firstImage = parsedData[0];
+                        const imageDataLength = firstImage.dataUrl ? firstImage.dataUrl.length : 0;
+                        const imageDataSizeKB = Math.round((imageDataLength * 2) / 1024);
+                        
+                        analysisInfo = `
+📊 DETAILED STORAGE ANALYSIS:
+- Total images: ${imageCount}
+- Total storage: ${sizeInKB} KB (${sizeInMB} MB)
+- Average per image: ${avgSizePerImageKB} KB
+- First image data URL length: ${imageDataLength} chars (${imageDataSizeKB} KB)
+- Base64 overhead: ~33% larger than original file
+- Expected original size per image: ~${Math.round(avgSizePerImageKB / 1.33)} KB`;
+                    }
+                } catch (parseError) {
+                    analysisInfo = `\n📊 Storage data exists but couldn't parse JSON: ${parseError.message}`;
+                }
+            }
+            
             // Debug logging to verify accurate calculation
             console.log(`📊 Storage Info - Key1 (userImages): ${storageData1 ? storageData1.length : 0} chars`);
             console.log(`📊 Storage Info - Key2 (memeGenerator_userImages): ${storageData2 ? storageData2.length : 0} chars`);
-            console.log(`📊 Storage Info - Using: ${storageData ? storageData.length : 0} chars, Actual bytes: ${sizeInBytes}, Images count: ${this.userImages.length}`);
+            console.log(`📊 Storage Info - Using: ${storageData ? storageData.length : 0} chars, Actual bytes: ${sizeInBytes}, Images in array: ${this.userImages.length}`);
+            console.log(analysisInfo);
             
             const storageElement = document.getElementById('storageUsage');
             if (storageElement) {
