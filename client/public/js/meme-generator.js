@@ -1351,14 +1351,22 @@ class AdvancedMemeGenerator {
     
     updateStorageInfo() {
         try {
-            const storageData = localStorage.getItem('userImages');
+            // Check both localStorage keys that might be used
+            const storageData1 = localStorage.getItem('userImages');
+            const storageData2 = localStorage.getItem('memeGenerator_userImages');
+            
+            // Use whichever key has data (prefer the main one)
+            const storageData = storageData1 || storageData2;
+            
             // Each character in localStorage string takes 2 bytes (UTF-16)
             const sizeInBytes = storageData ? storageData.length * 2 : 0;
             const sizeInKB = Math.round(sizeInBytes / 1024);
             const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(1);
             
             // Debug logging to verify accurate calculation
-            console.log(`📊 Storage Info - String length: ${storageData ? storageData.length : 0} chars, Actual bytes: ${sizeInBytes}, Images count: ${this.userImages.length}`);
+            console.log(`📊 Storage Info - Key1 (userImages): ${storageData1 ? storageData1.length : 0} chars`);
+            console.log(`📊 Storage Info - Key2 (memeGenerator_userImages): ${storageData2 ? storageData2.length : 0} chars`);
+            console.log(`📊 Storage Info - Using: ${storageData ? storageData.length : 0} chars, Actual bytes: ${sizeInBytes}, Images count: ${this.userImages.length}`);
             
             const storageElement = document.getElementById('storageUsage');
             if (storageElement) {
