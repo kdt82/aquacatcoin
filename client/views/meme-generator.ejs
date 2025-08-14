@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="/css/main.css?v=<%= Date.now() %>">
     <link rel="stylesheet" href="/css/meme-generator.css?v=<%= Date.now() %>">
     <link rel="stylesheet" href="/css/auth.css?v=<%= Date.now() %>">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
     <!-- Google Fonts for Enhanced Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,7 +42,7 @@
         <div class="container">
             <nav>
                 <a href="/" class="nav-logo">$AQUA</a>
-                <ul class="nav-links">
+                <ul class="nav-links" id="navLinks">
                     <li><a href="/">Home</a></li>
                     <li><a href="/meme-generator" class="active">Meme Generator</a></li>
                     <li><a href="/gallery">Gallery</a></li>
@@ -50,6 +50,9 @@
                 <div id="auth-container">
                     <!-- Authentication UI will be injected here by auth.js -->
                 </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu">
+                    <i class="fas fa-bars"></i>
+                </button>
             </nav>
         </div>
     </header>
@@ -492,7 +495,7 @@
     <footer>
         <div class="container">
             <div class="social-links">
-                <a href="https://x.com/AQUA_on_SUI" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="https://x.com/AQUA_on_SUI" target="_blank" aria-label="X (Twitter)"><i class="fab fa-x-twitter"></i></a>
                 <a href="https://t.me/AQUA_CAT_ON_SUI" target="_blank" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
                 <a href="https://dexscreener.com/" target="_blank" aria-label="Dexscreener"><i class="fas fa-chart-line"></i></a>
                 <a href="https://www.reddit.com/r/AQUA_on_SUI/" target="_blank" aria-label="Reddit"><i class="fab fa-reddit"></i></a>

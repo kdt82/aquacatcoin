@@ -214,11 +214,13 @@ class AuthManager {
           <div class="anonymous-limits">
             <i class="fas fa-clock"></i>
             <span class="limit-count">${remainingGens}/3</span>
-            <span class="limit-label">free generations today</span>
+            <span class="limit-label limit-label-full">free generations today</span>
+            <span class="limit-label limit-label-short">free today</span>
           </div>
           <button class="btn btn-twitter" data-action="login">
             <i class="fab fa-x-twitter"></i>
-            Sign in with X
+            <span class="btn-text-full">Sign in with X</span>
+            <span class="btn-text-short">Sign in</span>
           </button>
         </div>
       `;

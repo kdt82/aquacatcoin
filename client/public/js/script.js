@@ -1,4 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Mobile Navigation Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navLinks = document.getElementById('navLinks');
+    
+    if (mobileMenuBtn && navLinks) {
+        mobileMenuBtn.addEventListener('click', function() {
+            navLinks.classList.toggle('mobile-open');
+            const icon = mobileMenuBtn.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        });
+        
+        // Close mobile menu when clicking on a link
+        navLinks.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A') {
+                navLinks.classList.remove('mobile-open');
+                const icon = mobileMenuBtn.querySelector('i');
+                icon.classList.add('fa-bars');
+                icon.classList.remove('fa-times');
+            }
+        });
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!mobileMenuBtn.contains(e.target) && !navLinks.contains(e.target)) {
+                navLinks.classList.remove('mobile-open');
+                const icon = mobileMenuBtn.querySelector('i');
+                icon.classList.add('fa-bars');
+                icon.classList.remove('fa-times');
+            }
+        });
+    }
     // Sparkle Effect
     const hero = document.querySelector('.hero');
     if (hero) {

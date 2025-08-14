@@ -1496,100 +1496,300 @@
     }
     
     .editing-sidebar {
-        order: 1;
+        order: 2;
         max-height: none;
+    }
+    
+    .canvas-section {
+        order: 1;
     }
 }
 
 @media (max-width: 768px) {
+    /* Fix header overlap issue */
+    .meme-generator-container {
+        padding-top: 110px;
+        min-height: calc(100vh - 110px);
+    }
+    
+    .generator-hero {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 0 15px;
+    }
+    
     .generator-hero h1 {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
+        margin-bottom: 15px;
+        line-height: 1.2;
+        text-align: center;
+    }
+    
+    .generator-hero p {
+        font-size: 1rem;
+        margin-bottom: 25px;
+        text-align: center;
+        line-height: 1.4;
     }
     
     .primary-choice {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 15px;
+    }
+    
+    .choice-card {
+        padding: 15px;
+        min-height: 140px;
+    }
+    
+    .choice-icon {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+    
+    .choice-card h4 {
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+    
+    .choice-card p {
+        font-size: 0.85rem;
+        line-height: 1.2;
+    }
+    
+    /* Step containers */
+    .step-container {
+        border-radius: 15px;
+    }
+    
+    .step-header {
+        padding: 20px 25px;
+    }
+    
+    .step-content {
+        padding: 20px 25px;
+    }
+    
+    .step-title h3 {
+        font-size: 1.2rem;
+    }
+    
+    /* Canvas and editing layout */
+    .editing-layout {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-top: 20px;
     }
     
     .canvas-section {
         padding: 15px;
         order: 1;
+        min-height: auto;
     }
     
     .editing-sidebar {
         padding: 15px;
         order: 2;
+        max-height: none;
     }
     
     .canvas-container {
         max-width: 100%;
         margin-bottom: 15px;
         width: 100%;
+        border-radius: 10px;
     }
     
     .canvas-container canvas {
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
+        border-radius: 8px;
     }
     
-    .tool-buttons {
-        grid-template-columns: 1fr;
+    /* Toolbar adjustments */
+    .canvas-toolbar {
+        padding: 10px 12px;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
     }
     
+    .toolbar-group {
+        gap: 6px;
+    }
+    
+    .compact-btn {
+        padding: 10px 12px !important;
+        min-height: 44px;
+        min-width: 44px;
+        font-size: 0.85rem;
+    }
+    
+    /* Control groups */
+    .control-group.compact {
+        padding: 12px;
+        margin-bottom: 12px;
+        border-radius: 10px;
+    }
+    
+    .control-group.compact h5 {
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+    }
+    
+    .compact-row {
+        gap: 6px;
+        margin-bottom: 6px;
+    }
+    
+    .compact-input {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+    }
+    
+    .compact-select {
+        padding: 6px 8px;
+        font-size: 0.8rem;
+    }
+    
+    .compact-buttons {
+        gap: 4px;
+    }
+    
+    .compact-btn {
+        padding: 8px 10px;
+        min-width: 40px;
+        font-size: 0.8rem;
+    }
+    
+    /* Images grid */
     .recent-grid {
         grid-template-columns: repeat(2, 1fr);
-        min-height: 250px;
-        max-height: 400px;
+        gap: 10px;
+        min-height: 200px;
+        max-height: 350px;
     }
     
+    .recent-item {
+        min-height: 100px;
+        border-radius: 6px;
+    }
+    
+    /* Model grid */
     .model-grid {
         grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 0 10px;
+        margin: 0 auto;
+        max-width: calc(100vw - 40px);
     }
     
+    .model-card {
+        padding: 15px;
+        border-radius: 12px;
+        margin: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .model-example-image img {
+        width: 100%;
+        max-width: 250px;
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    /* Meme title */
     .meme-title-container {
         flex-direction: column;
         align-items: stretch;
         gap: 8px;
-        padding: 12px 15px;
+        padding: 10px 12px;
+        margin-top: 10px;
+        border-radius: 8px;
     }
     
     .meme-title-container label {
-        text-align: center;
+        text-align: left;
         min-width: auto;
-    }
-    
-    /* Mobile-friendly button sizes */
-    .compact-btn {
-        padding: 12px 16px !important;
-        min-height: 44px;
         font-size: 0.9rem;
     }
     
-    .canvas-toolbar {
-        padding: 12px 16px;
-        gap: 12px;
+    .meme-title-container input {
+        padding: 8px 12px;
+        font-size: 0.9rem;
     }
     
-    .toolbar-group {
-        gap: 8px;
+    /* Action buttons */
+    .action-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        margin-bottom: 4px;
     }
     
-    /* Better mobile spacing */
-    .control-group.compact {
-        padding: 15px;
-        margin-bottom: 15px;
-    }
-    
-    /* Mobile viewport adjustments */
-    .canvas-section {
-        min-height: auto;
+    .delete-btn {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+        margin-top: 6px;
     }
     
     /* Improve touch targets */
     button, .btn, input[type="button"], input[type="submit"] {
         min-height: 44px;
         min-width: 44px;
+    }
+    
+    /* Color inputs */
+    .color-group input[type="color"] {
+        width: 36px;
+        height: 28px;
+    }
+    
+    /* Range inputs */
+    .compact-range input[type="range"] {
+        height: 6px;
+    }
+    
+    .compact-range span {
+        font-size: 0.75rem;
+        min-width: 35px;
+    }
+}
+
+/* Extra small screens - ensure heading is fully visible */
+@media (max-width: 480px) {
+    .meme-generator-container {
+        padding-top: 150px;
+        min-height: calc(100vh - 150px);
+    }
+    
+    .generator-hero h1 {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+        line-height: 1.1;
+        padding: 0 10px;
+        text-align: center;
+    }
+    
+    .generator-hero p {
+        font-size: 0.9rem;
+        margin-bottom: 25px;
+        padding: 0 10px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+    .meme-generator-container {
+        padding-top: 160px;
+        min-height: calc(100vh - 160px);
+    }
+    
+    .generator-hero h1 {
+        font-size: 1.6rem;
+        word-break: break-word;
     }
 }
 

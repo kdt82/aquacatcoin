@@ -2362,7 +2362,7 @@ class AdvancedMemeGenerator {
             
             if (error.message.includes('authentication') || error.message.includes('Authentication required')) {
                 this.showCustomAlert(
-                    'Please sign in with X again to get posting permissions. <br><br><button onclick="window.authManager.login()" style="background: #1DA1F2; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Sign in with X</button>', 
+                    'Please sign in with X again to get posting permissions. <br><br><button onclick="window.authManager.login()" style="background: #1DA1F2; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px;"><i class="fab fa-x-twitter"></i> Sign in with X</button>', 
                     'warning',
                     'X Authentication Required'
                 );
