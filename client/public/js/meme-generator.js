@@ -1350,6 +1350,7 @@ class AdvancedMemeGenerator {
     }
     
     updateStorageInfo() {
+        console.log('🚀 updateStorageInfo() called - starting storage analysis...');
         try {
             // Check both localStorage keys that might be used
             const storageData1 = localStorage.getItem('userImages');
@@ -1372,20 +1373,42 @@ class AdvancedMemeGenerator {
                     const avgSizePerImage = imageCount > 0 ? Math.round(sizeInBytes / imageCount) : 0;
                     const avgSizePerImageKB = Math.round(avgSizePerImage / 1024);
                     
-                    // Analyze first image to understand data structure
+                    // Analyze first few images to understand data structure
                     if (imageCount > 0 && parsedData[0]) {
                         const firstImage = parsedData[0];
                         const imageDataLength = firstImage.dataUrl ? firstImage.dataUrl.length : 0;
                         const imageDataSizeKB = Math.round((imageDataLength * 2) / 1024);
                         
+                        // Check what properties each image has
+                        const sampleImageKeys = Object.keys(firstImage);
+                        
+                        // Count images with actual data URLs vs without
+                        let imagesWithData = 0;
+                        let imagesWithoutData = 0;
+                        parsedData.slice(0, Math.min(10, imageCount)).forEach(img => {
+                            if (img.dataUrl && img.dataUrl.length > 0) {
+                                imagesWithData++;
+                            } else {
+                                imagesWithoutData++;
+                            }
+                        });
+                        
                         analysisInfo = `
 📊 DETAILED STORAGE ANALYSIS:
-- Total images: ${imageCount}
+- Total images in localStorage: ${imageCount}
+- Total images displayed in UI: ${this.userImages.length}
 - Total storage: ${sizeInKB} KB (${sizeInMB} MB)
 - Average per image: ${avgSizePerImageKB} KB
+- First image properties: ${sampleImageKeys.join(', ')}
 - First image data URL length: ${imageDataLength} chars (${imageDataSizeKB} KB)
+- Sample of first 10 images: ${imagesWithData} with data, ${imagesWithoutData} without data
 - Base64 overhead: ~33% larger than original file
-- Expected original size per image: ~${Math.round(avgSizePerImageKB / 1.33)} KB`;
+- Expected original size per image: ~${Math.round(avgSizePerImageKB / 1.33)} KB
+
+🔍 DISCREPANCY DETECTED: 
+- localStorage shows ${imageCount} images
+- UI displays ${this.userImages.length} images
+- This suggests images are loaded from different sources or cached differently`;
                     }
                 } catch (parseError) {
                     analysisInfo = `\n📊 Storage data exists but couldn't parse JSON: ${parseError.message}`;
@@ -1397,6 +1420,25 @@ class AdvancedMemeGenerator {
             console.log(`📊 Storage Info - Key2 (memeGenerator_userImages): ${storageData2 ? storageData2.length : 0} chars`);
             console.log(`📊 Storage Info - Using: ${storageData ? storageData.length : 0} chars, Actual bytes: ${sizeInBytes}, Images in array: ${this.userImages.length}`);
             console.log(analysisInfo);
+            
+            // Additional debugging: Check where this.userImages comes from
+            console.log(`🔍 DEBUG - this.userImages source analysis:`);
+            console.log(`- this.userImages.length: ${this.userImages.length}`);
+            if (this.userImages.length > 0) {
+                console.log(`- First userImage properties: ${Object.keys(this.userImages[0]).join(', ')}`);
+                console.log(`- First userImage has dataUrl: ${!!this.userImages[0].dataUrl}`);
+                console.log(`- First userImage dataUrl length: ${this.userImages[0].dataUrl ? this.userImages[0].dataUrl.length : 0}`);
+            }
+            
+            // Check all localStorage keys that might contain images
+            console.log(`🔍 All localStorage keys containing 'image':`);
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.toLowerCase().includes('image')) {
+                    const value = localStorage.getItem(key);
+                    console.log(`- ${key}: ${value ? value.length : 0} chars`);
+                }
+            }
             
             const storageElement = document.getElementById('storageUsage');
             if (storageElement) {
