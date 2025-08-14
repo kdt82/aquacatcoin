@@ -32,12 +32,14 @@ class AdvancedMemeGenerator {
         this.selectedModel = 'aqua_lora'; // Default model
         this.selectedUserImage = null;
         this.userImages = this.loadUserImages();
+        console.log(`🔍 INIT DEBUG: Loaded ${this.userImages.length} images from storage`);
         this.clipboard = null; // For copy/paste functionality
         this.pasteCount = 0; // Track multiple pastes for better positioning
         
         this.initializeEventListeners();
         this.loadAIModels();
         this.refreshUserImagesDisplay();
+        console.log(`🔍 INIT DEBUG: After refreshUserImagesDisplay, userImages length: ${this.userImages.length}`);
         this.updateStorageInfo();
         this.initializeStepStates();
         this.initializeAdvancedFeatures();
