@@ -409,8 +409,21 @@ class AdvancedMemeGenerator {
         if (this.availableModels && this.availableModels[modelKey]) {
             this.selectedModel = modelKey;
             console.log(`🎯 Selected model: ${this.availableModels[modelKey].name}`);
-            this.updateModelDisplay();
+            this.updateModelSelection();
         }
+    }
+
+    updateModelSelection() {
+        // Update visual selection state without regenerating HTML
+        const modelCards = document.querySelectorAll('.model-card');
+        modelCards.forEach(card => {
+            const modelKey = card.dataset.model;
+            if (modelKey === this.selectedModel) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        });
     }
 
     setupGenerateButton() {
@@ -1339,16 +1352,19 @@ class AdvancedMemeGenerator {
     updateStorageInfo() {
         try {
             const storageData = localStorage.getItem('userImages');
-            const sizeInBytes = storageData ? storageData.length : 0;
+            const sizeInBytes = storageData ? new Blob([storageData]).size : 0;
             const sizeInKB = Math.round(sizeInBytes / 1024);
             const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(1);
+            
+            // Debug logging to verify accurate calculation
+            console.log(`📊 Storage Info - Raw data length: ${storageData ? storageData.length : 0}, Blob size: ${sizeInBytes}, Images count: ${this.userImages.length}`);
             
             const storageElement = document.getElementById('storageUsage');
             if (storageElement) {
                 if (sizeInKB > 1024) {
                     storageElement.textContent = `Storage: ${sizeInMB} MB`;
                 } else {
-                    storageElement.textContent = `Storage: ${sizeInKB} KB`;
+                    storageElement.textContent = `Storage: ${sizeInKB} K`;
                 }
                 
                 // Color code based on usage
@@ -2409,13 +2425,7 @@ class AdvancedMemeGenerator {
         this.updateStorageInfo();
     }
 
-    updateStorageInfo() {
-        const storageElement = document.getElementById('storageUsage');
-        if (storageElement) {
-            const totalSize = this.userImages.length * 50; // Estimate 50KB per image
-            storageElement.textContent = `Storage: ${totalSize} KB`;
-        }
-    }
+
 
 
 
