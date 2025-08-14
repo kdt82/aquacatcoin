@@ -161,7 +161,11 @@ class AIGenerationService {
       num_inference_steps: 15,
       scheduler: "DPM_SOLVER",
       public: false,
-      userElements: selectedModel.userElements
+      userElements: selectedModel.userElements,
+      // Leonardo AI prompt enhancement options
+      promptMagic: params.enhancePrompt === true, // Enable prompt magic if requested
+      promptMagicVersion: params.enhancePrompt === true ? "v3" : undefined, // Use latest version
+      promptMagicStrength: params.enhancePrompt === true ? 0.5 : undefined // Medium enhancement strength
     };
 
     // Log the payload for debugging
@@ -291,7 +295,7 @@ const aiController = {
   // POST /api/ai/generate - Generate AI image using selected model
   generateImage: async (req, res) => {
     try {
-      const { prompt, modelId = 'aqua_lora' } = req.body;
+      const { prompt, modelId = 'aqua_lora', enhancePrompt = false } = req.body;
       
       // Log the incoming request for debugging
       console.log('🎯 GENERATE REQUEST received:');
@@ -318,7 +322,7 @@ const aiController = {
       // For authenticated users, credits are already deducted
       // For anonymous users, daily limits are already checked
 
-      const result = await aiService.generateImage({ prompt, modelId });
+      const result = await aiService.generateImage({ prompt, modelId, enhancePrompt });
 
       if (result.demoMode) {
         return res.json({

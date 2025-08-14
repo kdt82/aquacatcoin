@@ -449,6 +449,10 @@ class AdvancedMemeGenerator {
         if (generateBtn) generateBtn.disabled = true;
         
         try {
+            // Check if prompt enhancement is enabled
+            const enhanceToggle = document.getElementById('enhancePromptToggle');
+            const enhancePrompt = enhanceToggle ? enhanceToggle.checked : false;
+            
             const response = await fetch('/api/ai/generate', {
                 method: 'POST',
                 headers: {
@@ -456,7 +460,8 @@ class AdvancedMemeGenerator {
                 },
                 body: JSON.stringify({
                     prompt: prompt,
-                    modelId: this.selectedModel
+                    modelId: this.selectedModel,
+                    enhancePrompt: enhancePrompt
                 })
             });
             

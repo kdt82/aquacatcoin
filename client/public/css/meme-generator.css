@@ -312,6 +312,78 @@
     font-size: 0.9rem;
 }
 
+/* Prompt Enhancement Options */
+.prompt-options {
+    margin-bottom: 15px;
+    padding: 12px 15px;
+    background: rgba(77, 162, 255, 0.05);
+    border: 1px solid rgba(77, 162, 255, 0.2);
+    border-radius: 8px;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 6px;
+}
+
+.checkbox-container input[type="checkbox"] {
+    display: none;
+}
+
+.checkmark {
+    width: 18px;
+    height: 18px;
+    background: rgba(77, 162, 255, 0.1);
+    border: 2px solid rgba(77, 162, 255, 0.3);
+    border-radius: 4px;
+    margin-right: 10px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.checkbox-container:hover .checkmark {
+    border-color: var(--main-blue);
+    background: rgba(77, 162, 255, 0.15);
+}
+
+.checkbox-container input[type="checkbox"]:checked + .checkmark {
+    background: var(--main-blue);
+    border-color: var(--main-blue);
+}
+
+.checkbox-container input[type="checkbox"]:checked + .checkmark::after {
+    content: "✓";
+    position: absolute;
+    top: -2px;
+    left: 3px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.checkbox-text {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.checkbox-text i {
+    color: var(--main-blue);
+    font-size: 0.85rem;
+}
+
+.enhance-description {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    margin-left: 28px;
+    font-style: italic;
+}
+
 .prompt-input {
     width: 100%;
     padding: 15px 20px;
