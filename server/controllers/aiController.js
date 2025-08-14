@@ -35,9 +35,9 @@ const AQUA_MODEL = AVAILABLE_MODELS.aqua_lora;
 
 // Rate limiting middleware function
 const checkRateLimit = (req, res, next) => {
-  // TEMPORARY: Disable rate limiting for development/testing
-  if (process.env.NODE_ENV !== 'production' || process.env.DISABLE_RATE_LIMIT === 'true') {
-    console.log(`🔓 Rate limiting disabled for development/testing`);
+  // Check environment variable to disable rate limiting only when explicitly set
+  if (process.env.DISABLE_RATE_LIMIT === 'true') {
+    console.log(`🔓 Rate limiting disabled via DISABLE_RATE_LIMIT environment variable`);
     return next();
   }
   
@@ -314,9 +314,9 @@ const aiController = {
         });
       }
 
-      // Credit checking is handled by checkRateLimit middleware
+      // Credit checking and rate limiting is handled by checkGenerationLimit middleware
       // For authenticated users, credits are already deducted
-      // For anonymous users, rate limit is already checked
+      // For anonymous users, daily limits are already checked
 
       const result = await aiService.generateImage({ prompt, modelId });
 
