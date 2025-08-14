@@ -399,6 +399,7 @@ class AdvancedMemeGenerator {
                 });
             });
         }
+    }
     
     selectModel(modelKey) {
         if (this.availableModels && this.availableModels[modelKey]) {
