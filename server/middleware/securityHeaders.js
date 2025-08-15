@@ -211,12 +211,93 @@ const getMobileCSP = () => {
   };
 };
 
-// Security headers middleware with device detection
+// Admin-specific CSP (allows inline scripts for preview functionality)
+const getAdminCSP = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  return {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        
+        // Scripts - Allow inline for admin functionality
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'", // Required for admin preview functionality
+          "https://cdnjs.cloudflare.com",
+          "https://static.cloudflareinsights.com",
+          "https://unpkg.com",
+          "'sha256-*'",
+        ],
+        
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://fonts.googleapis.com",
+          "https://cdnjs.cloudflare.com",
+          "https://unpkg.com"
+        ],
+        
+        fontSrc: [
+          "'self'",
+          "https://fonts.gstatic.com",
+          "https://cdnjs.cloudflare.com",
+          "data:"
+        ],
+        
+        imgSrc: [
+          "'self'",
+          "data:",
+          "blob:",
+          "https:",
+          "http:",
+          "*.leonardo.ai",
+          "*.cloudinary.com",
+          "res.cloudinary.com"
+        ],
+        
+        mediaSrc: [
+          "'self'",
+          "data:",
+          "blob:",
+          "https:"
+        ],
+        
+        connectSrc: [
+          "'self'",
+          "https://cloud.leonardo.ai",
+          "https://api.leonardo.ai",
+          "https://res.cloudinary.com",
+          "http://localhost:*",
+          "ws://localhost:*"
+        ],
+        
+        objectSrc: ["'none'"],
+        embedSrc: ["'none'"],
+        frameSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        manifestSrc: ["'self'"],
+        workerSrc: ["'self'", "blob:"],
+        childSrc: ["'self'", "blob:"]
+      },
+      reportOnly: false, // Enforce but allow inline scripts
+    }
+  };
+};
+
+// Security headers middleware with device detection and admin route handling
 const securityHeaders = (req, res, next) => {
   const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(req.get('User-Agent') || '');
   const isDevelopment = process.env.NODE_ENV === 'development';
+  const isAdminRoute = req.path.startsWith('/admin/');
   
-  if (isMobile && isDevelopment) {
+  if (isAdminRoute) {
+    // Apply admin-friendly CSP for admin routes
+    console.log('🔐 Applying admin security headers for:', req.path);
+    helmet(getAdminCSP())(req, res, next);
+  } else if (isMobile && isDevelopment) {
     // Apply mobile-friendly CSP for development
     console.log('📱 Applying mobile-friendly security headers');
     helmet(getMobileCSP())(req, res, next);
